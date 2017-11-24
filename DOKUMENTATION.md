@@ -22,7 +22,7 @@ Geplant sind bis jetzt die Abschnittsbezeichner VAR, IMPLEMENTATION, S (steht f�
 <h3>Der VAR-Bezeichner:</h3>
 Wie bereits gesagt, erfolgt im VAR-Teil die Variablendeklaration. Dabei sollen bestimmte Datentypen festgelegt werden, die verwendet werden können. Wertzuweisungen sollen im IMPLEMENTATION-Teil, so wie direkt im VAR-Teil erfolgen können. 
 Mögliche Datentypen könnten sein:
-<ul>
+<ul href="#liste-der-vartypen">
     <li>HADDR       (MAC-Adressen [bitform][textform])</li>
     <li>IPADDR      (IPv4-Adressen [bitform][textform])</li>
     <li>PORT        (also 2-Byte-Werte die aber besonders behandelt werden sollen [HBO][NBO])</li>
