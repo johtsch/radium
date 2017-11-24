@@ -1,14 +1,14 @@
-#Dokumentation *Hier Namen für die Sprache einfügen* (Projektname Lang)
+<h1>Dokumentation *Hier Namen für die Sprache einfügen* (Projektname Lang)</h1>
 
-##Vorwort:
+<h2>Vorwort:</h2>
 Diese "Sprache" und das damit in Verbindung stehende Programm sollen keine professionelle Lösung sein und erheben auch keineswegs den Anspruch vollständig zu sein. Viel mehr geht es mir hierbei darum zu testen, wie eine Sprache aussehen könnte mit der man netzwerkbasierte Angriffe durchführen kann. Der Umfang und auch die Funktionalität der implementierten Möglichkeiten sind abhängig von meinen Fähigkeiten und Erfahrungen und deswegen stark begrenzt.
 
 Desweiteren werden in den einzelnen Abschnitten immer mal wieder Worte zur Implementierung auftauchen. Diese sind hauptsächlich für mich als Gedankenstütze gedacht und können, sollten sie wirr wirken ruhig ignoriert werden.
 
-##Grundlegende Gedanken zur Umsetzung:
+<h2>Grundlegende Gedanken zur Umsetzung:</h2>
 Die .lang-Dateien an sich sollen einfach in einem Texteditor geschrieben werden können. Möchte man nun eine dieser Dateien verwenden, um
 
-##Grundstruktur:
+<h2>Grundstruktur:</h2>
 Eine .lang-Datei besteht aus unterschiedlichen Bereichen. Ähnlich wie bei Markupsprachen, wie HTML oder LaTex werden diese Bereiche durch Codewörter gekennzeichnet. Bei Lang geschieht dies durch den "Abschnittsbezeichner" gefolgt von einem Doppelpunkt, um den Bereich zu öffnen. Geschlossen wird der Bereich durch einen Doppelpunkt gefolgt vom Abschnittsbezeichner. Beispielsweise sähe der Abschnitt für Variablendeklarationen wie folgt aus:
 
 VAR:
@@ -18,9 +18,9 @@ VAR:
 
 Geplant sind bis jetzt die Abschnittsbezeichner VAR, IMPLEMENTATION, S (steht für "Step"), T (steht für "trigger"), DESCRIPTION, ASSEMBLE, Ln (wobei n eine Zahl von 1-7 ist), PACKETFILTER sowie einzelne Bereiche für die einzelnen Header.
 
-##Die Abschnittsbezeichner im Detail:
+<h2>Die Abschnittsbezeichner im Detail:<h2>
 
-###>Der VAR-Bezeichner:
+<h3>Der VAR-Bezeichner:</h3>
 Wie bereits gesagt, erfolgt im VAR-Teil die Variablendeklaration. Dabei sollen bestimmte Datentypen festgelegt werden, die verwendet werden können. Wertzuweisungen sollen im IMPLEMENTATION-Teil, so wie direkt im VAR-Teil erfolgen können. 
 Mögliche Datentypen könnten sein:
 <ul>
