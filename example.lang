@@ -1,8 +1,8 @@
 VAR:
     IPv4_A host 192.168.2.116;
     IPv4_A victim 192.168.2.1;
-    2B dport=8080;
-    2B sport=9999;
+    2B dport 8080;
+    2B sport 9999;
     IPv4_H ip_h;
     TCP tcp_h;
 :VAR
