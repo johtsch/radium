@@ -19,7 +19,7 @@
             <li><a href="#der-l-bezeichner">Der L-Bezeichner</a></li>
             <li><a href="#der-packetfilter-bezeichner">Der PACKETFILTER-Bezeichner</a></li>
         </ol>
-    </li>    
+    </li>
 </ol>
 
 <h2>Vorwort:</h2>
@@ -76,3 +76,9 @@ Wird wahrscheinlich erst bei einem Programm mit GUI sinnvoll. In dieser Umgebung
 
 <h3>Der ASSEMBLE-Bezeichenr</h3>
 Innerhalb der ASSEMBLE-Umgebung können mithilfe der L-Bezeichner (siehe nächster Abschnitt) Pakete erstellt werden. Auch die ASSEMBLE-Umgebung wird dabei durchindiziert (ASSEMBLE[n]). Dabei soll muss 0 <= n < 5 gelten. Diese Grenze steht erstmal, da die ASSEMBLE-Befehlsumgebung ein Paket erzeugt. ASSEMBLE[n] erzeugt das Paket PACKET[n], welches dann verschickt werden kann. Diese Begrenzung ist spontan gewählt und soll erstmal provisorisch gelten, da ich denke, dass mehr als 5 Pakete in einem Schritt zu versenden nicht nötig ist. Außerdem hoffe ich es so leichter implementieren zu können.
+
+<h3>Der L-Bezeichner</h3>
+Wie schon beim T-Bezeichner existiert auch beim L-Bezeichner ein Optionsfeld. Man könnte schreiben Ln[Protocol], wobei n eine Zahl zwischen 1 und 7 ist und den Layer im OSI-Schichtenmodell kennzeichnet. Protocol hingegen ist ebenfalls ein Pflichtfeld und gibt an, welcher Protokollheader auf dieser Schicht implementiert ist. Dadurch kann festgestellt werden, welche Datenfelder im Headerformat existieren und zugewiesen werden können. Durch die Zuweisung der einzelnen Layer können Datenpakete beschrieben werden. Innerhalb der ASSEMBLE-Umgebung können damit Pakete erstellt werden. In der PACKETFILTER-Umgebung können damit Paketfilter erstellt werden, die nur ausschlagen, wenn ein solches Paket empfangen wird.
+
+<h3>Der PACKETFILTER-Bezeichner</h3>
+Wie schon erwähnt kann mit der PACKETFILTER-Umgebung ein Paketfilter erstellt werden, der es ermöglicht eingehende Pakete zu erkennen. Dabei werden nur Felder betrachtet die in den einzelen L-Umgebungen zugewiesen werden -> wenn eine leere PACKETFILTER-Umgebung erstellt wird, löst der Trigger bei jedem einkommenden Paket aus. 
