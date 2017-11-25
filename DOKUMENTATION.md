@@ -1,4 +1,4 @@
-<h1>Dokumentation *Hier Namen für die Sprache einfügen* (Projektname Lang)</h1>
+<h1>Dokumentation für Lang (Projektname)</h1>
 
 
 <h2>Inhalt:</h2>
@@ -20,6 +20,7 @@
             <li><a href="#der-packetfilter-bezeichner">Der PACKETFILTER-Bezeichner</a></li>
         </ol>
     </li>
+    <li><a href="#die-radium-library">Die Radium-Library</a></li>
 </ol>
 
 <h2>Vorwort:</h2>
@@ -82,3 +83,6 @@ Wie schon beim T-Bezeichner existiert auch beim L-Bezeichner ein Optionsfeld. Ma
 
 <h3>Der PACKETFILTER-Bezeichner</h3>
 Wie schon erwähnt kann mit der PACKETFILTER-Umgebung ein Paketfilter erstellt werden, der es ermöglicht eingehende Pakete zu erkennen. Dabei werden nur Felder betrachtet die in den einzelen L-Umgebungen zugewiesen werden -> wenn eine leere PACKETFILTER-Umgebung erstellt wird, löst der Trigger bei jedem einkommenden Paket aus. 
+
+<h2>Die Radium-Library</h2>
+Da ich es wahrscheinlich nicht vollbringen werde gleich das Radiumprogramm (so soll das Programm mit GUI heißen mit dem man Angriffe ausführen kann) zu programmieren, beginne ich damit den nötigen Code, um mit .lang-Dateien umgehen zu können, in eine Library zu packen. Mit dieser hoffe ich dann relativ einfach das richtige Programm schreiben zu können. Wenn alles gut läuft und ich die Zeit finde, wird es für die Library auch eine kleine Dokumentation geben. 
