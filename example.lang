@@ -22,20 +22,19 @@ S[0]{REPEAT=50ms}:                          # S[1]==Step 1
 
         #Anmerkung: L1 kann nicht festgelegt werden und für L2 ist Ethernet festgelegt -> es kann nicht anders als STD; festgelegt werden!!
 
-        L3:
-            ip_h=LOAD(IPv4);                # Infos zum IPv4 Header laden
-            ip_h.sip=host;
-            ip_h.dip=victim;
-            ip_h.proto=TCP;
+        L3[IPv4]:                           # IPv4 als Protokoll der 3.Schicht setzen        
+            SIP=host;                       # die definierten Felder des IPv4-Headers zuweisen 
+            DIP=victim;
+            PROTO=TCP;
         :L3
-        L4:
-            tcp_h.sport=sport;
-            tcp_h.dport=dport;
-            tcp_h.seq_num=1283891283;
-            tcp_h.ack_num=2189324743;
-            tcp_h.SYN=1;
+        L4[TCP]:
+            SPORT=sport;
+            DPORT=dport;
+            SEQ_NUM=1283891283;
+            ACK_NUM=2189324743;
+            FLAGS.SYN=1;
         :L4
-        L5:
+        L5[DATA]:
             # wenn es einen Datenteil geben würde könnte das Kommando dazu so aussehen
             DATA("direction/to/file/containing/data");
         :L5
@@ -45,10 +44,8 @@ S[0]{REPEAT=50ms}:                          # S[1]==Step 1
 :S[0]
 T[0]:                                       # T[1]==Trigger 1
     PACKETFILTER:
-        L3:
-            IPv4:                           # das IPv4 Paket soll folgende Parameter erfüllen
-                SOURCE=victim;
-            :IPv4
+        L3[IPv4]:                           # das IPv4 Paket soll folgende Parameter erfüllen
+            SOURCE=victim;
         :L3
     :PACKETFILTER
 :T[0]
