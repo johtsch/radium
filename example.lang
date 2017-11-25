@@ -9,13 +9,13 @@ VAR:
 
 IMPLEMENTATION:
 
-S[1]{REPEAT=50ms}:                          # S[1]==Step 1
+S[0]{REPEAT=50ms}:                          # S[1]==Step 1
 
     DESCRIPTION:
         Hier kann dann eine Beschreibung des aktuellen Schrittes stehen, die dann hoffentlich auch im Programm angezeigt werden kann ^^
     :DESCRIPTION
 
-    ASSEMBLE:
+    ASSEMBLE[1]:
         L2:
             STD;                            # standard == ist mir egal was da hinkommt diese schicht ist unbedeutend
         :L2
@@ -39,11 +39,11 @@ S[1]{REPEAT=50ms}:                          # S[1]==Step 1
             # wenn es einen Datenteil geben würde könnte das Kommando dazu so aussehen
             DATA("direction/to/file/containing/data");
         :L5
-    :ASSEMBLE
+    :ASSEMBLE[1]
 
-    SEND(PACKET);
-:S[1]
-T[1]:                                       # T[1]==Trigger 1
+    SEND(PACKET[1]);
+:S[0]
+T[0]:                                       # T[1]==Trigger 1
     PACKETFILTER:
         L3:
             IPv4:                           # das IPv4 Paket soll folgende Parameter erfüllen
@@ -51,9 +51,9 @@ T[1]:                                       # T[1]==Trigger 1
             :IPv4
         :L3
     :PACKETFILTER
-:T[1]
-S[2]:
+:T[0]
+S[1]:
 
-:S[2]
+:S[1]
 
 :IMPLEMENTATION
