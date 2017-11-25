@@ -75,3 +75,4 @@ Auch hier wäre es besser T[n]-Bezeichner zu schreiben. In dieser Umgebung werde
 Wird wahrscheinlich erst bei einem Programm mit GUI sinnvoll. In dieser Umgebung kann der aktuelle Schritt in Worten beschrieben werden, was eine Auswertung des Angriffs später erleichtern soll.
 
 <h3>Der ASSEMBLE-Bezeichenr</h3>
+Innerhalb der ASSEMBLE-Umgebung können mithilfe der L-Bezeichner (siehe nächster Abschnitt) Pakete erstellt werden. Auch die ASSEMBLE-Umgebung wird dabei durchindiziert (ASSEMBLE[n]). Dabei soll muss 0 <= n < 5 gelten. Diese Grenze steht erstmal, da die ASSEMBLE-Befehlsumgebung ein Paket erzeugt. ASSEMBLE[n] erzeugt das Paket PACKET[n], welches dann verschickt werden kann. Diese Begrenzung ist spontan gewählt und soll erstmal provisorisch gelten, da ich denke, dass mehr als 5 Pakete in einem Schritt zu versenden nicht nötig ist. Außerdem hoffe ich es so leichter implementieren zu können.
