@@ -10,7 +10,7 @@
     <li>
         <a href="#die-abschnittsbezeichner-im-detail">Die Abschnittsbezeichner im Detail</a><br>
         <ol>
-            <li><a href="der-var-bezeichner">Der VAR-Bezeichner</a></li>
+            <li><a href="#der-var-bezeichner">Der VAR-Bezeichner</a></li>
         </ol>
     </li>    
 </ol>
