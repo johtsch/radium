@@ -36,7 +36,7 @@ S[0]{REPEAT=50ms}:                          # S[1]==Step 1
         :L4
         L5[DATA]:
             # wenn es einen Datenteil geben würde könnte das Kommando dazu so aussehen
-            DATA("direction/to/file/containing/data");
+            FILE="direction/to/file/containing/data";
         :L5
     :ASSEMBLE[1]
 
