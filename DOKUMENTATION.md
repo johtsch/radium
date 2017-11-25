@@ -3,17 +3,17 @@
 
 <h2>Inhalt:</h2>
 
-<ul>
+<ol>
     <li><a href="#vorwort">Vorwort</a>
     <li><a href="#grundlegende-gedanken-zur-umsetzung">Grundlegende Gedanken zur Umsetzung</a></li>
     <li><a href="grundstruktur">Grundstruktur</a></li>
     <li>
-        <a href="#die-abschnittsbezeichner-im-detail"></a><br>
-        <ul>
+        <a href="#die-abschnittsbezeichner-im-detail">Die Abschnittsbezeichner im Detail</a><br>
+        <ol>
             <li><a href="der-var-bezeichner">Der VAR-Bezeichner</a></li>
-        </ul>
+        </ol>
     </li>    
-</ul>
+</ol>
 
 <h2>Vorwort:</h2>
 Diese "Sprache" und das damit in Verbindung stehende Programm sollen keine professionelle Lösung sein und erheben auch keineswegs den Anspruch vollständig zu sein. Viel mehr geht es mir hierbei darum zu testen, wie eine Sprache aussehen könnte mit der man netzwerkbasierte Angriffe durchführen kann. Der Umfang und auch die Funktionalität der implementierten Möglichkeiten sind abhängig von meinen Fähigkeiten und Erfahrungen und deswegen stark begrenzt.
