@@ -6,11 +6,18 @@
 <ol>
     <li><a href="#vorwort">Vorwort</a>
     <li><a href="#grundlegende-gedanken-zur-umsetzung">Grundlegende Gedanken zur Umsetzung</a></li>
-    <li><a href="grundstruktur">Grundstruktur</a></li>
+    <li><a href="#grundstruktur">Grundstruktur</a></li>
     <li>
         <a href="#die-abschnittsbezeichner-im-detail">Die Abschnittsbezeichner im Detail</a><br>
         <ol>
             <li><a href="#der-var-bezeichner">Der VAR-Bezeichner</a></li>
+            <li><a href="#der-implementation-bezeichner">Der IMPLEMENTATION-Bezeichner</a></li>
+            <li><a href="#der-s-bezeichner">Der S-Bezeichner</a></li>
+            <li><a href="#der-t-bezeichner">Der T-Bezeichner</a></li>
+            <li><a href="#der-description-bezeichner">Der DESCRIPTION-Bezeichner</a></li>
+            <li><a href="#der-assemble-bezeichner">Der ASSEMBLE-Bezeichner</a></li>
+            <li><a href="#der-l-bezeichner">Der L-Bezeichner</a></li>
+            <li><a href="#der-packetfilter-bezeichner">Der PACKETFILTER-Bezeichner</a></li>
         </ol>
     </li>    
 </ol>
@@ -52,3 +59,19 @@ Die Datentypen sollen hardcoded sein in den C++-Dateien, weswegen neue Datentype
 
 Zu den HEADER-Datentypen: Vielleicht wäre es sinnvoll sich noch ein Format für Headerdefinitionen in Lang auszudenken. Da, wie man in example.lang sehen kann, es für Header Felder geben soll, die dann zum Filtern genutzt werden, wäre es vielleicht sogar möglich ein Programm zu schreiben, dass eine Headerformat-Datei nimmt und eine C++-Headerdatei anfertigt in welcher eine Struktur nach vorbild des beschriebenen Headers angefertigt wird.
 Oder aber man muss die einzelnen Header manuell implementieren und in C++-Code schreiben.
+
+<h3>Der IMPLEMENTATION-Bezeichner</h3>
+Der IMPLEMENTATION-Bezeichner dient dazu festzulegen, ab wann keine VAR-Umgebung mehr existieren kann bzw., um festzuhalten wo das Hauptprogramm definiert ist. 
+
+<h3>Der S-Bezeichner</h3>
+Genauer genommen müsste es der S[n]-Bezeichner heißen, wobei n eine natürliche Zahl beginnend bei 0. Diese Umgebung grenzt den Bereich ein in dem die aktuellen Befehle stehen. In diesem Abschnitt werden mithilfe von anderen Befehlsumgebungen und einzelnen Befehlen Aktionen beschrieben die ausgeführt werden sollen. Beispielsweise kann mit Hilfe von ASSEMBLE[n] und send(PACKET[n]) ein Paket zusammengesetzt und danach abgeschickt werden. Desweiteren soll die Möglichkeit bestehen durch setzen von geschweiften Klammern hinter dem Eingangsbezeichner die Intervallrate festgelegt werden, in welcher der Schritt wiederholt wird. Diese wird in ms angegeben. Steht keine Angabe dahinter wird der Schritt nur einmal durchgeführt. Bspw S[0]{50}::S[0] wäre ein Step der nach der Vollendung eines Durchgangs 50ms wartet und dann erneut startet.
+
+Zur Implementation. Die Implementation in diesem Bereich soll prinzipiell so ablaufen, dass eine Klasse - die Langklasse - existiert, welche das Skript und seine Variablen repräsentiert. Die Variablen werden eingelesen und festgelegt. Die Befehle innerhalb eines Steps sind Funktionen innerhalb dieser Klasse, die es ermöglichen mit den Membervariablen der Klasse (die ja den im Skript festgelegten entsprechen) die gewünschten Aktionen durchzuführen.
+
+<h3>Der T-Bezeichner</h3>
+Auch hier wäre es besser T[n]-Bezeichner zu schreiben. In dieser Umgebung werden einfach die Filter festgelegt. Kommt nun ein Paket an, das alle Anforderungen des Filters erfüllt, wird der aktuelle Step beendet und mit dem nächsten fortgefahren.
+
+<h3>Der DESCRIPTION-Bezeichner</h3>
+Wird wahrscheinlich erst bei einem Programm mit GUI sinnvoll. In dieser Umgebung kann der aktuelle Schritt in Worten beschrieben werden, was eine Auswertung des Angriffs später erleichtern soll.
+
+<h3>Der ASSEMBLE-Bezeichenr</h3>
