@@ -5,7 +5,10 @@
 #include <string>           /* std::string etc */
 #include <fstream>          /* Dateioperationen */
 #include <vector>           /* std::vector<T> */
-#include <libtins>
+#include <tins/tins.h>      /* libtins für Netzwerkfunktionen etc. */
+
+#include "vartypes.h"       /* Datentypdefinitionen */
+#include "header.h"         /* Protokollheaderformate etc. */
 
 class Lang{
 public:
@@ -23,8 +26,8 @@ private:
     std::string                         _filepath;          /* Pfad zur aktuellen Angriffsdatei */
     std::fstream                        _file;              /* Filehandler */
     std::vector<struct varinfo>         _dtinfo;            /* datatype info, dient dem Nachschlagen, wo eine Variable der .lang-Datei zu finden ist */
-    std::vector<struct haddr>           _haddr;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Hardwareaddresse */
-    std::vector<struct ipaddr>          _ipaddr;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs IPv4-ddresse */
+    std::vector<struct HWAddress<6>>    _haddr;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Hardwareaddresse */
+    std::vector<struct IPv4Address>     _ipaddr;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs IPv4-ddresse */
     std::vector<struct port>            _port;              /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Port */
     std::vector<byte>                   _byte;              /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Byte */
     std::vector<short>                  _short;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Short */
