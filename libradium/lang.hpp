@@ -10,21 +10,29 @@
 #include "vartypes.h"       /* Datentypdefinitionen */
 #include "header.h"         /* Protokollheaderformate etc. */
 
+const std::string LANG_FEXT = ".lang";
+const std::string LANG_IMPLEMENTATION = "IMPLEMENTATION";
+const std::string LANG_VAR = "VAR";
+const std::string LANG_STEP = "S";
+const std::string LANG_TRIGGER = "T";
+
 class Lang{
 public:
     Lang();
     Lang(std::string fpath);
     ~Lang();
     
-    void loadFile(std::string fpath);
+    bool loadFile(std::string fpath);
     void start();                           /* Starten des Angriffs */
     void pause();                           /* Angriffausführung pausieren */
     void stop();                            /* Angriff stoppen, beim nächsten Start beginnt der Angriff wieder von vorne */
 
     void update();                          /* Die Angriffloop... managed Steps und Trigger etc. */
 private:
+    bool                                _running;
+    std::string                         _status;            /* speichert Statusmeldungen */
     std::string                         _filepath;          /* Pfad zur aktuellen Angriffsdatei */
-    std::fstream                        _file;              /* Filehandler */
+    std::ifstream                       _file;              /* Filehandler */
     std::vector<struct varinfo>         _dtinfo;            /* datatype info, dient dem Nachschlagen, wo eine Variable der .lang-Datei zu finden ist */
     std::vector<struct HWAddress<6>>    _haddr;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Hardwareaddresse */
     std::vector<struct IPv4Address>     _ipaddr;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs IPv4-ddresse */
@@ -45,6 +53,10 @@ private:
                                                                Kommentare, Leerzeilen etc.) */
 
     //Hilfsfunktionen
+    bool init();                            /* gibt false zurück, wenn keine "IMPLEMENTATION"-Umgebung gefunden wurde*/
+    std::string analyse();                  /* geht die .lang-Datei Schritt für Schritt durch... damit ist gemeint, dass diese Funktion den nächsten Bezeichner ausfindig macht und 
+                                               die entsprechende Funktion aufruft. Gibt den gefundenen Bezeichner als String ohne Doppelpunkt zurück (bspw. "VAR", 
+                                               "IMPLEMENTATION", "S", "T", etc.) oder "EOF", wenn das Dateiende erreicht wurde */
     void analyseVar();                      /* checkt die VAR-Umgebung auf Syntaxerror und gibt gültige Variablendeklarationen in einer Zeile an initVar() weiter; */
     void initVar(std::string vardec);       /* speichert alle in .lang-Datei verwendeten Datentypen in entsprechender Form in den Datenstrukturen dieser Klasse */
     void readStep();                        /* liest die aktuelle S-Umgebung ein */
