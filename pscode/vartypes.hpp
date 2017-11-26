@@ -14,16 +14,6 @@ struct varinfo{
     short _index;                   // der Index der Variable innerhalb der Vector-Struktur in der alle Variablen des gleichen Typs gespeichert werden
 };
 
-struct haddr{
-    std::string _str;
-    HWAddress<6> _addr;
-}
-
-struct ipaddr{
-    std::string _str;
-    IPv4Address _addr;
-}
-
 struct port{
     std::string _info;
     unsigned short _port; 
