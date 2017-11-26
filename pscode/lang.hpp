@@ -10,10 +10,11 @@ public:
     ~Lang();
     void loadFile(std::string path);        // lädt eine neue .lang-Datei und bereitet Ausführung vor
     void start();                           // löst den Angriff sozusagen aus
-    void update();
+    void update();                          // ruft die step()- und trigger()-Funktionen auf
 
 private:
-    std::fstream _file;  
+    std::string                         _filepath;
+    std::fstream                        _file;  
     std::vector<struct varinfo>         _dtinfo;    // datatype info, dient dem Nachschlagen, wo eine Variable der .lang-Datei zu finden ist
     std::vector<struct haddr>           _haddr;
     std::vector<struct ipaddr>          _ipaddr;  
