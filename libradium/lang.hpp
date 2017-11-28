@@ -7,14 +7,21 @@
 #include <vector>           /* std::vector<T> */
 #include <tins/tins.h>      /* libtins für Netzwerkfunktionen etc. */
 
-#include "vartypes.h"       /* Datentypdefinitionen */
-#include "header.h"         /* Protokollheaderformate etc. */
+#include "vartypes.hpp"       /* Datentypdefinitionen */
+#include "header.hpp"         /* Protokollheaderformate etc. */
 
 const std::string LANG_FEXT = ".lang";
-const std::string LANG_IMPLEMENTATION = "IMPLEMENTATION";
-const std::string LANG_VAR = "VAR";
-const std::string LANG_STEP = "S";
-const std::string LANG_TRIGGER = "T";
+const std::string LANG_EOF = "EOF";
+/* _B_ == "Beginning", also der einleitende Spezifizierer */
+const std::string LANG_B_IMPLEMENTATION = "IMPLEMENTATION:";
+const std::string LANG_B_VAR = "VAR:";
+const std::string LANG_B_STEP = "S:";
+const std::string LANG_B_TRIGGER = "T:";
+/* _B_ == "Ending", also der abschließende Spezifizierer */
+const std::string LANG_E_IMPLEMENTATION = ":IMPLEMENTATION";
+const std::string LANG_E_VAR = ":VAR";
+const std::string LANG_E_STEP = ":S";
+const std::string LANG_E_TRIGGER = ":T";
 
 class Lang{
 public:
@@ -23,19 +30,26 @@ public:
     ~Lang();
     
     bool loadFile(std::string fpath);
-    void start();                           /* Starten des Angriffs */
+    bool start();                           /* Starten des Angriffs */
     void pause();                           /* Angriffausführung pausieren */
     void stop();                            /* Angriff stoppen, beim nächsten Start beginnt der Angriff wieder von vorne */
 
     void update();                          /* Die Angriffloop... managed Steps und Trigger etc. */
+
+    /* Setter*/
+    void setQuiet(bool q){ _quiet = q; }
+
+    /* Getter */
+    std::string getStatus() const { return _status; };
 private:
+    bool                                _quiet;             /* Statusmeldungen werden nicht angezeigt (ist Standard) */
     bool                                _running;
     std::string                         _status;            /* speichert Statusmeldungen */
     std::string                         _filepath;          /* Pfad zur aktuellen Angriffsdatei */
     std::ifstream                       _file;              /* Filehandler */
     std::vector<struct varinfo>         _dtinfo;            /* datatype info, dient dem Nachschlagen, wo eine Variable der .lang-Datei zu finden ist */
-    std::vector<struct HWAddress<6>>    _haddr;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Hardwareaddresse */
-    std::vector<struct IPv4Address>     _ipaddr;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs IPv4-ddresse */
+    std::vector<Tins::HWAddress<6>>     _haddr;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Hardwareaddresse */
+    std::vector<Tins::IPv4Address>      _ipaddr;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs IPv4-ddresse */
     std::vector<struct port>            _port;              /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Port */
     std::vector<byte>                   _byte;              /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Byte */
     std::vector<short>                  _short;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Short */

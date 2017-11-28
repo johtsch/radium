@@ -19,7 +19,7 @@ struct varinfo{
 struct port{
     std::string _info;
     unsigned short _port; 
-}
+};
 
 typedef unsigned char byte;
 
