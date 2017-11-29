@@ -55,9 +55,6 @@ private:
     std::vector<short>                  _short;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Short */
     std::vector<int>                    _int;               /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Integer */
 
-    std::string                         _step;              /* speichert den Inhalt der aktuellen S[n]-Umgebung der .lang-Datei in optimierter Form */
-    std::string                         _trigger;           /* speichert den Inhalt der aktuellen T[n]-Umgebung der .lang-Datei */
-
     std::vector<unsigned char[1200]>    _packet;            /* die von assemble() erstellte pakete */
     
     unsigned int                        _intervall;         /* die Pausenzeit in s nach einem Step vor seiner erneuten Ausführung */
@@ -65,6 +62,9 @@ private:
     // temporäre Speicher   
     std::string                         _assemble;          /* Speichert den Inhalt der aktuellen ASSEMBLE-Umgebung in "optimierter Form" (== ohne unnötige Leerzeichen, 
                                                                Kommentare, Leerzeilen etc.) */
+    std::string                         _step;              /* speichert den Inhalt der aktuellen S[n]-Umgebung der .lang-Datei in optimierter Form */
+    std::string                         _trigger;           /* speichert den Inhalt der aktuellen T[n]-Umgebung der .lang-Datei */
+
 
     //Hilfsfunktionen
     bool init();                            /* gibt false zurück, wenn keine "IMPLEMENTATION"-Umgebung gefunden wurde*/
