@@ -83,8 +83,10 @@ std::string Lang::analyse(){
     bool ret = false;
 
     while(true){
-        std::getline(_file, line);
-        //_file.getline(line);
+        _file.clear();                      /* damit, wenn nur < 250 Byte ausgelesen werden können, trz weitergemacht wird.
+                                               die schlechten bits wie ios::fail werden durch clear zurückgesetzt. */
+        //std::getline(_file, line);
+        _file.getline(line, 250);
         for(int i=0; i < line.size(); ++i){
             if(line[i]!=' ' && line[i] != '\n'){
                 word+=line[i];
