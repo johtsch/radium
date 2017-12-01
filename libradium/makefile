@@ -1,7 +1,7 @@
 CC=g++
-SRC=lang.cpp
+SRC=lang.cpp vartypes.cpp
 STD=-std=c++11
-OBJ=lang.o
+OBJ=lang.o vartypes.o
 LIBNAME=libradium.a
 
 new: 

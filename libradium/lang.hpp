@@ -43,7 +43,8 @@ public:
     std::string getStatus() const { return _status; };
 private:
     bool                                _quiet;             /* Statusmeldungen werden nicht angezeigt (ist Standard) */
-    bool                                _running;
+    bool                                _running;           /* dient unter Anderem dazu festzustellen ob die Datei überhaupt ausführbar ist. Sollte im init-Teil etwas schief gehen 
+                                                               wird _running nie true */
     std::string                         _status;            /* speichert Statusmeldungen */
     std::string                         _filepath;          /* Pfad zur aktuellen Angriffsdatei */
     std::ifstream                       _file;              /* Filehandler */
@@ -71,7 +72,8 @@ private:
     std::string analyse();                  /* geht die .lang-Datei Schritt für Schritt durch... damit ist gemeint, dass diese Funktion den nächsten Bezeichner ausfindig macht und 
                                                die entsprechende Funktion aufruft. Gibt den gefundenen Bezeichner als String ohne Doppelpunkt zurück (bspw. "VAR", 
                                                "IMPLEMENTATION", "S", "T", etc.) oder "EOF", wenn das Dateiende erreicht wurde */
-    void analyseVar();                      /* checkt die VAR-Umgebung auf Syntaxerror und gibt gültige Variablendeklarationen in einer Zeile an initVar() weiter; */
+    bool analyseVar();                      /* checkt die VAR-Umgebung auf Syntaxerror und gibt gültige Variablendeklarationen in einer Zeile an initVar() weiter; Wenn kein VAR-End-
+                                               Spezifizierer folgt wird false zurückgegeben. Wenn falsche Bezeichner entdeckt werden wird eine Warnung in _status gespeichert */
     void initVar(std::string vardec);       /* speichert alle in .lang-Datei verwendeten Datentypen in entsprechender Form in den Datenstrukturen dieser Klasse */
     void readStep();                        /* liest die aktuelle S-Umgebung ein */
     void readTrigger();                     /* liest die aktuelle T-Umgebung ein */
@@ -80,6 +82,11 @@ private:
     void trigger();                         /* kontrolliert die angekommenen Datenpakete, ob sie den Vorgaben in _trigger entsprechen */
     void assemble(int index);               /* baut aus der aktuellen ASSEMBLE-Umgebung ein Paket zusammen, index ist der Index der ASSEMBLE-Umgebung, damit klar ist
                                                welches Paket zusammengebaut werden soll */
+
+
+    void setStatus(std::string fct_name, std::string s);                        /* steht nicht bei den Settern, da nur die Klasse Statusmeldungen produzieren darf. fct_name ist der Name
+                                                                                   der Funktion in der Statusmeldung verursacht wurde */
+    std::string getNextWord(std::string line);                                  /* gibt nächstes Wort zurück + das Wortbeendende Zeichen (bspw. ';') außer es ist ein Leerzeichen */                                        
     
 };
 

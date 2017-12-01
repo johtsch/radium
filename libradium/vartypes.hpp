@@ -1,7 +1,8 @@
 #ifndef LR_VARTYPES_HPP
 #define LR_VARTYPES_HPP
 
-#include <string.h>
+#include <iostream>
+#include <string>
 
 #define VARTYPE_HADDR   1       // Hardwareaddresse
 #define VARTYPE_IPADDR  2       // IPv4-Addresse
@@ -9,6 +10,13 @@
 #define VARTYPE_BYTE    4
 #define VARTYPE_SHORT   5
 #define VARTYPE_INT     6
+
+const std::string LG_VT_HADDR = "HADDR";
+const std::string LG_VT_IPADDR = "IP";
+const std::string LG_VT_PORT = "PORT";
+const std::string LG_VT_BYTE = "BYTE";
+const std::string LG_VT_SHORT = "SHORT";
+const std::string LG_VT_INT = "INT"; 
 
 struct varinfo{
     char _type;
@@ -22,5 +30,9 @@ struct port{
 };
 
 typedef unsigned char byte;
+
+//Funktionen
+
+bool isVartype(std::string word);
 
 #endif

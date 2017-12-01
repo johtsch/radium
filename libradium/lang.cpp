@@ -14,10 +14,10 @@ Lang::Lang(){
 
 Lang::Lang(std::string fpath){
     _running = false;
-    _status = "Lang was initialized";
-    if(!_quiet)
-        std::cout << "Lang: Lang(): " << _status << std::endl;
-    loadFile(fpath);
+    if(loadFile(fpath))
+        setStatus("Lang()", "Lang was initialized");
+    else
+        setStatus("Lang()", "Lang wasn't correctly initialized");
 }
 
 Lang::~Lang(){
@@ -27,14 +27,14 @@ Lang::~Lang(){
 bool Lang::loadFile(std::string fpath){
 
     if(!fpath.find(LANG_FEXT)){
-       _status = "File does not have the " + LANG_FEXT + " file extension -> File wasn't opened!";
+       setStatus("loadFile()", ("File does not have the " + LANG_FEXT + " file extension -> File wasn't opened!"));
        return false;
     }
 
     _file.open(fpath, std::ios::in);
 
     if(!_file.good()){
-        _status = "Failed to open File: " + fpath;
+        setStatus("loadFile()", ("Failed to open File: " + fpath));
         return false;
     }
 
@@ -54,27 +54,19 @@ bool Lang::init(){
         tmp=analyse();
 
         if(tmp == LANG_B_VAR){
-            //analyseVar();
-            _status = "VAR-Teil erreicht";
-            if(!_quiet)
-                std::cout << "Lang: init(): " << _status << std::endl;
+            setStatus("init()", ">>> VAR-Teil erreicht");
+            analyseVar();
         } 
         if(tmp == LANG_E_VAR){
             //analyseVar();
-            _status = "VAR-End-Teil erreicht";
-            if(!_quiet)
-                std::cout << "Lang: init(): " << _status << std::endl;
+            setStatus("init()", ">>> VAR-End-Teil erreicht");
         }    
         if(tmp == LANG_B_IMPLEMENTATION){
-            _status = "IMPLEMENTATION-Teil erreicht";
-            if(!_quiet)
-                std::cout << "Lang: init(): " << _status << std::endl;
+            setStatus("init()", ">>> IMPLEMENTATION-Teil erreicht");
             break;
         }    
         if(tmp == LANG_EOF){
-            _status = "File does NOT contain an IMPLEMENTATION environment -> can't be executed!";
-            if(!_quiet)
-                std::cout << "Lang: init(): " << _status << std::endl;
+            setStatus("init()", "Kein IMPLEMENTATION-Teil gefunden -> Datei kann nicht ausgeführt werden! <<<");
             return false;
         }
     }
@@ -89,39 +81,131 @@ std::string Lang::analyse(){
 
     while(true){
         _file.clear();                      /* damit, wenn nur < 250 Byte ausgelesen werden können, trz weitergemacht wird.
-        //                                       die schlechten bits wie ios::fail werden durch clear zurückgesetzt. */
-        //std::getline(_file, line);
-        memset(line, '\0', 1024);
+                                               die schlechten bits wie ios::fail werden durch clear zurückgesetzt. */
         _file.getline(line, 1024);
         word.clear();
-        std::cout << " > " << line << std::endl;
         
-        for(int i=0; i < sizeof(line); i++){
-            if(line[i] != ' ' && line[i] != '\0' && line[i] != '\t' && line[i] != ';'){             /* !!WICHTIG!! es muss auf '\0' anstelle von '\n' geprüft werden, da getline nicht
-                                                                                                       den Zeilenumbruch mitliefert, sondern den String beendet, wenn es '\n' erreicht */
-                word+=line[i];
-            }
-            else{
-                if(word.size() > 2)
-                    std::cout << " >>> " << word << std::endl;
+        while((word=getNextWord(line)).length() != 0){
+            /*word = getNextWord(line);
+            if(word.size() == 0){
+                std::cout << "break" << std::endl;
+                break;
+            }*/
+            if(word != "a")
+                std::cout << "\"" <<  word << "\"" << std::endl;
+            ret |= (word == LANG_B_IMPLEMENTATION);
+            ret |= (word == LANG_B_VAR);
+            ret |= (word == LANG_B_STEP);
+            ret |= (word == LANG_B_TRIGGER);
+            ret |= (word == LANG_E_IMPLEMENTATION);
+            ret |= (word == LANG_E_VAR);
+            ret |= (word == LANG_E_STEP);
+            ret |= (word == LANG_E_TRIGGER);
 
-                ret |= (word == LANG_B_IMPLEMENTATION);
-                ret |= (word == LANG_B_VAR);
-                ret |= (word == LANG_B_STEP);
-                ret |= (word == LANG_B_TRIGGER);
-                ret |= (word == LANG_E_IMPLEMENTATION);
-                ret |= (word == LANG_E_VAR);
-                ret |= (word == LANG_E_STEP);
-                ret |= (word == LANG_E_TRIGGER);
+            if(ret)
+                return word;
 
-                if(ret)
-                    return word;
-
-                word.clear();
-            }
+            word.clear();
         }
 
         if(_file.eof())
             return LANG_EOF; 
     }
 }
+
+bool Lang::analyseVar(){
+    char line[512];
+    std::string word ="";
+
+    while(true){
+        _file.clear();
+        word.clear();
+        _file.getline(line, 512);
+
+        while((word=getNextWord(line)).length() != 0){
+
+            
+
+            if(word == LANG_B_IMPLEMENTATION){
+                setStatus("analyseVar()", "kein ':VAR' vor 'IMPLEMENTATION:' gefunden <<<");
+                return false;
+            }
+            if(isVartype(word)){
+                setStatus("analyseVar()", ">>> Vartype " + word + " gefunden");
+                int wordcount = 1;          /* zählt die Zusammenhängenden Zeichen in der Zeile -> max. 3*/ 
+                word.clear();               /* kann gleich wiederverwendet werden */
+                while((word=getNextWord(line)).size() != 0){
+                    if(word[word.length()-1] == ';'){
+                        setStatus("analyseVar()", ">>> Variablendeklaration erkannt: " + word);
+                        //init var;
+                    }
+                    else{
+                        if(word.length() > 1)
+                            wordcount++;
+                        if(wordcount > 3)
+                            break;
+                    }
+                    
+                }
+                setStatus("analyseVar()", "Semikolon am Ende der Variablendeklaration fehlt oder zu viele Wörter in der Zeile (max. 3) <<<");
+            }
+            
+            /*ret |= (word == LANG_B_STEP);
+            ret |= (word == LANG_B_TRIGGER);
+            ret |= (word == LANG_E_IMPLEMENTATION);
+            */
+            if(word == LANG_E_VAR){
+                setStatus("analyseVar()", ">>> ':VAR' gefunden!");
+                return true;
+            }
+            /*ret |= (word == LANG_E_STEP);
+            ret |= (word == LANG_E_TRIGGER);*/
+            word.clear();
+        }
+
+        if(_file.eof()){
+            setStatus("analyseVar()", "VARIABLENTEIL WURDE NIE BEENDET! DATEI AM ENDE -> KEINE AUSFÜHRUNG MÖGLICH");
+            return false;
+        }
+    }
+}
+
+void Lang::setStatus(std::string fct_name, std::string s){
+    _status = s;
+    if(!_quiet)
+        std::cout << "Lang: " << fct_name << ": " << _status << std::endl;
+}
+    
+std::string Lang::getNextWord(std::string line){
+    static std::string lastline="";
+    static int i=0;
+    std::string word;
+
+    //wenn eine neue Line kommt, die Werte zurücksetzen
+    if(lastline != line){
+        i = 0; 
+        lastline = line;
+    }
+
+    for(i; i < line.size(); ++i){
+        /* auf wortbeendende Zeichen achten*/
+        if(line[i] != ' ' && line[i] != '\0' && line[i] != '\t' && line[i] != ';' && line[i] != '#'){             
+            word+=line[i];
+        }
+        else{
+            if(line[i] != '\t' && line[i] != ' ')
+                word+=line[i];
+
+            //wenn Wort bis jetzt leer ist, dann auch '\t' anhängen, damit es nicht mit dem Fall Zeilenende verwechselt wird
+            if(word.size() == 0)
+                word="a";
+            
+            i++;    //damit beim nächsten Buchstaben weitergemacht wird und sich das Programm nicht aufhängt
+            return word;
+        }
+    }
+
+    return word;        /* wenn Ende der Zeile erreicht wird wird word automatisch zu "" und hat somit die Länge 0 die in vielen If-Abfragen verwendet wird um festzustellen
+                           ob das Zeilenende erreicht wurde */
+}
+    
