@@ -8,7 +8,7 @@ VAR:
 
 IMPLEMENTATION:
 
-S[0]{REPEAT=50ms}:                          # S[1]==Step 1
+S[0]{50}:                          # S[0]==erster Step {50} bedeutet dass 50ms zwischen jeder Stepausführung stehen
 
     DESCRIPTION:
         Hier kann dann eine Beschreibung des aktuellen Schrittes stehen, die dann hoffentlich auch im Programm angezeigt werden kann ^^
