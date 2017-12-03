@@ -5,6 +5,8 @@
 #include "vartypes.hpp"       /* Datentypdefinitionen */
 #include "header.hpp"         /* Protokollheaderformate etc. */
 
+const std::string LANG_CTRL_CHAR = "*";         // wird bei getNextWord()-Funktion zurückgegeben, wenn Zeichen wie '\t' das Word wären
+
 Lang::Lang(){
     _running = false;
     _status = "Lang was initialized";
@@ -86,12 +88,8 @@ std::string Lang::analyse(){
         word.clear();
         
         while((word=getNextWord(line)).length() != 0){
-            /*word = getNextWord(line);
-            if(word.size() == 0){
-                std::cout << "break" << std::endl;
-                break;
-            }*/
-            if(word != "a")
+
+            if(word != LANG_CTRL_CHAR)
                 std::cout << "\"" <<  word << "\"" << std::endl;
             ret |= (word == LANG_B_IMPLEMENTATION);
             ret |= (word == LANG_B_VAR);
@@ -116,6 +114,7 @@ std::string Lang::analyse(){
 bool Lang::analyseVar(){
     char line[512];
     std::string word ="";
+    std::string vardec[3] = { "", "", "" };
 
     while(true){
         _file.clear();
@@ -131,23 +130,32 @@ bool Lang::analyseVar(){
                 return false;
             }
             if(isVartype(word)){
+                vardec[0].clear();vardec[1].clear();vardec[2].clear();
                 setStatus("analyseVar()", ">>> Vartype " + word + " gefunden");
+                vardec[0] = word;
                 int wordcount = 1;          /* zählt die Zusammenhängenden Zeichen in der Zeile -> max. 3*/ 
                 word.clear();               /* kann gleich wiederverwendet werden */
+                size_t pos;
                 while((word=getNextWord(line)).size() != 0){
-                    if(word[word.length()-1] == ';'){
-                        setStatus("analyseVar()", ">>> Variablendeklaration erkannt: " + word);
-                        //init var;
-                    }
-                    else{
-                        if(word.length() > 1)
-                            wordcount++;
-                        if(wordcount > 3)
-                            break;
-                    }
+
+                    if(word.length() > 0 && word != LANG_CTRL_CHAR)
+                        wordcount++;
                     
+                    if(wordcount > 3){
+                        setStatus("analyseVar()", "Zu viele Wörter in der Zeile  (max. 3) -> kann keine Variablendeklaration sein <<<");
+                        break;
+                    }
+
+                    vardec[wordcount-1]=word;
+
+                    pos = word.find_last_of(";", word.size());
+                    if( pos > word.size() - 2 && pos < word.size() && wordcount < 4){                       /* kontrollieren ob ein Semikolon am Ende des Wortes erkannt wurde, das würde nämlich die Deklaration 
+                                                                                                                abschließen */
+                        setStatus("analyseVar()", ">>> Variablendeklaration erkannt: " + word);
+                        initVar(vardec);
+                        break;
+                    } 
                 }
-                setStatus("analyseVar()", "Semikolon am Ende der Variablendeklaration fehlt oder zu viele Wörter in der Zeile (max. 3) <<<");
             }
             
             /*ret |= (word == LANG_B_STEP);
@@ -170,6 +178,10 @@ bool Lang::analyseVar(){
     }
 }
 
+bool Lang::initVar(std::string vardec[3]){
+    
+}
+
 void Lang::setStatus(std::string fct_name, std::string s){
     _status = s;
     if(!_quiet)
@@ -179,7 +191,7 @@ void Lang::setStatus(std::string fct_name, std::string s){
 std::string Lang::getNextWord(std::string line){
     static std::string lastline="";
     static int i=0;
-    std::string word;
+    std::string word="";
 
     //wenn eine neue Line kommt, die Werte zurücksetzen
     if(lastline != line){
@@ -198,7 +210,7 @@ std::string Lang::getNextWord(std::string line){
 
             //wenn Wort bis jetzt leer ist, dann auch '\t' anhängen, damit es nicht mit dem Fall Zeilenende verwechselt wird
             if(word.size() == 0)
-                word="a";
+                word=LANG_CTRL_CHAR;
             
             i++;    //damit beim nächsten Buchstaben weitergemacht wird und sich das Programm nicht aufhängt
             return word;
