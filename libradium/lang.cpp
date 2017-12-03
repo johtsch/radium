@@ -133,7 +133,7 @@ bool Lang::analyseVar(){
                 vardec[0].clear();vardec[1].clear();vardec[2].clear();
                 setStatus("analyseVar()", ">>> Vartype " + word + " gefunden");
                 vardec[0] = word;
-                int wordcount = 1;          /* zählt die Zusammenhängenden Zeichen in der Zeile -> max. 3*/ 
+                int wordcount = 1;          /* zählt die Wörter in der Zeile -> max. 3*/ 
                 word.clear();               /* kann gleich wiederverwendet werden */
                 size_t pos;
                 while((word=getNextWord(line)).size() != 0){
@@ -179,7 +179,7 @@ bool Lang::analyseVar(){
 }
 
 bool Lang::initVar(std::string vardec[3]){
-    
+
 }
 
 void Lang::setStatus(std::string fct_name, std::string s){
