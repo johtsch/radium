@@ -23,6 +23,7 @@
         </ol>
     </li>
     <li><a href="#die-radium-library">Die Radium-Library</a></li>
+    <li><a href="#header-und-paketformate">Header und Paketformate</a></li>
 </ol>
 
 <h2>Vorwort:</h2>
@@ -53,7 +54,6 @@ Mögliche Datentypen könnten sein:
     <li>HADDR       (MAC-Adressen [bitform][textform])</li>
     <li>IPADDR      (IPv4-Adressen [bitform][textform])</li>
     <li>PORT        (also 2-Byte-Werte die aber besonders behandelt werden sollen [HBO][NBO])</li>
-    <li>HEADER      (dazu später noch ein paar genauere Worte)</li>
     <li>1B          (1-Byte-Werte)</li>
     <li>2B          (2-Byte-Werte)</li>
     <li>4B          (4-Byte-Werte)</li>
@@ -90,3 +90,6 @@ Wie schon erwähnt kann mit der PACKETFILTER-Umgebung ein Paketfilter erstellt w
 
 <h2>Die Radium-Library</h2>
 Da ich es wahrscheinlich nicht vollbringen werde gleich das Radiumprogramm (so soll das Programm mit GUI heißen mit dem man Angriffe ausführen kann) zu programmieren, beginne ich damit den nötigen Code, um mit .lang-Dateien umgehen zu können, in eine Library zu packen. Mit dieser hoffe ich dann relativ einfach das richtige Programm schreiben zu können. Wenn alles gut läuft und ich die Zeit finde, wird es für die Library auch eine kleine Dokumentation geben. 
+
+<h2>Header und Paketformate</h2>
+Da die Netzwerkkommunikation auf Protokollen und ihren Protokollheadern basiert, muss im Code zwangsläufig eine Möglichkeit geboten werden diese zu händeln. Bis jetzt sieht es so aus, als wäre es das Beste, wenn die Header manuell vom Programmierer der Radium-Library (das bin dann wohl ich) im Code eingefügt werden. Das hat den Nachteil, dass es dem Nutzer nicht so einfach möglich ist eigene Header zu implementieren, ohne den Code der Lib zu ändern. Um diesen Nachteil nicht so schwer wiegen zu lassen, werde ich mich bemühen die Repräsentation der Header im Code so zu händeln, dass diese in einer eigenen Datei stehen und es nach Möglichkeit genügt nach Vorbild der anderen eine Headerstruktur zu schreiben und diese, dann - wenn richtig gecoded - automatisch im Programm integriert wird. Sollte mir noch eine Möglichkeit einfallen, wie es dem Nutzer ermöglicht werden kann auf einfachem Wege eigene Header definieren zu können,werde ich das hier vermerken und natürlich auch versuche es zu implementieren. 
