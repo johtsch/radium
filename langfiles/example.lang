@@ -4,6 +4,7 @@ VAR:
     PORT dport 8080;
     PORT sport 9999;
     PORT provoziert einen Fehler;
+    HADDR tesmac "ff:ff:ff:ff:ff:ff";
 :VAR
 
 IMPLEMENTATION:
