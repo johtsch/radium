@@ -48,6 +48,16 @@ bool Lang::start(){
     return (_running = init());                 // alle Variablen einlesen
 }
 
+void Lang::showVars(){
+    std::cout << "Variablenliste: " << std::endl;
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        std::cout << ">";
+        std::cout << "\tType:  " << getVarTypeStr(_dtinfo[i]._type) << std::endl;
+        std::cout << "\tName:  " << _dtinfo[i]._name << std::endl;
+        std::cout << "\tIndex: " << _dtinfo[i]._index << std::endl;
+    }
+}
+
 bool Lang::init(){
     _file.seekg(std::ios::beg);
     std::string tmp;
@@ -179,7 +189,62 @@ bool Lang::analyseVar(){
 }
 
 bool Lang::initVar(std::string vardec[3]){
+    /*
+        const unsigned char VARTYPE_HADDR   = 1;       // Hardwareaddresse
+        const unsigned char VARTYPE_IPADDR  = 2;       // IPv4-Addresse
+        const unsigned char VARTYPE_PORT    = 3;       // TCP/UDP-Port
+        const unsigned char VARTYPE_BYTE    = 4;
+        const unsigned char VARTYPE_SHORT   = 5;
+        const unsigned char VARTYPE_INT     = 6;
 
+        struct varinfo{
+        unsigned char _type;            // siehe VARTYPE_*
+        std::string _name;              // Name der Variable innerhalb der .lang-Datei
+        short _index;                   // der Index der Variable innerhalb der Vector-Struktur in der alle Variablen des gleichen Typs gespeichert werden
+
+        std::vector<struct varinfo>         _dtinfo;             datatype info, dient dem Nachschlagen, wo eine Variable der .lang-Datei zu finden ist 
+        std::vector<Tins::HWAddress<6>>     _haddr;              speichert alle in der .lang-Datei verwendeten Variablen des Typs Hardwareaddresse 
+        std::vector<Tins::IPv4Address>      _ipaddr;             speichert alle in der .lang-Datei verwendeten Variablen des Typs IPv4-ddresse 
+        std::vector<struct port>            _port;               speichert alle in der .lang-Datei verwendeten Variablen des Typs Port 
+        std::vector<byte>                   _byte;               speichert alle in der .lang-Datei verwendeten Variablen des Typs Byte 
+        std::vector<short>                  _short;              speichert alle in der .lang-Datei verwendeten Variablen des Typs Short 
+        std::vector<int>                    _int;                speichert alle in der .lang-Datei verwendeten Variablen des Typs Integer 
+    */
+            
+    unsigned char tmp;
+    /* kontrollieren dass es sich bei vardec[0] um Vartype handelt auch, wenn dies eigentlich feststehen sollte */
+    if((tmp = getVarType(vardec[0])) == VARTYPE_INVALID){
+        setStatus("initVar()", "Übergebener Datentypspezifizierer stellt keinen Datentyp dar! Variable konnte nicht erstellt werden!");
+        return false;
+    }
+
+    /* neuen Eintrag für Variable im Datentypinfoverzeichnis anlegen... abhängig vom Datentyp */
+    if(tmp == VARTYPE_HADDR){
+        _dtinfo.push_back({tmp, vardec[1], _haddr.size()});
+        //type.push_back()...
+    }
+    if(tmp == VARTYPE_IPADDR){
+        _dtinfo.push_back({tmp, vardec[1], _ipaddr.size()});
+        //type.push_back()...
+    }
+    if(tmp == VARTYPE_PORT){
+        _dtinfo.push_back({tmp, vardec[1], _port.size()});
+        //type.push_back()...
+    }
+    if(tmp == VARTYPE_BYTE){
+        _dtinfo.push_back({tmp, vardec[1], _byte.size()});
+        //type.push_back()...
+    }
+    if(tmp == VARTYPE_SHORT){
+        _dtinfo.push_back({tmp, vardec[1], _short.size()});
+        //type.push_back()...
+    }
+    if(tmp == VARTYPE_INT){
+        _dtinfo.push_back({tmp, vardec[1], _int.size()});
+        //type.push_back()...
+    }
+    
+    return true;
 }
 
 void Lang::setStatus(std::string fct_name, std::string s){
@@ -192,6 +257,7 @@ std::string Lang::getNextWord(std::string line){
     static std::string lastline="";
     static int i=0;
     std::string word="";
+    int pos_tmp = 0;
 
     //wenn eine neue Line kommt, die Werte zurücksetzen
     if(lastline != line){
@@ -200,6 +266,13 @@ std::string Lang::getNextWord(std::string line){
     }
 
     for(i; i < line.size(); ++i){
+
+        //kontrollieren, ob ein '"' gefunden wurde, da dieses möglicherweise ein besonderes Verhalten hervorruft (siehe lang.hpp Funktionsdefinition getNextWord())
+        if(line[i]=='"' && (pos_tmp = line.find_first_of('"', i+1)) != std::string::npos){           // es wurde ein zweites "'" gefunden
+            word = line.substr(i + 1, pos_tmp - i - 1);
+            i = pos_tmp + 1;
+        } 
+
         /* auf wortbeendende Zeichen achten*/
         if(line[i] != ' ' && line[i] != '\0' && line[i] != '\t' && line[i] != ';' && line[i] != '#'){             
             word+=line[i];

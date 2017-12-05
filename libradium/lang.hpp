@@ -41,6 +41,9 @@ public:
 
     /* Getter */
     std::string getStatus() const { return _status; };
+
+    /* Analyzer / Shower */
+    void showVars();
 private:
     bool                                _quiet;             /* Statusmeldungen werden nicht angezeigt (ist Standard) */
     bool                                _running;           /* dient unter Anderem dazu festzustellen ob die Datei überhaupt ausführbar ist. Sollte im init-Teil etwas schief gehen 
@@ -88,7 +91,10 @@ private:
 
     void setStatus(std::string fct_name, std::string s);                        /* steht nicht bei den Settern, da nur die Klasse Statusmeldungen produzieren darf. fct_name ist der Name
                                                                                    der Funktion in der Statusmeldung verursacht wurde */
-    std::string getNextWord(std::string line);                                  /* gibt nächstes Wort zurück + das Wortbeendende Zeichen (bspw. ';') außer es ist ein Leerzeichen */                                        
+    std::string getNextWord(std::string line);                                  /* gibt nächstes Wort zurück + das Wortbeendende Zeichen (bspw. ';') außer es ist ein Leerzeichen oder Steuerzeichen,
+                                                                                   beginnt das nächste Wort mit '"' wird - bei Vorhandensein eines zweiten '"' in der selben Zeile - die gesamte davon 
+                                                                                   eingeschlossene Zeichensequenz zurückgegeben (ohne die umschließenden '"'). Ist nur ein '"' vorhanden wird es wie 
+                                                                                   ein wortbeendendes Zeichen behandelt und einzeln zurückgegeben */                                        
     
 };
 
