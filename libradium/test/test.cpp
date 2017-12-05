@@ -8,5 +8,6 @@ int main(int argc, char **argv){
     langtest.setQuiet(false);
     langtest.loadFile("../../langfiles/example.lang");
     langtest.start();
+    langtest.showVars();
     return 0;
 }
