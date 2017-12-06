@@ -5,6 +5,7 @@ VAR:
     PORT sport 9999;
     PORT provoziert einen Fehler;
     HADDR tesmac "ff:ff:ff:ff:ff:ff";
+    HADDR inv "a3:99:z2:ff:de::01";
 :VAR
 
 IMPLEMENTATION:
