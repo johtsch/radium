@@ -49,12 +49,24 @@ bool Lang::start(){
 }
 
 void Lang::showVars(){
-    std::cout << "Variablenliste: " << std::endl;
+    std::cout << "Variablenliste \"" << _filepath << "\": " << std::endl;
     for(int i = 0; i < _dtinfo.size(); ++i){
         std::cout << ">";
-        std::cout << "\tType:  " << getVarTypeStr(_dtinfo[i]._type) << std::endl;
-        std::cout << "\tName:  " << _dtinfo[i]._name << std::endl;
-        std::cout << "\tIndex: " << _dtinfo[i]._index << std::endl;
+        std::cout << "\tType:\t" << getVarTypeStr(_dtinfo[i]._type) << std::endl;
+        std::cout << "\tName:\t" << _dtinfo[i]._name << std::endl;
+        std::cout << "\tIndex:\t" << _dtinfo[i]._index << std::endl;
+        std::cout << "\tValue:\t";
+
+        switch(_dtinfo[i]._type){
+            case VARTYPE_HADDR:
+                std::cout << _haddr[_dtinfo[i]._index].to_string() << std::endl;
+                break;
+            case VARTYPE_IPADDR:
+                std::cout << _ipaddr[_dtinfo[i]._index].to_string() << std::endl;
+                break;
+            default:
+                std::cout << std::endl;
+        }
     }
 }
 
@@ -218,14 +230,42 @@ bool Lang::initVar(std::string vardec[3]){
         return false;
     }
 
+    /* wenn vorhanden vom letzten vardec das Semikolon entfernen */
+    if(vardec[2].length() != 0){
+        if(vardec[2][vardec[2].length() - 1] == ';'){
+            vardec[2].pop_back();
+        }
+    }
+    else if(vardec[1][vardec[1].length() - 1] == ';')
+        vardec[1].pop_back();
+
+    
     /* neuen Eintrag für Variable im Datentypinfoverzeichnis anlegen... abhängig vom Datentyp */
     if(tmp == VARTYPE_HADDR){
         _dtinfo.push_back({tmp, vardec[1], _haddr.size()});
-        //type.push_back()...
+
+        if(vardec[2].length() == 0)                    
+            _haddr.push_back(Tins::HWAddress<6>());
+        else if(!isValidHaddr(vardec[2])){
+            setStatus("initVar()", "Übergebene HWADDR (" + vardec[2] + ") ist nicht im richtigen Format! Standardadresse 00:00:00:00:00:00 wird verwendet <<<");
+            _haddr.push_back(Tins::HWAddress<6>());
+        }
+        else
+            _haddr.push_back(Tins::HWAddress<6>(vardec[2]));
     }
     if(tmp == VARTYPE_IPADDR){
         _dtinfo.push_back({tmp, vardec[1], _ipaddr.size()});
-        //type.push_back()...
+
+        if(vardec[2].length() == 0){  
+            _ipaddr.push_back(Tins::IPv4Address(""));
+        }
+        else if(!isValidIPv4(vardec[2])){       
+            setStatus("initVar()", "Übergebene IP (" + vardec[2] + ") ist nicht im richtigen Format! Standardadresse 0.0.0.0 wird verwendet <<<");
+            _ipaddr.push_back(Tins::IPv4Address(""));
+        }
+        else{        
+            _ipaddr.push_back(Tins::IPv4Address(vardec[2]));
+        }
     }
     if(tmp == VARTYPE_PORT){
         _dtinfo.push_back({tmp, vardec[1], _port.size()});
