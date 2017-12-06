@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <string>
+#include <cctype>           /* std::isxdigit(), kontroolliert ob es sich um ein Hexadezimalzeichen handelt*/
+#include <arpa/inet.h>
 
 /* unterschiedliche Variablentyp-Codes */
 const unsigned char VARTYPE_INVALID = 0;       // wenn Datentyp nicht zugeordnet werden kann
@@ -41,5 +43,10 @@ bool isVartype(std::string word);
 unsigned char getVarType(std::string type);
 
 std::string getVarTypeStr(unsigned char type);
+
+/* str muss eine MAC-Adresse der Form "xx:xx:xx:xx:xx:xx" */
+bool isValidHaddr(std::string address);
+
+bool isValidIPv4(std::string address);
 
 #endif

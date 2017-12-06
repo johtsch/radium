@@ -50,3 +50,20 @@ std::string getVarTypeStr(unsigned char type){
 
     return LG_VT_INVALID;
 }
+
+bool isValidHaddr(std::string address){
+    for(int i = 0; i < 17; i++) {
+        if(i % 3 != 2 && !std::isxdigit(address[i]))
+            return false;
+        if(i % 3 == 2 && address[i] != ':')
+            return false;
+    }
+    if(address[17] != '\0')
+        return false;
+    return true;
+}
+
+bool isValidIPv4(std::string address){
+    unsigned char buf[sizeof(struct in6_addr)];             /* ist unabdingbar. Wenn bei inet_pton kein buf angegeben wird kommt es zu Speicherzugriffsfehlern */
+    return (inet_pton(AF_INET, address.c_str(), buf) == 1);
+}
