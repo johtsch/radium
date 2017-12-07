@@ -4,8 +4,16 @@ VAR:
     PORT dport 8080;
     PORT sport 9999;
     PORT provoziert einen Fehler;
+    PORT invRange 111111111111111;              # der zugewiesene Wert ist außerhalb des Wertebereichs
+    HADDR sport "ff:ff:ff:ff:ff:ff";            # provoziert ebenfalls Warnung, da sport als Bezeichner schon verwendet wird
     HADDR tesmac "ff:ff:ff:ff:ff:ff";
     HADDR inv "a3:99:z2:ff:de::01";
+    BYTE b1 256;
+    BYTE b2 123;
+    SHORT s1 64213;
+    SHORT s2 2;
+    INT i3 23;
+    INT i8 1337;
 :VAR
 
 IMPLEMENTATION:
