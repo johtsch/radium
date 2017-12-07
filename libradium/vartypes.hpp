@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <stdlib.h>         /* strtoul */         
 #include <cctype>           /* std::isxdigit(), kontroolliert ob es sich um ein Hexadezimalzeichen handelt*/
 #include <arpa/inet.h>
 
@@ -29,10 +30,7 @@ struct varinfo{
     long unsigned int _index;                   // der Index der Variable innerhalb der Vector-Struktur in der alle Variablen des gleichen Typs gespeichert werden
 };
 
-struct port{
-    std::string _info;
-    unsigned short _port; 
-};
+typedef unsigned short port;
 
 typedef unsigned char byte;
 
@@ -48,5 +46,10 @@ std::string getVarTypeStr(unsigned char type);
 bool isValidHaddr(std::string address);
 
 bool isValidIPv4(std::string address);
+
+bool isValidPort(std::string po);
+bool isValidByte(std::string by);
+bool isValidShort(std::string sh);
+bool isValidInt(std::string in);
 
 #endif
