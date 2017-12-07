@@ -64,6 +64,18 @@ void Lang::showVars(){
             case VARTYPE_IPADDR:
                 std::cout << _ipaddr[_dtinfo[i]._index].to_string() << std::endl;
                 break;
+            case VARTYPE_PORT:
+                std::cout << _port[_dtinfo[i]._index] << std::endl;
+                break;
+            case VARTYPE_BYTE:
+                std::cout << (int)_byte[_dtinfo[i]._index] << std::endl;        // Konvertierung nötig, da sonst das char zeichen angezeigt werden würde
+                break;
+            case VARTYPE_SHORT:
+                std::cout << _short[_dtinfo[i]._index] << std::endl;
+                break;
+            case VARTYPE_INT:
+                std::cout << _int[_dtinfo[i]._index] << std::endl;
+                break;
             default:
                 std::cout << std::endl;
         }
@@ -226,7 +238,13 @@ bool Lang::initVar(std::string vardec[3]){
     unsigned char tmp;
     /* kontrollieren dass es sich bei vardec[0] um Vartype handelt auch, wenn dies eigentlich feststehen sollte */
     if((tmp = getVarType(vardec[0])) == VARTYPE_INVALID){
-        setStatus("initVar()", "Übergebener Datentypspezifizierer stellt keinen Datentyp dar! Variable konnte nicht erstellt werden!");
+        setStatus("initVar()", "Übergebener Datentypspezifizierer stellt keinen Datentyp dar! Variable konnte nicht erstellt werden! <<<");
+        return false;
+    }
+
+    /* Kontrollieren ob Variablenbezeichner einzigartig ist */
+    if(!varNameNotUsed(vardec[1])){
+        setStatus("initVar()", "Der Variablenname \"" + vardec[1] + "\" wird bereits verwendet! Variablendeklaration wird ignoriert <<<");
         return false;
     }
 
@@ -269,19 +287,59 @@ bool Lang::initVar(std::string vardec[3]){
     }
     if(tmp == VARTYPE_PORT){
         _dtinfo.push_back({tmp, vardec[1], _port.size()});
-        //type.push_back()...
+        
+        if(vardec[2].length() == 0){  
+            _port.push_back(0);
+        }
+        else if(!isValidPort(vardec[2])){       
+            setStatus("initVar()", "Übergebener Port (" + vardec[2] + ") ist kein gültiger Port! Standardport 0 wird eingesetzt <<<");
+            _port.push_back(0);
+        }
+        else{        
+            _port.push_back((port)(std::stoul(vardec[2])));
+        }
     }
     if(tmp == VARTYPE_BYTE){
         _dtinfo.push_back({tmp, vardec[1], _byte.size()});
-        //type.push_back()...
+
+        if(vardec[2].length() == 0){  
+            _byte.push_back(0);
+        }
+        else if(!isValidShort(vardec[2])){       
+            setStatus("initVar()", "Übergebener Byte (" + vardec[2] + ") ist kein gültiger Byte! Standardwert 0 wird eingesetzt <<<");
+            _byte.push_back(0);
+        }
+        else{        
+            _byte.push_back((byte)(std::stoul(vardec[2])));
+        }
     }
     if(tmp == VARTYPE_SHORT){
         _dtinfo.push_back({tmp, vardec[1], _short.size()});
-        //type.push_back()...
+
+        if(vardec[2].length() == 0){  
+            _short.push_back(0);
+        }
+        else if(!isValidShort(vardec[2])){       
+            setStatus("initVar()", "Übergebener Short (" + vardec[2] + ") ist kein gültiger Short! Standardwert 0 wird eingesetzt <<<");
+            _short.push_back(0);
+        }
+        else{        
+            _short.push_back((unsigned short)(std::stoul(vardec[2])));
+        }
     }
     if(tmp == VARTYPE_INT){
         _dtinfo.push_back({tmp, vardec[1], _int.size()});
-        //type.push_back()...
+       
+       if(vardec[2].length() == 0){  
+            _int.push_back(0);
+        }
+        else if(!isValidShort(vardec[2])){       
+            setStatus("initVar()", "Übergebener Int (" + vardec[2] + ") ist kein gültiger Int! Standardwert 0 wird eingesetzt <<<");
+            _int.push_back(0);
+        }
+        else{        
+            _int.push_back((unsigned int)(std::stoul(vardec[2])));
+        } 
     }
     
     return true;
@@ -334,3 +392,10 @@ std::string Lang::getNextWord(std::string line){
                            ob das Zeilenende erreicht wurde */
 }
     
+bool Lang::varNameNotUsed(std::string name){
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        if(_dtinfo[i]._name == name)
+            return false;                   // Name wird bereits verwendet
+    }
+    return true;                            // Name wird noch nicht verwendet
+}

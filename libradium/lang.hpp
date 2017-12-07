@@ -54,7 +54,7 @@ private:
     std::vector<struct varinfo>         _dtinfo;            /* datatype info, dient dem Nachschlagen, wo eine Variable der .lang-Datei zu finden ist */
     std::vector<Tins::HWAddress<6>>     _haddr;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Hardwareaddresse */
     std::vector<Tins::IPv4Address>      _ipaddr;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs IPv4-ddresse */
-    std::vector<struct port>            _port;              /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Port */
+    std::vector<port>                   _port;              /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Port */
     std::vector<byte>                   _byte;              /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Byte */
     std::vector<short>                  _short;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Short */
     std::vector<int>                    _int;               /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Integer */
@@ -94,7 +94,8 @@ private:
     std::string getNextWord(std::string line);                                  /* gibt nächstes Wort zurück + das Wortbeendende Zeichen (bspw. ';') außer es ist ein Leerzeichen oder Steuerzeichen,
                                                                                    beginnt das nächste Wort mit '"' wird - bei Vorhandensein eines zweiten '"' in der selben Zeile - die gesamte davon 
                                                                                    eingeschlossene Zeichensequenz zurückgegeben (ohne die umschließenden '"'). Ist nur ein '"' vorhanden wird es wie 
-                                                                                   ein wortbeendendes Zeichen behandelt und einzeln zurückgegeben */                                        
+                                                                                   ein wortbeendendes Zeichen behandelt und einzeln zurückgegeben */    
+    bool varNameNotUsed(std::string name);                                      /* kontrollieren ob der Bezeichner schon verwendet wurde oder nicht */                                    
     
 };
 
