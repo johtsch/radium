@@ -47,7 +47,7 @@ S[0]{50}:                          # S[0]==erster Step {50} bedeutet dass 50ms z
             # wenn es einen Datenteil geben würde könnte das Kommando dazu so aussehen
             FILE="direction/to/file/containing/data";
         :L5
-    :ASSEMBLE[1]
+    :ASSEMBLE
 
     SEND(PACKET[1]);
 :S
