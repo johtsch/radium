@@ -50,16 +50,16 @@ S[0]{50}:                          # S[0]==erster Step {50} bedeutet dass 50ms z
     :ASSEMBLE[1]
 
     SEND(PACKET[1]);
-:S[0]
+:S
 T[0]:                                       # T[1]==Trigger 1
     PACKETFILTER:
         L3[IPv4]:                           # das IPv4 Paket soll folgende Parameter erfüllen
             SOURCE=victim;
         :L3
     :PACKETFILTER
-:T[0]
+:T
 S[1]:
 
-:S[1]
+:S
 
 :IMPLEMENTATION
