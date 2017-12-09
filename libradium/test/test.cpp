@@ -11,5 +11,8 @@ int main(int argc, char **argv){
     std::cout << std::endl;
     langtest.showVars();
     std::cout << std::endl;
+    langtest.update();
+    std::cout << std::endl;
+    langtest.showStep();
     return 0;
 }
