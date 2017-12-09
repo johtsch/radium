@@ -9,6 +9,8 @@ const std::string LANG_CTRL_CHAR = "*";         // wird bei getNextWord()-Funkti
 
 Lang::Lang(){
     _running = false;
+    _trigger = LANG_NOS;
+    _step = LANG_NOS;
     _status = "Lang was initialized";
     if(!_quiet)
         std::cout << "Lang: Lang(): " << _status << std::endl;
@@ -16,6 +18,8 @@ Lang::Lang(){
 
 Lang::Lang(std::string fpath){
     _running = false;
+    _trigger = LANG_NOS;
+    _step = LANG_NOS;
     if(loadFile(fpath))
         setStatus("Lang()", "Lang was initialized");
     else
@@ -46,6 +50,30 @@ bool Lang::loadFile(std::string fpath){
 
 bool Lang::start(){
     return (_running = init());                 // alle Variablen einlesen
+}
+
+void Lang::update(){
+    /* nur die Funktion ausführen, wenn _running true ist. Also wenn alle Vorbereitungen getroffen sind und eine Ausführung gewünscht ist. */
+    if(!_running)
+        return;
+
+    /* kontrollieren, ob neue Umgebungen eingelesen werden müssen, dabei ist nur step entscheidend, da eine leere Trigger-Umgebung vollkommen legitim ist und lediglich bedeutet, dass
+        der TRIGGER sofort erfüllt ist und mit dem nächsten STEP weitergemacht werden kann */
+    if(_step == LANG_NOS){
+        if(!readStep()){
+            setStatus("update()", "Konnte nächste STEP-/TRIGGER-Umgebung nicht einlesen. Ausführung pausiert <<<");
+            _running = false;
+        }
+    }
+
+    /*später noch Timing-Mechanismus einfügen */
+    //step();
+
+    /* Wenn Bedingung erfüllt, dann wird das nächste STEP/TRIGGER-Paar eingelesen, dazu werden die gespeicherten Umgebungen zurückgesetzt */
+    /*if(trigger()){
+        _trigger == LANG_NOS;
+        _step == LANG_NOS;
+    }*/
 }
 
 void Lang::showVars(){
@@ -80,6 +108,12 @@ void Lang::showVars(){
                 std::cout << std::endl;
         }
     }
+}
+
+
+void Lang::showStep(){
+    std::cout << "Der aktuelle Step (Nummer " << _stepnum << "):" << std::endl;
+    std::cout << _step << std::endl;
 }
 
 bool Lang::init(){
@@ -214,6 +248,8 @@ bool Lang::analyseVar(){
 
 bool Lang::initVar(std::string vardec[3]){
     /*
+        NUR EINE GEDANKENSTÜTZE: 
+
         const unsigned char VARTYPE_HADDR   = 1;       // Hardwareaddresse
         const unsigned char VARTYPE_IPADDR  = 2;       // IPv4-Addresse
         const unsigned char VARTYPE_PORT    = 3;       // TCP/UDP-Port
@@ -345,6 +381,73 @@ bool Lang::initVar(std::string vardec[3]){
     return true;
 }
 
+bool Lang::readStep(){
+    /* analyse() kann nicht verwendet werden, da dann die Headerzeile verloren ginge */
+
+    char line[1024];
+    std::string word ="";
+
+    bool ret = false;
+    bool begfound = false;
+
+    while(!begfound){
+
+        _file.getline(line, 1024);
+        word.clear();
+        
+        while((word=getNextWord(line)).length() != 0){ 
+
+            if(word == LANG_E_IMPLEMENTATION){
+                setStatus("readStep()", ">>> Ende des IMPLEMENTATION-Teils erreicht! <<<");
+                _running = false;
+                return true;
+            }
+
+            if(word == LANG_B_STEP)
+                begfound = true;
+            word.clear();
+        }
+
+        
+    }
+
+    std::string arg = getArgument(line);
+
+    if(arg == LANG_NOS){
+        setStatus("readStep()", "STEP-Umgebung fehlte das Argument <<<");
+        return false;
+    }
+
+    if(!isValidShort(arg)){
+        setStatus("readStep()", "STEP-Umgebung Argument: \"" + arg + "\" ist kein Short <<<");
+        return false;
+    }
+
+    _stepnum = (short)std::stoul(arg);
+
+    std::string ol;
+    while(true){
+        _file.clear();                      /* damit, wenn nur < 250 Byte ausgelesen werden können, trz weitergemacht wird.
+                                               die schlechten bits wie ios::fail werden durch clear zurückgesetzt. */
+        _file.getline(line, 1024);
+        word.clear();
+        ol = optLine(line);
+
+        if(ol == LANG_E_STEP)
+            break;
+
+        //Zeilen mit weniger als einem Zeichen werden ignoriert
+        if(ol == LANG_NOS)
+            continue;
+        else{
+            _step+=ol;
+            _step+="\n";
+        }
+    }
+
+    return true;
+}
+
 void Lang::setStatus(std::string fct_name, std::string s){
     _status = s;
     if(!_quiet)
@@ -372,7 +475,8 @@ std::string Lang::getNextWord(std::string line){
         } 
 
         /* auf wortbeendende Zeichen achten*/
-        if(line[i] != ' ' && line[i] != '\0' && line[i] != '\t' && line[i] != ';' && line[i] != '#'){             
+        if(line[i] != ' ' && line[i] != '\0' && line[i] != '\t' && line[i] != ';' && line[i] != '#'
+            && line[i] != '[' && line[i] != '{'){             
             word+=line[i];
         }
         else{
@@ -391,6 +495,26 @@ std::string Lang::getNextWord(std::string line){
     return word;        /* wenn Ende der Zeile erreicht wird wird word automatisch zu "" und hat somit die Länge 0 die in vielen If-Abfragen verwendet wird um festzustellen
                            ob das Zeilenende erreicht wurde */
 }
+
+std::string Lang::getArgument(std::string arg){
+    int pos1 = 0, pos2 = 0;
+
+    if((pos1 = arg.find_first_of('[')) == std::string::npos){
+        setStatus("getArgument()", "Kein Argument in: \"" + arg + "\" gefunden. <<<");
+        return "";
+    }
+
+    if((pos2 = arg.find_first_of(']')) == std::string::npos){
+        setStatus("getArgument()", "Argument in: \"" + arg + "\" wurde geöffnet aber nicht geschlossen. <<<");
+        return "";
+    }
+
+    return arg.substr(pos1+1, pos2 - (pos1 + 1));
+}   
+
+std::string Lang::getOption(std::string opt){
+    return LANG_NOS;
+}                                     
     
 bool Lang::varNameNotUsed(std::string name){
     for(int i = 0; i < _dtinfo.size(); ++i){
@@ -398,4 +522,25 @@ bool Lang::varNameNotUsed(std::string name){
             return false;                   // Name wird bereits verwendet
     }
     return true;                            // Name wird noch nicht verwendet
+}
+
+std::string Lang::optLine(std::string line){
+    std::string ol;
+    int sc = 0;
+    for(int i = 0; i < line.size(); ++i){
+        if(line[i] == ' ' && sc < 1){
+            ol += line[i];
+            sc++;
+        }
+        if(line[i] != ' '){
+            sc=0;
+        }
+        if(line[i] == LANG_C_COMMAND)
+            break;
+
+        if(line[i] > 32)
+            ol += line[i];
+    }
+
+    return ol;
 }
