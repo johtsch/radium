@@ -8,6 +8,7 @@ int main(int argc, char **argv){
     langtest.setQuiet(false);
     langtest.loadFile("../../langfiles/example.lang");
     langtest.start();
+    std::cout << "HIER" << std::endl;
     std::cout << std::endl;
     langtest.showVars();
     std::cout << std::endl;
