@@ -1,7 +1,7 @@
 CC=g++
-SRC=lang.cpp vartypes.cpp
+SRC=lang.cpp vartypes.cpp lfilehandler.cpp
 STD=-std=c++11
-OBJ=lang.o vartypes.o
+OBJ=lang.o vartypes.o lfilehandler.o
 LIBNAME=libradium.a
 
 new: 
