@@ -7,29 +7,16 @@
 #include <vector>           /* std::vector<T> */
 #include <tins/tins.h>      /* libtins für Netzwerkfunktionen etc. */
 
-#include "vartypes.hpp"       /* Datentypdefinitionen */
-#include "header.hpp"         /* Protokollheaderformate etc. */
+#include "vartypes.hpp"         /* Datentypdefinitionen */
+#include "lpheader.hpp"         /* Protokollheaderformate etc. */
+#include "lconst.hpp"           /* Konstanten die für .lang-Dateien und deren Auswertung wichtig sind */
 
-const std::string LANG_FEXT = ".lang";
-const std::string LANG_EOF = "EOF";
-const std::string LANG_NOS = "";            /* steht für LANG_NOString. Wird genutzt um bspw festzustellen, ob bereits eine Step-/Trigger-Umgebung eingelesen wurde. Sind diese nämlich leer, bedeutet das, dass 
-                                               keine solche Umgebung da ist, und eine beim nächsten Update eingelesen werden soll */
-
-/* _B_ == "Beginning", also der einleitende Spezifizierer */
-const std::string LANG_B_IMPLEMENTATION = "IMPLEMENTATION:";
-const std::string LANG_B_VAR = "VAR:";
-const std::string LANG_B_STEP = "S[";                   /* es ist "S[", da in einer STEP-Umgebung immer ein Argument übergeben werden muss*/
-const std::string LANG_B_TRIGGER = "T[";                /* siehe LANG_B_STEP */
-/* _B_ == "Ending", also der abschließende Spezifizierer */
-const std::string LANG_E_IMPLEMENTATION = ":IMPLEMENTATION";
-const std::string LANG_E_VAR = ":VAR";
-const std::string LANG_E_STEP = ":S";
-const std::string LANG_E_TRIGGER = ":T";
-
-//besondere Zeichen
-const char LANG_C_COMMAND = '#';
+#include "lfilehandler.hpp"
 
 class Lang{
+
+    friend class LFileHandler;                    /* Die LFileHandler-Klasse braucht Zugriff auf die Variablen der Lang-Klasse um diese zu initialisieren */
+
 public:
     Lang();
     Lang(std::string fpath);
@@ -52,12 +39,13 @@ public:
     void showVars();
     void showStep();
 private:
+
+    LFileHandler                        _handler;           /* kümmert sich um das Auslesen der Datei */
+    
     bool                                _quiet;             /* Statusmeldungen werden nicht angezeigt (ist Standard) */
     bool                                _running;           /* dient unter Anderem dazu festzustellen ob die Datei überhaupt ausführbar ist. Sollte im init-Teil etwas schief gehen 
                                                                wird _running nie true */
     std::string                         _status;            /* speichert Statusmeldungen */
-    std::string                         _filepath;          /* Pfad zur aktuellen Angriffsdatei */
-    std::ifstream                       _file;              /* Filehandler */
     std::vector<struct varinfo>         _dtinfo;            /* datatype info, dient dem Nachschlagen, wo eine Variable der .lang-Datei zu finden ist */
     std::vector<Tins::HWAddress<6>>     _haddr;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Hardwareaddresse */
     std::vector<Tins::IPv4Address>      _ipaddr;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs IPv4-ddresse */
@@ -80,34 +68,15 @@ private:
 
 
     //Hilfsfunktionen
-    bool init();                            /* gibt false zurück, wenn keine "IMPLEMENTATION"-Umgebung gefunden wurde*/
-    std::string analyse();                  /* geht die .lang-Datei Schritt für Schritt durch... damit ist gemeint, dass diese Funktion den nächsten Bezeichner ausfindig macht und 
-                                               die entsprechende Funktion aufruft. Gibt den gefundenen Bezeichner als String ohne Doppelpunkt zurück (bspw. "VAR", 
-                                               "IMPLEMENTATION", "S", "T", etc.) oder "EOF", wenn das Dateiende erreicht wurde */
-    bool analyseVar();                      /* checkt die VAR-Umgebung auf Syntaxerror und gibt gültige Variablendeklarationen in einer Zeile an initVar() weiter; Wenn kein VAR-End-
-                                               Spezifizierer folgt wird false zurückgegeben. Wenn falsche Bezeichner entdeckt werden wird eine Warnung in _status gespeichert */
-    bool initVar(std::string vardec[3]);       /* speichert alle in .lang-Datei verwendeten Datentypen in entsprechender Form in den Datenstrukturen dieser Klasse 
-                                               wenn etwas schief geht wird false zurückgegeben. Bspw. könnte es sein, dass ein Variablenname zweimal auftritt oder ähnliches. _status 
-                                               wird entsprechend angepasst*/
-    bool readStep();                        /* liest die aktuelle S-Umgebung ein */
-    bool readTrigger();                     /* liest die aktuelle T-Umgebung ein */
     void readAssemble();                    /* liest die aktuelle ASSEMBLE-Umgebung ein */
     void step();                            /* führt den in _step gespeicherten Schritt aus, wenn es wieder an der Zeit ist (->_intervall) */
     bool trigger();                         /* kontrolliert die angekommenen Datenpakete, ob sie den Vorgaben in _trigger entsprechen */
     void assemble(int index);               /* baut aus der aktuellen ASSEMBLE-Umgebung ein Paket zusammen, index ist der Index der ASSEMBLE-Umgebung, damit klar ist
                                                welches Paket zusammengebaut werden soll */
 
-
+    bool varNameNotUsed(std::string name);
     void setStatus(std::string fct_name, std::string s);                        /* steht nicht bei den Settern, da nur die Klasse Statusmeldungen produzieren darf. fct_name ist der Name
                                                                                    der Funktion in der Statusmeldung verursacht wurde */
-    std::string getNextWord(std::string line);                                  /* gibt nächstes Wort zurück + das Wortbeendende Zeichen (bspw. ';') außer es ist ein Leerzeichen oder Steuerzeichen,
-                                                                                   beginnt das nächste Wort mit '"' wird - bei Vorhandensein eines zweiten '"' in der selben Zeile - die gesamte davon 
-                                                                                   eingeschlossene Zeichensequenz zurückgegeben (ohne die umschließenden '"'). Ist nur ein '"' vorhanden wird es wie 
-                                                                                   ein wortbeendendes Zeichen behandelt und einzeln zurückgegeben */   
-    std::string getArgument(std::string arg);                                   /* arg darf höchstens ein Argument beinhalten, gekennzeichnet durch eine []-Umschließung */ 
-    std::string getOption(std::string opt);                                     /* opt darf höchstens eine Option beinhalten, gekennzeichnet durch eine {}-Umschließung */ 
-    bool varNameNotUsed(std::string name);                                      /* kontrollieren ob der Bezeichner schon verwendet wurde oder nicht */                                    
-    std::string optLine(std::string line);                                      /* gibt eine übergebene Zeile in optimierter Form zurück: keine unnötigen Steuer-/Leerzeichen und keine Kommentare */
 };
 
 #endif
