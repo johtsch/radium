@@ -33,6 +33,7 @@ public:
                                                wird entsprechend angepasst */
     bool readStep();                        /* liest die aktuelle S-Umgebung ein */
     bool readTrigger();                     /* liest die aktuelle T-Umgebung ein */
+    bool readDescription();                 /* liest Beschreibung eines Steps ein */
 
     std::string getNextWord(std::string line);                                  /* gibt nächstes Wort zurück + das Wortbeendende Zeichen (bspw. ';') außer es ist ein Leerzeichen oder Steuerzeichen,
                                                                                    beginnt das nächste Wort mit '"' wird - bei Vorhandensein eines zweiten '"' in der selben Zeile - die gesamte davon 

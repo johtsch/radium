@@ -373,6 +373,73 @@ bool LFileHandler::readStep(){
     return true;
 }
 
+bool LFileHandler::readTrigger(){
+    /* analyse() kann nicht verwendet werden, da dann die Headerzeile verloren ginge */
+
+    char line[1024];
+    std::string word ="";
+
+    bool ret = false;
+    bool begfound = false;
+
+    while(!begfound){
+
+        _file.getline(line, 1024);
+        word.clear();
+        
+        while((word=getNextWord(line)).length() != 0){ 
+
+            if(word == LANG_E_IMPLEMENTATION){
+                _lang->setStatus("readTrigger()", ">>> Ende des IMPLEMENTATION-Teils erreicht! <<<");
+                _lang->_running = false;
+                return true;
+            }
+
+            if(word == LANG_B_TRIGGER)
+                begfound = true;
+            word.clear();
+        }
+
+        
+    }
+
+    std::string arg = getArgument(line);
+
+    if(arg == LANG_NOS){
+        _lang->setStatus("readTrigger()", "TRIGGER-Umgebung fehlte das Argument <<<");
+        return false;
+    }
+
+    if(!isValidShort(arg)){
+        _lang->setStatus("readTrigger()", "TRIGGER-Umgebung Argument: \"" + arg + "\" ist kein Short <<<");
+        return false;
+    }
+
+    _lang->_triggernum = (short)std::stoul(arg);
+
+    std::string ol;
+    while(true){
+        _file.clear();                      /* damit, wenn nur < 250 Byte ausgelesen werden können, trz weitergemacht wird.
+                                               die schlechten bits wie ios::fail werden durch clear zurückgesetzt. */
+        _file.getline(line, 1024);
+        word.clear();
+        ol = optLine(line);
+
+        if(ol == LANG_E_TRIGGER)
+            break;
+
+        //Zeilen mit weniger als einem Zeichen werden ignoriert
+        if(ol == LANG_NOS)
+            continue;
+        else{
+            _lang->_trigger+=ol;
+            _lang->_trigger+="\n";
+        }
+    }
+
+    return true;
+}
+
 std::string LFileHandler::getNextWord(std::string line){
     static std::string lastline="";
     static int i=0;
