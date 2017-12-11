@@ -40,7 +40,7 @@ void Lang::update(){
     /* kontrollieren, ob neue Umgebungen eingelesen werden müssen, dabei ist nur step entscheidend, da eine leere Trigger-Umgebung vollkommen legitim ist und lediglich bedeutet, dass
         der TRIGGER sofort erfüllt ist und mit dem nächsten STEP weitergemacht werden kann */
     if(_step == LANG_NOS){
-        if(!_handler.readStep()){
+        if(!_handler.readStep() || !_handler.readTrigger()){
             setStatus("update()", "Konnte nächste STEP-/TRIGGER-Umgebung nicht einlesen. Ausführung pausiert <<<");
             _running = false;
         }
@@ -94,6 +94,11 @@ void Lang::showVars(){
 void Lang::showStep(){
     std::cout << "Der aktuelle Step (Nummer " << _stepnum << "):" << std::endl;
     std::cout << _step << std::endl;
+}
+
+void Lang::showTrigger(){
+    std::cout << "Der aktuelle Trigger (Nummer " << _triggernum << "):" << std::endl;
+    std::cout << _trigger << std::endl;
 }
 
 bool Lang::varNameNotUsed(std::string name){

@@ -38,6 +38,7 @@ public:
     /* Analyzer / Shower */
     void showVars();
     void showStep();
+    void showTrigger();
 private:
 
     LFileHandler                        _handler;           /* kümmert sich um das Auslesen der Datei */
@@ -63,6 +64,7 @@ private:
                                                                Kommentare, Leerzeilen etc.) */
     std::string                         _step;              /* speichert den Inhalt der aktuellen S[n]-Umgebung der .lang-Datei in optimierter Form */
     short                               _stepnum;
+    std::string                         _sdescription;      /* speichert den Inhalt der Description der aktuellen S[n]-Umgebung */
     std::string                         _trigger;           /* speichert den Inhalt der aktuellen T[n]-Umgebung der .lang-Datei */
     short                               _triggernum;
 
