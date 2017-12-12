@@ -12,6 +12,7 @@
 #include "lconst.hpp"           /* Konstanten die für .lang-Dateien und deren Auswertung wichtig sind */
 
 #include "lfilehandler.hpp"
+#include "lstep.hpp"
 
 class Lang{
 
@@ -62,9 +63,7 @@ private:
     // temporäre Speicher   
     std::string                         _assemble;          /* Speichert den Inhalt der aktuellen ASSEMBLE-Umgebung in "optimierter Form" (== ohne unnötige Leerzeichen, 
                                                                Kommentare, Leerzeilen etc.) */
-    std::string                         _step;              /* speichert den Inhalt der aktuellen S[n]-Umgebung der .lang-Datei in optimierter Form */
-    short                               _stepnum;
-    std::string                         _sdescription;      /* speichert den Inhalt der Description der aktuellen S[n]-Umgebung */
+    LStep                               _step;              /* speichert den Inhalt der aktuellen S[n]-Umgebung der .lang-Datei in optimierter Form */
     std::string                         _trigger;           /* speichert den Inhalt der aktuellen T[n]-Umgebung der .lang-Datei */
     short                               _triggernum;
 

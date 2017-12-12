@@ -3,7 +3,6 @@
 Lang::Lang(){
     _running = false;
     _trigger = LANG_NOS;
-    _step = LANG_NOS;
     _status = "Lang was initialized";
     _handler.linkLang(this);
     if(!_quiet)
@@ -13,7 +12,6 @@ Lang::Lang(){
 Lang::Lang(std::string fpath){
     _running = false;
     _trigger = LANG_NOS;
-    _step = LANG_NOS;
     _handler.linkLang(this);
     if(_handler.loadFile(fpath))
         setStatus("Lang()", "Lang was initialized");
@@ -39,7 +37,7 @@ void Lang::update(){
 
     /* kontrollieren, ob neue Umgebungen eingelesen werden müssen, dabei ist nur step entscheidend, da eine leere Trigger-Umgebung vollkommen legitim ist und lediglich bedeutet, dass
         der TRIGGER sofort erfüllt ist und mit dem nächsten STEP weitergemacht werden kann */
-    if(_step == LANG_NOS){
+    if(_step.getStep() == LANG_NOS){
         if(!_handler.readStep() || !_handler.readTrigger()){
             setStatus("update()", "Konnte nächste STEP-/TRIGGER-Umgebung nicht einlesen. Ausführung pausiert <<<");
             _running = false;
@@ -92,8 +90,10 @@ void Lang::showVars(){
 
 
 void Lang::showStep(){
-    std::cout << "Der aktuelle Step (Nummer " << _stepnum << "):" << std::endl;
-    std::cout << _step << std::endl;
+    std::cout << "Der aktuelle Step (Nummer " << _step.getNum() << "):" << std::endl;
+    std::cout << _step.getStep() << std::endl;
+    std::cout << "Beschreibung des aktuellen Steps: " << std::endl;
+    std::cout << _step.getDescription() << std::endl;
 }
 
 void Lang::showTrigger(){
