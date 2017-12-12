@@ -348,7 +348,8 @@ bool LFileHandler::readStep(){
         return false;
     }
 
-    _lang->_stepnum = (short)std::stoul(arg);
+    _lang->_step.setNum((short)std::stoul(arg));
+    std::string step;
 
     std::string ol;
     while(true){
@@ -365,10 +366,12 @@ bool LFileHandler::readStep(){
         if(ol == LANG_NOS)
             continue;
         else{
-            _lang->_step+=ol;
-            _lang->_step+="\n";
+            step+=ol;
+            step+="\n";
         }
     }
+
+    _lang->_step.setStep(step);
 
     return true;
 }
@@ -440,7 +443,29 @@ bool LFileHandler::readTrigger(){
     return true;
 }
 
-std::string LFileHandler::getNextWord(std::string line){
+std::string LFileHandler::getArgument(std::string arg){
+    int pos1 = 0, pos2 = 0;
+
+    if((pos1 = arg.find_first_of('[')) == std::string::npos){
+        _lang->setStatus("getArgument()", "Kein Argument in: \"" + arg + "\" gefunden. <<<");
+        return "";
+    }
+
+    if((pos2 = arg.find_first_of(']')) == std::string::npos){
+        _lang->setStatus("getArgument()", "Argument in: \"" + arg + "\" wurde geöffnet aber nicht geschlossen. <<<");
+        return "";
+    }
+
+    return arg.substr(pos1+1, pos2 - (pos1 + 1));
+}   
+
+std::string LFileHandler::getOption(std::string opt){
+    return LANG_NOS;
+}   
+
+/* ALLGEMEINE HILFSFUNKTIONEN*/
+
+std::string getNextWord(std::string line){
     static std::string lastline="";
     static int i=0;
     std::string word="";
@@ -480,33 +505,14 @@ std::string LFileHandler::getNextWord(std::string line){
 
     return word;        /* wenn Ende der Zeile erreicht wird wird word automatisch zu "" und hat somit die Länge 0 die in vielen If-Abfragen verwendet wird um festzustellen
                            ob das Zeilenende erreicht wurde */
-}
+}                                  
 
-std::string LFileHandler::getArgument(std::string arg){
-    int pos1 = 0, pos2 = 0;
-
-    if((pos1 = arg.find_first_of('[')) == std::string::npos){
-        _lang->setStatus("getArgument()", "Kein Argument in: \"" + arg + "\" gefunden. <<<");
-        return "";
-    }
-
-    if((pos2 = arg.find_first_of(']')) == std::string::npos){
-        _lang->setStatus("getArgument()", "Argument in: \"" + arg + "\" wurde geöffnet aber nicht geschlossen. <<<");
-        return "";
-    }
-
-    return arg.substr(pos1+1, pos2 - (pos1 + 1));
-}   
-
-std::string LFileHandler::getOption(std::string opt){
-    return LANG_NOS;
-}                                     
-
-std::string LFileHandler::optLine(std::string line){
+std::string optLine(std::string line){
     std::string ol;
     int sc = 0;
     for(int i = 0; i < line.size(); ++i){
-        if(line[i] == ' ' && sc < 1){
+
+        if(line[i] == ' ' && sc < 1 && ol.length() > 0){
             ol += line[i];
             sc++;
         }

@@ -9,7 +9,15 @@
 #include <vector>
 #include <tins/tins.h>      /* libtins für Netzwerkfunktionen etc. */
 #include "lconst.hpp"
+#include "lstep.hpp"
 #include "vartypes.hpp"
+
+/* allgemeine Hilfsfunktionen */
+std::string getNextWord(std::string line);                                  /* gibt nächstes Wort zurück + das Wortbeendende Zeichen (bspw. ';') außer es ist ein Leerzeichen oder Steuerzeichen,
+                                                                                   beginnt das nächste Wort mit '"' wird - bei Vorhandensein eines zweiten '"' in der selben Zeile - die gesamte davon 
+                                                                                   eingeschlossene Zeichensequenz zurückgegeben (ohne die umschließenden '"'). Ist nur ein '"' vorhanden wird es wie 
+                                                                                   ein wortbeendendes Zeichen behandelt und einzeln zurückgegeben */ 
+std::string optLine(std::string line);                                      /* gibt eine übergebene Zeile in optimierter Form zurück: keine unnötigen Steuer-/Leerzeichen und keine Kommentare */
 
 class Lang;                     /* um circular references aus dem Weg zu gehen*/
 
@@ -35,13 +43,9 @@ public:
     bool readTrigger();                     /* liest die aktuelle T-Umgebung ein */
     bool readDescription();                 /* liest Beschreibung eines Steps ein */
 
-    std::string getNextWord(std::string line);                                  /* gibt nächstes Wort zurück + das Wortbeendende Zeichen (bspw. ';') außer es ist ein Leerzeichen oder Steuerzeichen,
-                                                                                   beginnt das nächste Wort mit '"' wird - bei Vorhandensein eines zweiten '"' in der selben Zeile - die gesamte davon 
-                                                                                   eingeschlossene Zeichensequenz zurückgegeben (ohne die umschließenden '"'). Ist nur ein '"' vorhanden wird es wie 
-                                                                                   ein wortbeendendes Zeichen behandelt und einzeln zurückgegeben */   
+      
     std::string getArgument(std::string arg);                                   /* arg darf höchstens ein Argument beinhalten, gekennzeichnet durch eine []-Umschließung */ 
     std::string getOption(std::string opt);                                     /* opt darf höchstens eine Option beinhalten, gekennzeichnet durch eine {}-Umschließung */                     
-    std::string optLine(std::string line);                                      /* gibt eine übergebene Zeile in optimierter Form zurück: keine unnötigen Steuer-/Leerzeichen und keine Kommentare */
 
     std::string getPath() const { return _filepath; }
 private:
