@@ -16,11 +16,13 @@ const std::string LANG_B_IMPLEMENTATION = "IMPLEMENTATION:";
 const std::string LANG_B_VAR = "VAR:";
 const std::string LANG_B_STEP = "S[";                   /* es ist "S[", da in einer STEP-Umgebung immer ein Argument übergeben werden muss*/
 const std::string LANG_B_TRIGGER = "T[";                /* siehe LANG_B_STEP */
+const std::string LANG_B_DESCRIPTION = "DESCRIPTION:";
 /* _B_ == "Ending", also der abschließende Spezifizierer */
 const std::string LANG_E_IMPLEMENTATION = ":IMPLEMENTATION";
 const std::string LANG_E_VAR = ":VAR";
 const std::string LANG_E_STEP = ":S";
 const std::string LANG_E_TRIGGER = ":T";
+const std::string LANG_E_DESCRIPTION = ":DESCRIPTION";
 
 //besondere Zeichen
 const char LANG_C_COMMAND = '#';
