@@ -22,8 +22,13 @@
             <li><a href="#der-packetfilter-bezeichner">Der PACKETFILTER-Bezeichner</a></li>
         </ol>
     </li>
-    <li><a href="#die-radium-library">Die Radium-Library</a></li>
-    <li><a href="#header-und-paketformate">Header und Paketformate</a></li>
+    <li>
+        <a href="#die-radium-library">Die Radium-Library</a>
+        <ol>
+            <li><a href="#header-und-paketformate">Header und Paketformate</a></li>
+            <li><a href="#allgemeines-zur-umsetzung-der-umgebungen">Allgemeines zur Umsetzung der Umgebungen</a></li>
+        </ol>    
+    </li>
 </ol>
 
 <h2>Vorwort:</h2>
@@ -91,5 +96,10 @@ Wie schon erwähnt kann mit der PACKETFILTER-Umgebung ein Paketfilter erstellt w
 <h2>Die Radium-Library</h2>
 Da ich es wahrscheinlich nicht vollbringen werde gleich das Radiumprogramm (so soll das Programm mit GUI heißen mit dem man Angriffe ausführen kann) zu programmieren, beginne ich damit den nötigen Code, um mit .lang-Dateien umgehen zu können, in eine Library zu packen. Mit dieser hoffe ich dann relativ einfach das richtige Programm schreiben zu können. Wenn alles gut läuft und ich die Zeit finde, wird es für die Library auch eine kleine Dokumentation geben. 
 
-<h2>Header und Paketformate</h2>
+<h3>Header und Paketformate</h3>
 Da die Netzwerkkommunikation auf Protokollen und ihren Protokollheadern basiert, muss im Code zwangsläufig eine Möglichkeit geboten werden diese zu händeln. Bis jetzt sieht es so aus, als wäre es das Beste, wenn die Header manuell vom Programmierer der Radium-Library (das bin dann wohl ich) im Code eingefügt werden. Das hat den Nachteil, dass es dem Nutzer nicht so einfach möglich ist eigene Header zu implementieren, ohne den Code der Lib zu ändern. Um diesen Nachteil nicht so schwer wiegen zu lassen, werde ich mich bemühen die Repräsentation der Header im Code so zu händeln, dass diese in einer eigenen Datei stehen und es nach Möglichkeit genügt nach Vorbild der anderen eine Headerstruktur zu schreiben und diese, dann - wenn richtig gecoded - automatisch im Programm integriert wird. Sollte mir noch eine Möglichkeit einfallen, wie es dem Nutzer ermöglicht werden kann auf einfachem Wege eigene Header definieren zu können,werde ich das hier vermerken und natürlich auch versuche es zu implementieren. 
+
+<h3>Allgemeines zur Umsetzung der Umgebungen</h3>
+Die Implementation von Umgebungen in die Syntax von Lang hat Vor- und Nachteile. Der entscheidende Vorteil ist, dass sich Pakete damit relativ intuitiv zusammenstellen lassen, da Teile der Datenpakete Schichten des OSI-Modells zugeordnet werden können. Diese Schichten können grob als Umgebungen interpretiert werden und durch die Einteilung in solche übersichtlich dargestellt werden. <br>
+Dabei sollen die Umgebungen jeweils ihre eigenen Klassen oder zumindest Strukturen erhalten. Als Übergeordnete und essentielle Umgebungen werden die VAR- und die IMPLEMENTATION-Umgebung in einer Klasse (in lang.hpp definiert) behandelt. 
+Anhand der ASSEMBLE-Umgebung soll nun ein Beispiel folgen, wie ich mir die Umsetzung gedacht habe. Dabei gilt erstmal festzustellen, dass die einzig interessante Information für die Hauptklasse (so sei von nun an die in Lang-Klasse bezeichnet) das fertig zusammengestellte Paket und dessen Index ist. Diese Informationen werden benötigt, um Pakete identifizieren und senden zu können. Diese Versendung soll durch den SEND()-Befehl initiiert werden. Dazu hoffentlich später mehr. Das Prinzip der LAssemble-Klasse (wahrscheinlich der Name) ist es nun, eine ASSEMBLE-Umgebungen eines Steps einzulesen und entsprechend ein Paket zu erstellen. Die LAssemble-Klasse soll Member der LStep-Klasse sein, da ASSEMBLE eine Unterumgebung der Step-Klasse ist. Die fertigen Pakete werden von der LAssemble-Klasse an die LStep-Klasse und von dort aus an die Lang-Klasse weitergegeben. Das soll so sein, da die Lang-Klasse für die Umsetzung der Befehle zuständig ist auf Grund der Tatsache, dass sie die Variablen verwaltet. Um Befehle ausführen zu können, soll in der LStep-Klasse die STEP-Umgebung auf Basisbefehle (von mir im Code "Commands" getauft) untersucht werden. Diese Befehle werden mit Hilfe von Command-Codes (siehe lcommand.hpp) und Argument-Strings identifiziert und in einen vector geschrieben. Dieser wird dann Schritt für Schritt an die Lang-Klasse übergeben. Diese interpretiert die Command-Codes und Argument-Strings und führt die beschriebenen Befehle aus. 
