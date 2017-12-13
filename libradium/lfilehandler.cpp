@@ -82,8 +82,8 @@ std::string LFileHandler::analyse(){
         
         while((word=getNextWord(line)).length() != 0){
 
-            if(word != LANG_CTRL_CHAR)
-                std::cout << "\"" <<  word << "\"" << std::endl;
+            /*if(word != LANG_CTRL_CHAR)
+                std::cout << "\"" <<  word << "\"" << std::endl;*/
             ret |= (word == LANG_B_IMPLEMENTATION);
             ret |= (word == LANG_B_VAR);
             ret |= (word == LANG_B_STEP);
@@ -487,7 +487,7 @@ std::string getNextWord(std::string line){
 
         /* auf wortbeendende Zeichen achten*/
         if(line[i] != ' ' && line[i] != '\0' && line[i] != '\t' && line[i] != ';' && line[i] != '#'
-            && line[i] != '[' && line[i] != '{'){             
+            && line[i] != '[' && line[i] != '{' && line[i]!='=' && line[i] !='(' && line[i] != '\n'){             
             word+=line[i];
         }
         else{
@@ -519,7 +519,7 @@ std::string optLine(std::string line){
         if(line[i] != ' '){
             sc=0;
         }
-        if(line[i] == LANG_C_COMMAND)
+        if(line[i] == LANG_C_COMMENT)
             break;
 
         if(line[i] > 32)

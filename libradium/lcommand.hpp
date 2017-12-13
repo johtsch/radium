@@ -10,13 +10,17 @@
 /* Stellen Basisbefehle dar, keine Umgebungen! */
 
 enum LCOMMAND{
-    ASSIGNMENT,
-    SEND,
-    SLEEP
+    ASSIGNMENT,         /* durch ein besonderes Zeichen spezifiziert -> lconst.hpp*/
+    SEND                /* siehe Command-Strings für ID-String*/
+    /*SLEEP*/
 };
 
+// Command-Strings
+const std::string LCOMMAND_STR_SEND = "SEND("; 
+
+/* im Falle, dass _cmd == LCOMMAND::ASSIGNMENT enthält _args abwechselnd Bezeichner/Wert und Operation */
 struct lcommand{
-    int _cmd;
+    LCOMMAND _cmd;
     std::vector<std::string> _args;
 };
 

@@ -25,7 +25,9 @@ const std::string LANG_E_TRIGGER = ":T";
 const std::string LANG_E_DESCRIPTION = ":DESCRIPTION";
 
 //besondere Zeichen
-const char LANG_C_COMMAND = '#';
+const char LANG_C_COMMENT = '#';
+const char LANG_C_ASSIGN = '=';
+/* besondere Strings */
 
 
 const std::string LANG_CTRL_CHAR = "*";         // wird bei getNextWord()-Funktion zurückgegeben, wenn Zeichen wie '\t' das Word wären
