@@ -5,17 +5,21 @@
 
 int main(int argc, char **argv){
     Lang langtest;
-    langtest.setQuiet(false);
+    langtest.setQuiet(true);
     langtest.loadFile("../../langfiles/example.lang");
     langtest.start();
-    std::cout << "HIER" << std::endl;
+    /*
     std::cout << std::endl;
     langtest.showVars();
     std::cout << std::endl;
+    */
     langtest.update();
+    
     std::cout << std::endl;
     langtest.showStep();
+    /*
     std::cout << std::endl;
     langtest.showTrigger();
+    */
     return 0;
 }
