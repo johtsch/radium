@@ -22,8 +22,13 @@ public:
     short           getNum()            const { return _num; }
 
 private:
-    std::string     _step;
-    std::string     _description;
-    short           _num;
+    std::vector<lcommand>       _cmd;
+    std::string                 _step;
+    std::string                 _description;
+    short                       _num;
+
+    bool analyse();
+    bool manageAssignment(std::string ass);
+    bool manageSend(std::string arg);
 };
 #endif
