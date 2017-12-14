@@ -21,6 +21,8 @@ public:
     std::string     getDescription()    const { return _description; }
     short           getNum()            const { return _num; }
 
+    void showCmds();
+
 private:
     std::vector<lcommand>       _cmd;
     std::string                 _step;
