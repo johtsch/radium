@@ -30,7 +30,7 @@ const char LANG_C_ASSIGN = '=';
 /* besondere Strings */
 
 
-const std::string LANG_CTRL_CHAR = "*";         // wird bei getNextWord()-Funktion zurückgegeben, wenn Zeichen wie '\t' das Word wären
+const std::string LANG_CTRL_CHAR = "~";         // wird bei getNextWord()-Funktion zurückgegeben, wenn Zeichen wie '\t' das Word wären
 
 
 #endif
