@@ -40,6 +40,7 @@ public:
     void showVars();
     void showStep();
     void showTrigger();
+    void showCmds(){ _step.showCmds();}
 private:
 
     LFileHandler                        _handler;           /* kümmert sich um das Auslesen der Datei */
