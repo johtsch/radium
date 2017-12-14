@@ -15,11 +15,13 @@ int main(int argc, char **argv){
     */
     langtest.update();
     
-    std::cout << std::endl;
+    /*std::cout << std::endl;
     langtest.showStep();
     /*
     std::cout << std::endl;
     langtest.showTrigger();
     */
+
+    langtest.showCmds();
     return 0;
 }
