@@ -13,11 +13,13 @@
 #include "vartypes.hpp"
 
 /* allgemeine Hilfsfunktionen */
-std::string getNextWord(std::string line);                                  /* gibt nächstes Wort zurück + das Wortbeendende Zeichen (bspw. ';') außer es ist ein Leerzeichen oder Steuerzeichen,
+std::string getNextWord(std::string line, size_t &wc);                      /* gibt nächstes Wort zurück + das Wortbeendende Zeichen (bspw. ';') außer es ist ein Leerzeichen oder Steuerzeichen,
                                                                                    beginnt das nächste Wort mit '"' wird - bei Vorhandensein eines zweiten '"' in der selben Zeile - die gesamte davon 
                                                                                    eingeschlossene Zeichensequenz zurückgegeben (ohne die umschließenden '"'). Ist nur ein '"' vorhanden wird es wie 
                                                                                    ein wortbeendendes Zeichen behandelt und einzeln zurückgegeben */ 
 std::string optLine(std::string line);                                      /* gibt eine übergebene Zeile in optimierter Form zurück: keine unnötigen Steuer-/Leerzeichen und keine Kommentare */
+bool isWordEndingChar(char c);
+bool isOperand(char c);                                                     /* Operanten sind in diesem Fall nur +, -, *, / */
 
 class Lang;                     /* um circular references aus dem Weg zu gehen*/
 

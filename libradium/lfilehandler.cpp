@@ -71,6 +71,7 @@ bool LFileHandler::init(){
 std::string LFileHandler::analyse(){
     char line[1024];
     std::string word ="";
+    size_t wc = 0;
 
     bool ret = false;
 
@@ -79,8 +80,9 @@ std::string LFileHandler::analyse(){
                                                die schlechten bits wie ios::fail werden durch clear zurückgesetzt. */
         _file.getline(line, 1024);
         word.clear();
+        wc = 0;
         
-        while((word=getNextWord(line)).length() != 0){
+        while((word=getNextWord(line, wc)).length() != 0){
 
             /*if(word != LANG_CTRL_CHAR)
                 std::cout << "\"" <<  word << "\"" << std::endl;*/
@@ -108,13 +110,14 @@ bool LFileHandler::analyseVar(){
     char line[512];
     std::string word ="";
     std::string vardec[3] = { "", "", "" };
-
+    size_t wc = 0;
     while(true){
         _file.clear();
         word.clear();
         _file.getline(line, 512);
+        wc=0;
 
-        while((word=getNextWord(line)).length() != 0){
+        while((word=getNextWord(line, wc)).length() != 0){
 
             
 
@@ -129,7 +132,7 @@ bool LFileHandler::analyseVar(){
                 int wordcount = 1;          /* zählt die Wörter in der Zeile -> max. 3*/ 
                 word.clear();               /* kann gleich wiederverwendet werden */
                 size_t pos;
-                while((word=getNextWord(line)).size() != 0){
+                while((word=getNextWord(line, wc)).size() != 0){
 
                     if(word.length() > 0 && word != LANG_CTRL_CHAR)
                         wordcount++;
@@ -311,6 +314,7 @@ bool LFileHandler::readStep(){
 
     char line[1024];
     std::string word ="";
+    size_t wc = 0;
 
     bool ret = false;
     bool begfound = false;
@@ -319,8 +323,9 @@ bool LFileHandler::readStep(){
 
         _file.getline(line, 1024);
         word.clear();
+        wc = 0;
         
-        while((word=getNextWord(line)).length() != 0){ 
+        while((word=getNextWord(line, wc)).length() != 0){ 
 
             if(word == LANG_E_IMPLEMENTATION){
                 _lang->setStatus("readStep()", ">>> Ende des IMPLEMENTATION-Teils erreicht! <<<");
@@ -381,6 +386,7 @@ bool LFileHandler::readTrigger(){
 
     char line[1024];
     std::string word ="";
+    size_t wc = 0;
 
     bool ret = false;
     bool begfound = false;
@@ -390,7 +396,7 @@ bool LFileHandler::readTrigger(){
         _file.getline(line, 1024);
         word.clear();
         
-        while((word=getNextWord(line)).length() != 0){ 
+        while((word=getNextWord(line, wc)).length() != 0){ 
 
             if(word == LANG_E_IMPLEMENTATION){
                 _lang->setStatus("readTrigger()", ">>> Ende des IMPLEMENTATION-Teils erreicht! <<<");
@@ -465,44 +471,48 @@ std::string LFileHandler::getOption(std::string opt){
 
 /* ALLGEMEINE HILFSFUNKTIONEN*/
 
-std::string getNextWord(std::string line){
-    static std::string lastline="";
-    static int i=0;
+std::string getNextWord(std::string line, size_t &word_count){
     std::string word="";
     int pos_tmp = 0;
+    int i = 0;
+    int j = 0;
 
-    //wenn eine neue Line kommt, die Werte zurücksetzen
-    if(lastline != line){
-        i = 0; 
-        lastline = line;
-    }
+    do{
+        word = "";
+        for(i; i < line.size(); ++i){
+            //kontrollieren, ob ein '"' gefunden wurde, da dieses möglicherweise ein besonderes Verhalten hervorruft (siehe lang.hpp Funktionsdefinition getNextWord())
+            if(line[i]=='"' && (pos_tmp = line.find_first_of('"', i+1)) != std::string::npos){           // es wurde ein zweites "'" gefunden
+                word = line.substr(i + 1, pos_tmp - i - 1);
+                i = pos_tmp;
+                break;
+            } 
 
-    for(i; i < line.size(); ++i){
-
-        //kontrollieren, ob ein '"' gefunden wurde, da dieses möglicherweise ein besonderes Verhalten hervorruft (siehe lang.hpp Funktionsdefinition getNextWord())
-        if(line[i]=='"' && (pos_tmp = line.find_first_of('"', i+1)) != std::string::npos){           // es wurde ein zweites "'" gefunden
-            word = line.substr(i + 1, pos_tmp - i - 1);
-            i = pos_tmp + 1;
-        } 
-
-        /* auf wortbeendende Zeichen achten*/
-        if(line[i] != ' ' && line[i] != '\0' && line[i] != '\t' && line[i] != ';' && line[i] != '#'
-            && line[i] != '[' && line[i] != '{' && line[i]!='=' && line[i] !='(' && line[i] != '\n'){             
-            word+=line[i];
-        }
-        else{
-            if(line[i] != '\t' && line[i] != ' ')
+            /* auf wortbeendende Zeichen achten*/
+            if(!isWordEndingChar(line[i])){             
                 word+=line[i];
+            }
+            else{
+                if(line[i] != '\t' && line[i] != ' ' && line[i] != '\n')
+                    word+=line[i];
 
-            //wenn Wort bis jetzt leer ist, dann auch '\t' anhängen, damit es nicht mit dem Fall Zeilenende verwechselt wird
-            if(word.size() == 0)
-                word=LANG_CTRL_CHAR;
-            
-            i++;    //damit beim nächsten Buchstaben weitergemacht wird und sich das Programm nicht aufhängt
-            return word;
+                //wenn Wort bis jetzt leer ist, dann auch '\t' anhängen, damit es nicht mit dem Fall Zeilenende verwechselt wird
+                if(word.size() == 0)
+                    word=LANG_CTRL_CHAR;
+                
+                i++;    //damit beim nächsten Buchstaben weitergemacht wird und sich das Programm nicht aufhängt
+                break;
+            }
         }
-    }
+        if(word=="")
+            break;
+        j++;
+    }while(j < word_count);
 
+    if(word.length() > 1)
+        std::cout << "gnw: -> " << word << std::endl;
+
+    
+    word_count++;
     return word;        /* wenn Ende der Zeile erreicht wird wird word automatisch zu "" und hat somit die Länge 0 die in vielen If-Abfragen verwendet wird um festzustellen
                            ob das Zeilenende erreicht wurde */
 }                                  
@@ -527,4 +537,17 @@ std::string optLine(std::string line){
     }
 
     return ol;
+}
+
+bool isWordEndingChar(char c){
+    if(c != ' ' && c != '\0' && c != '\t' && c != ';' && c != '#'
+        && c != '[' && c != '{' && c != '=' && c != '(' && c != '\n'
+        && c != '+' && c != '-' && c != '*' && c != '/')
+        return false;
+    
+    return true;
+}
+
+bool isOperand(char c){
+    return (c == '+' || c == '-' || c == '*' || c == '/');
 }
