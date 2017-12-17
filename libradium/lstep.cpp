@@ -17,7 +17,9 @@ void LStep::setStep(std::string step){
         step.erase(pos1, pos2 + LANG_E_DESCRIPTION.length() - pos1 + 1);            // + 1 für das '\n' am Ende von :DESCRIPTION
     }
     _step = step;
-    analyse();
+    if(analyse()==false){
+        std::cout << "AM ARSCH!!!" << std::endl;
+    }
 }
 
 void LStep::setNum(short num){
@@ -45,7 +47,7 @@ bool LStep::analyse(){
     size_t pos=0;
     size_t pos1, pos2; 
 
-    while((wrd=getNextWord(_step, wc)) != "\0"){
+    while((wrd=getNextWord(_step, wc)).length() > 0){
         pos1 = pos2 = 0;
         tmp = ass = "";
         /* eine Zuweisung wurde gefunden */
@@ -60,6 +62,10 @@ bool LStep::analyse(){
 
             while(true){
                 tmp=getNextWord(_step, wc);
+                if(tmp == LANG_CTRL_CHAR)
+                    tmp = " ";
+                if(isOperand(tmp[0]))
+                    tmp = " " + tmp;                    // da ansonsten das Leerzeichen vor einem Operanden übersprungen werden würde
                 ass+=tmp;
                 if(tmp.find(";", 0) != std::string::npos)
                 break;
@@ -86,7 +92,6 @@ bool LStep::analyse(){
 }
 
 bool LStep::manageAssignment(std::string ass){
-    std::cout << "ASSIGNMENT: " << ass << std::endl;
     std::string wrd;
     std::string lastvar = "";
     
@@ -99,30 +104,48 @@ bool LStep::manageAssignment(std::string ass){
         if(wrd.find("=") != std::string::npos){
             if(wrd == "=")
                 _cmd[_cmd.size()-1]._args.push_back(lastvar);
-            else    
-                _cmd[_cmd.size()-1]._args.push_back(wrd.substr(1, wrd.length()-2));
+            else{    
+                _cmd[_cmd.size()-1]._args.push_back(wrd.substr(0, wrd.length()-1));
+            }
             
             break;
         }
         else if(wrd.length()>0 && wrd != LANG_CTRL_CHAR)
             lastvar = wrd;
     }
+    wc++;                           /* muss sein sonst wird das Word mit dem '=' am Ende zweimal eingelesen */
+
     bool lastWasOperand = true;
+    ass.pop_back();                 /* Semikolon entfernen */
     while((wrd=getNextWord(ass, wc)).length() > 0){
+
         if(wrd!=LANG_CTRL_CHAR){
+
+
             if(wrd.length() == 1 && isOperand(wrd[0])){
-                if(lastWasOperand == true)              /* folgen zwei Operanden aufeinander ist die Zuweisung fehlerhaft! */
+                if(lastWasOperand)              /* folgen zwei Operanden aufeinander ist die Zuweisung fehlerhaft! */
                     return false;
                 _cmd[_cmd.size()-1]._args.push_back(wrd);
                 lastWasOperand=true;
             }
-            if(wrd.length() > 1 && !lastWasOperand){
+            if(wrd.length() > 1 && lastWasOperand){
+
+                /* Pfadangaben besonders behandeln */
+                if(wrd[wrd.length()-1] == '/'){
+                    _cmd[_cmd.size()-1]._args.push_back(ass);
+                    lastWasOperand == false;
+                    break;
+                }
+
                 _cmd[_cmd.size()-1]._args.push_back(wrd);
                 lastWasOperand=false;
             }
+
+            
+
             //Semikolon beendet eine Zuweisung
-            if(wrd.find(";")!=std::string::npos)
-                break;
+            //if(wrd.find_first_of(";")!=std::string::npos)
+            //    break;
         }
 
     }

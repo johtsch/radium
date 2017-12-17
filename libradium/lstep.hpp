@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <time.h>
 
 #include "lconst.hpp"
 #include "lcommand.hpp"
@@ -28,6 +29,7 @@ private:
     std::string                 _step;
     std::string                 _description;
     short                       _num;
+    clock_t                     _intervall;
 
     bool analyse();
     bool manageAssignment(std::string ass);
