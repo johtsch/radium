@@ -39,7 +39,7 @@ S[0]{50}:                          # S[0]==erster Step {50} bedeutet dass 50ms z
         L4[TCP]:
             SPORT=sport;
             DPORT=dport;
-            SEQ_NUM=1283891283;
+            SEQ_NUM=1283891283 + 12;
             ACK_NUM=2189324743;
             FLAGS.SYN=1;
         :L4
