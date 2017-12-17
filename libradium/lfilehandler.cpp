@@ -483,7 +483,7 @@ std::string getNextWord(std::string line, size_t &word_count){
             //kontrollieren, ob ein '"' gefunden wurde, da dieses möglicherweise ein besonderes Verhalten hervorruft (siehe lang.hpp Funktionsdefinition getNextWord())
             if(line[i]=='"' && (pos_tmp = line.find_first_of('"', i+1)) != std::string::npos){           // es wurde ein zweites "'" gefunden
                 word = line.substr(i + 1, pos_tmp - i - 1);
-                i = pos_tmp;
+                i = pos_tmp+1;
                 break;
             } 
 
@@ -496,8 +496,9 @@ std::string getNextWord(std::string line, size_t &word_count){
                     word+=line[i];
 
                 //wenn Wort bis jetzt leer ist, dann auch '\t' anhängen, damit es nicht mit dem Fall Zeilenende verwechselt wird
-                if(word.size() == 0)
+                if(word.size() == 0){
                     word=LANG_CTRL_CHAR;
+                }
                 
                 i++;    //damit beim nächsten Buchstaben weitergemacht wird und sich das Programm nicht aufhängt
                 break;
@@ -508,9 +509,10 @@ std::string getNextWord(std::string line, size_t &word_count){
         j++;
     }while(j < word_count);
 
+    /*
     if(word.length() > 1)
         std::cout << "gnw: -> " << word << std::endl;
-
+    */
     
     word_count++;
     return word;        /* wenn Ende der Zeile erreicht wird wird word automatisch zu "" und hat somit die Länge 0 die in vielen If-Abfragen verwendet wird um festzustellen
