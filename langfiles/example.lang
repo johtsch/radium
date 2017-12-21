@@ -3,9 +3,8 @@ VAR:
     IP victim 192.168.2.1;
     PORT dport 8080;
     PORT sport 9999;
-    PORT provoziert einen Fehler;
     PORT invRange 111111111111111;              # der zugewiesene Wert ist außerhalb des Wertebereichs
-    HADDR sport "ff:ff:ff:ff:ff:ff";            # provoziert ebenfalls Warnung, da sport als Bezeichner schon verwendet wird
+    HADDR target "24:05:0f:5b:98:98";
     HADDR tesmac "ff:ff:ff:ff:ff:ff";
     HADDR inv "a3:99:z2:ff:de::01";
     BYTE b1 256;
@@ -23,13 +22,14 @@ S[0]{50}:                          # S[0]==erster Step {50} bedeutet dass 50ms z
     DESCRIPTION:
         Hier kann dann eine Beschreibung des aktuellen Schrittes stehen, die dann hoffentlich auch im Programm angezeigt werden kann ^^
     :DESCRIPTION
-
+    
     ASSEMBLE[1]:
-        L2:
-            STD;                            # standard == ist mir egal was da hinkommt diese schicht ist unbedeutend
+        L2:									# keine Option nötig, da nur Ethernet geht
+            SRC;
+            DST=
         :L2
 
-        #Anmerkung: L1 kann nicht festgelegt werden und für L2 ist Ethernet festgelegt -> es kann nicht anders als STD; festgelegt werden!!
+        #Anmerkung: L1 kann nicht festgelegt werden und für L2 ist Ethernet
 
         L3[IPv4]:                           # IPv4 als Protokoll der 3.Schicht setzen        
             SIP=host;                       # die definierten Felder des IPv4-Headers zuweisen 

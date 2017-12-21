@@ -15,7 +15,6 @@ public:
     LStep();
 
     void            setStep(std::string);          /* Der Inhalt der Step-Umgebung*/
-    //void            setDescription(std::string);
     void            setNum(short);
 
     std::string     getStep()           const { return _step; }

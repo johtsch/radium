@@ -517,7 +517,21 @@ std::string getNextWord(std::string line, size_t &word_count){
     word_count++;
     return word;        /* wenn Ende der Zeile erreicht wird wird word automatisch zu "" und hat somit die Länge 0 die in vielen If-Abfragen verwendet wird um festzustellen
                            ob das Zeilenende erreicht wurde */
-}                                  
+}          
+
+std::string getNextArgument(std::string str, size_t pos){
+    int pos1 = pos, pos2 = 0;
+
+    if((pos1 = str.find_first_of('[')) == std::string::npos){
+        return "";
+    }
+
+    if((pos2 = str.find_first_of(']')) == std::string::npos){
+        return "";
+    }
+
+    return str.substr(pos1+1, pos2 - (pos1 + 1));
+}                        
 
 std::string optLine(std::string line){
     std::string ol;

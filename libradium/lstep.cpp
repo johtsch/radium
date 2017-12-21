@@ -16,6 +16,20 @@ void LStep::setStep(std::string step){
         _description = step.substr(pos1 + LANG_B_DESCRIPTION.length(), pos2 - pos1 - LANG_B_DESCRIPTION.length());
         step.erase(pos1, pos2 + LANG_E_DESCRIPTION.length() - pos1 + 1);            // + 1 für das '\n' am Ende von :DESCRIPTION
     }
+
+    /* ASSEMBLE-Umgebung aus String löschen */
+    pos1 = pos2 = 0;
+    while(true){
+        pos1 = step.find(LANG_B_ASSEMBLE, pos2);
+        pos2 = step.find(LANG_E_ASSEMBLE, pos1+1);
+
+        if(pos1 == std::string::npos || pos2 == std::string::npos)
+            break;
+        else{
+            step.erase(pos1, pos2 + LANG_E_ASSEMBLE.length() - pos1 + 1);
+        }
+    }
+    
     _step = step;
     if(analyse()==false){
         std::cout << "AM ARSCH!!!" << std::endl;

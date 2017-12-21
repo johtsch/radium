@@ -8,7 +8,6 @@
 #include <tins/tins.h>      /* libtins für Netzwerkfunktionen etc. */
 
 #include "vartypes.hpp"         /* Datentypdefinitionen */
-#include "lpheader.hpp"         /* Protokollheaderformate etc. */
 #include "lconst.hpp"           /* Konstanten die für .lang-Dateien und deren Auswertung wichtig sind */
 
 #include "lfilehandler.hpp"
@@ -34,7 +33,14 @@ public:
     void setQuiet(bool q){ _quiet = q; }
 
     /* Getter */
-    std::string getStatus() const { return _status; };
+    std::string             getStatus() const { return _status; };
+    unsigned char           getVartype(std::string name) const;
+    Tins::HWAddress<6>      getHW(std::string name) const;
+    Tins::IPv4Address       getIP(std::string name) const;
+    port                    getPort(std::string name) const;
+    byte                    getByte(std::string name) const;
+    short                   getShort(std::string name) const;
+    int                     getInt(std::string name) const;
 
     /* Analyzer / Shower */
     void showVars();
