@@ -6,7 +6,6 @@
 #include <string>
 
 #include "lcommand.hpp"
-#include "lang.hpp"
 #include "vartypes.hpp"
 #include "lconst.hpp"
 
@@ -14,9 +13,11 @@ using namespace Tins;
 
 bool isSupportedProtocol(std::string p);
 
+class Lang;
+
 class LEthernet{
 public:
-    LEthernet(){ reset(); }
+    LEthernet(){}
     void reset();
 
     const static std::string s_fields[];
@@ -25,16 +26,19 @@ public:
 
     bool assign(lcommand cmd, const Lang *lang);
 
-    void inner_pdu(PDU *pdu){ _eth.inner_pdu(pdu); };
+    void inner_pdu(PDU *pdu){ _eth.inner_pdu(*pdu); };
     EthernetII* getEth(){ return &_eth; }
 
 private:
     EthernetII      _eth;
 };
 
+
+
+
 class LARP{
 public:
-    LARP(){ reset(); }
+    LARP(){}
     void reset();
 
     const static std::string s_fields[];
@@ -43,7 +47,7 @@ public:
 
     bool assign(lcommand cmd, const Lang *lang);
 
-    void inner_pdu(PDU *pdu){ _arp.inner_pdu(pdu); }
+    void inner_pdu(PDU *pdu){ _arp.inner_pdu(*pdu); }
     ARP* getARP(){ return &_arp; }
 
 private:

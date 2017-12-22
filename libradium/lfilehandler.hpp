@@ -8,6 +8,7 @@
 #include <fstream>
 #include <vector>
 #include <tins/tins.h>      /* libtins für Netzwerkfunktionen etc. */
+
 #include "lconst.hpp"
 #include "lstep.hpp"
 #include "vartypes.hpp"
@@ -46,6 +47,7 @@ public:
     bool readStep();                        /* liest die aktuelle S-Umgebung ein */
     bool readTrigger();                     /* liest die aktuelle T-Umgebung ein */
     bool readDescription();                 /* liest Beschreibung eines Steps ein */
+    bool readAllAssemble(std::string step); /* liest alle ASSEMBLE-Umgebungen aus übergebenem Step ein */
 
       
     std::string getArgument(std::string arg);                                   /* arg darf höchstens ein Argument beinhalten, gekennzeichnet durch eine []-Umschließung */ 

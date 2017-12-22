@@ -5,13 +5,14 @@
 #include <string>
 #include <tins/tins.h>
 
-#include "lproto.hpp"
 #include "lconst.hpp"
 #include "lfilehandler.hpp"             /* getNextArgument() etc. */ 
 #include "lproto.hpp"                   /* isSupportedProtocol */
 #include "lcommand.hpp"                 
 
 using namespace Tins;
+
+class Lang;
 
 /* speichert Informationen der ASSEMBLE-Umgebung */
 class LAssembler{
@@ -23,6 +24,8 @@ public:
 
     short           getNum() const { return _num; }
     bool            send();
+
+    void showPacket();
 private:
     std::string     _assemble;
     std::string     _proto[6];              /* für jede OSI-Schicht außer der ersten */

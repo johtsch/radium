@@ -96,6 +96,8 @@ bool LStep::analyse(){
             pos1 = _step.find("(", pos) + 1;
             if(manageSend(_step.substr( pos1, pos2 - pos1)) == false)
                 return false;
+
+            wc++;   //sonst würde zweimal manageSend aufgerufen werden ;)
         }
         pos+=wrd.length();                  /* Position im String mitzählen */
         if(wrd.length() == 0)
@@ -154,12 +156,6 @@ bool LStep::manageAssignment(std::string ass){
                 _cmd[_cmd.size()-1]._args.push_back(wrd);
                 lastWasOperand=false;
             }
-
-            
-
-            //Semikolon beendet eine Zuweisung
-            //if(wrd.find_first_of(";")!=std::string::npos)
-            //    break;
         }
 
     }
@@ -168,7 +164,28 @@ bool LStep::manageAssignment(std::string ass){
 }
 
 bool LStep::manageSend(std::string arg){    
-    /*std::cout << "LStep::manageSend(): " << std::endl;
-    std::cout << "\t" << arg << std::endl;*/
+    std::cout << "LStep::manageSend(): " << std::endl;
+    std::cout << "\t" << arg << std::endl;
+
+    size_t pos1;
+    short num;
+    std::string numstr;
+
+    pos1 = arg.find(LCOMMAND_ARG_PACKET);
+
+    if(pos1 == std::string::npos)
+        return false;
+
+    numstr = getNextArgument(arg, pos1);
+
+    if(!isValidShort(numstr))
+        return false;
+
+    num = (short)atoi(numstr.c_str());
+
+    _cmd.push_back(lcommand());
+    _cmd[_cmd.size()-1]._cmd = LCOMMAND::SEND;
+    _cmd[_cmd.size()-1]._args.push_back(numstr);
+
     return true;
 } 

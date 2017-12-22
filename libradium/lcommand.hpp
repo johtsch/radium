@@ -16,7 +16,8 @@ enum LCOMMAND{
 };
 
 // Command-Strings
-const std::string LCOMMAND_STR_SEND = "SEND("; 
+const std::string LCOMMAND_STR_SEND                 = "SEND("; 
+const std::string LCOMMAND_ARG_PACKET               = "PACKET["; 
 
 /* im Falle, dass _cmd == LCOMMAND::ASSIGNMENT enthält _args abwechselnd Bezeichner/Wert und Operation */
 struct lcommand{

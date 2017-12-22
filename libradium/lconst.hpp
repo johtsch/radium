@@ -23,6 +23,8 @@ const std::string LANG_B_L5             = "L5[";
 const std::string LANG_B_L6             = "L6[";
 const std::string LANG_B_L7             = "L7[";
 
+const std::string LANG_PACKET         = "PACKET[";
+
 /* _B_ == "Ending", also der abschließende Spezifizierer */
 const std::string LANG_E_IMPLEMENTATION = ":IMPLEMENTATION";
 const std::string LANG_E_VAR            = ":VAR";

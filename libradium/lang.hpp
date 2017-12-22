@@ -9,7 +9,7 @@
 
 #include "vartypes.hpp"         /* Datentypdefinitionen */
 #include "lconst.hpp"           /* Konstanten die für .lang-Dateien und deren Auswertung wichtig sind */
-
+#include "lassembler.hpp"
 #include "lfilehandler.hpp"
 #include "lstep.hpp"
 
@@ -20,7 +20,6 @@ class Lang{
 public:
     Lang();
     Lang(std::string fpath);
-    ~Lang();
     
     bool loadFile(std::string fpath);
     bool start();                           /* Starten des Angriffs */
@@ -47,6 +46,7 @@ public:
     void showStep();
     void showTrigger();
     void showCmds(){ _step.showCmds();}
+    void showPacket(){ if(_assembler.size() > 0){_assembler[0].showPacket();} }
 private:
 
     LFileHandler                        _handler;           /* kümmert sich um das Auslesen der Datei */
@@ -63,24 +63,22 @@ private:
     std::vector<short>                  _short;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Short */
     std::vector<int>                    _int;               /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Integer */
 
-    std::vector<unsigned char[1200]>    _packet;            /* die von assemble() erstellte pakete */
+    //std::vector<unsigned char[1200]>    _packet;            /* die von assemble() erstellte pakete */
     
     unsigned int                        _intervall;         /* die Pausenzeit in ms nach einem Step vor seiner erneuten Ausführung */
 
     // temporäre Speicher   
-    std::string                         _assemble;          /* Speichert den Inhalt der aktuellen ASSEMBLE-Umgebung in "optimierter Form" (== ohne unnötige Leerzeichen, 
-                                                               Kommentare, Leerzeilen etc.) */
     LStep                               _step;              /* speichert den Inhalt der aktuellen S[n]-Umgebung der .lang-Datei in optimierter Form */
+    std::vector<LAssembler>             _assembler;         /* speichert alle Assembler Umgebungen des aktuellen Steps */
     std::string                         _trigger;           /* speichert den Inhalt der aktuellen T[n]-Umgebung der .lang-Datei */
     short                               _triggernum;
 
 
     //Hilfsfunktionen
-    void readAssemble();                    /* liest die aktuelle ASSEMBLE-Umgebung ein */
     void step();                            /* führt den in _step gespeicherten Schritt aus, wenn es wieder an der Zeit ist (->_intervall) */
     bool trigger();                         /* kontrolliert die angekommenen Datenpakete, ob sie den Vorgaben in _trigger entsprechen */
-    void assemble(int index);               /* baut aus der aktuellen ASSEMBLE-Umgebung ein Paket zusammen, index ist der Index der ASSEMBLE-Umgebung, damit klar ist
-                                               welches Paket zusammengebaut werden soll */
+    void assign(lcommand cmd);              /* führt ein assign Kommando aus */
+    void send(lcommand cmd);                /* führt ein versenden Kommando aus */
 
     bool varNameNotUsed(std::string name);
     void setStatus(std::string fct_name, std::string s);                        /* steht nicht bei den Settern, da nur die Klasse Statusmeldungen produzieren darf. fct_name ist der Name

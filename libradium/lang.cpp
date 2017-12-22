@@ -19,8 +19,6 @@ Lang::Lang(std::string fpath){
         setStatus("Lang()", "Lang wasn't correctly initialized");
 }
 
-Lang::~Lang(){
-}
 
 bool Lang::loadFile(std::string fpath){
     return _handler.loadFile(fpath);
@@ -45,13 +43,74 @@ void Lang::update(){
     }
 
     /*später noch Timing-Mechanismus einfügen */
-    //step();
+    step();
 
     /* Wenn Bedingung erfüllt, dann wird das nächste STEP/TRIGGER-Paar eingelesen, dazu werden die gespeicherten Umgebungen zurückgesetzt */
     /*if(trigger()){
         _trigger == LANG_NOS;
         _step == LANG_NOS;
     }*/
+}
+
+unsigned char Lang::getVartype(std::string name) const{
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        if(_dtinfo[i]._name == name)
+            return _dtinfo[i]._type;
+    }
+    return VARTYPE_INVALID;
+}
+
+Tins::HWAddress<6> Lang::getHW(std::string name) const{
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        if(_dtinfo[i]._name == name)
+            return _haddr[_dtinfo[i]._index];
+    }
+
+    return Tins::HWAddress<6>("00:00:00:00:00:00");
+}
+
+Tins::IPv4Address Lang::getIP(std::string name) const{
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        if(_dtinfo[i]._name == name)
+            return _ipaddr[_dtinfo[i]._index];
+    }
+
+    return Tins::IPv4Address("0.0.0.0");
+}
+
+port Lang::getPort(std::string name) const{
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        if(_dtinfo[i]._name == name)
+            return _port[_dtinfo[i]._index];
+    }
+
+    return -1;
+}
+
+byte Lang::getByte(std::string name) const{
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        if(_dtinfo[i]._name == name)
+            return _byte[_dtinfo[i]._index];
+    }
+
+    return -1;
+}
+
+short Lang::getShort(std::string name) const{
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        if(_dtinfo[i]._name == name)
+            return _short[_dtinfo[i]._index];
+    }
+
+    return 0;
+}
+int Lang::getInt(std::string name) const{
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        if(_dtinfo[i]._name == name)
+            return _int[_dtinfo[i]._index];
+    }
+
+    return 0;
 }
 
 void Lang::showVars(){
@@ -100,6 +159,32 @@ void Lang::showTrigger(){
     std::cout << "Der aktuelle Trigger (Nummer " << _triggernum << "):" << std::endl;
     std::cout << _trigger << std::endl;
 }
+
+void Lang::step(){
+    for(int i = 0; i < _step._cmd.size();++i){
+        if(_step._cmd[i]._cmd == LCOMMAND::ASSIGNMENT)
+            assign(_step._cmd[i]);
+        else if (_step._cmd[i]._cmd == LCOMMAND::SEND)
+            send(_step._cmd[i]);
+    }
+}
+
+/* vorerst werden nur einfache Zuweisungen der Form x=y unterstützt */
+void Lang::assign(lcommand cmd){
+    // SPÄTER
+}   
+
+void Lang::send(lcommand cmd){
+
+    if(cmd._cmd != LCOMMAND::SEND)
+        return;
+
+    for(int i = 0; i < _assembler.size(); ++i){
+        if(_assembler[i].getNum() == (short)atoi(cmd._args[0].c_str())){
+            _assembler[i].send();
+        }
+    }
+}          
 
 bool Lang::varNameNotUsed(std::string name){
     for(int i = 0; i < _dtinfo.size(); ++i){

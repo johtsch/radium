@@ -1,13 +1,36 @@
 #include "lassembler.hpp"
+#include "lang.hpp"
+
+void LAssembler::showPacket(){
+    std::cout << "ETHERNET:" << std::endl;
+    std::cout << "src: " << _eth.getEth()->src_addr() << std::endl;
+    std::cout << "dst: " << _eth.getEth()->dst_addr() << std::endl;
+    std::cout << "ARP:" << std::endl;
+    std::cout << "src_mac: " << _arp.getARP()->sender_hw_addr() << std::endl;
+    std::cout << "src_ip: " << _arp.getARP()->sender_ip_addr() << std::endl;
+    std::cout << "dst_mac: " << _arp.getARP()->target_hw_addr() << std::endl;
+    std::cout << "dst_ip: " << _arp.getARP()->target_ip_addr() << std::endl;
+}
 
 bool LAssembler::setAssembler(std::string assemble, const Lang *lang){
     _assemble = assemble;
     return analyse(lang);
 }
 
+bool LAssembler::send(){
+    NetworkInterface iface = NetworkInterface::default_interface();
+    PacketSender sender;
+
+    sender.send(*((PDU*)_eth.getEth()), iface);
+    return true;
+}
+
 bool LAssembler::analyse(const Lang *lang){
     std::string arg;
     size_t pos1, pos2;
+
+    // die statische Variable in analyse Layer zurücksetzen
+    analyseLayer(lang, "", "");
 
     pos1 = _assemble.find(LANG_B_L2);
 
@@ -28,7 +51,6 @@ bool LAssembler::analyse(const Lang *lang){
             return false;
 
         arg = getNextArgument(_assemble, pos1);
-
         if(!isSupportedProtocol(arg))
             return false;
 
@@ -54,7 +76,7 @@ bool LAssembler::analyse(const Lang *lang){
             return false;
     }
     else
-        return false;
+        return true;
 
     pos1 = _assemble.find(LANG_B_L5, pos2);
 
@@ -72,7 +94,7 @@ bool LAssembler::analyse(const Lang *lang){
             return false;
     }
     else
-        return false;
+        return true;
 
     pos1 = _assemble.find(LANG_B_L6, pos2);
 
@@ -90,7 +112,7 @@ bool LAssembler::analyse(const Lang *lang){
             return false;
     }
     else
-        return false;
+        return true;
 
     pos1 = _assemble.find(LANG_B_L7, pos2);
 
@@ -108,7 +130,7 @@ bool LAssembler::analyse(const Lang *lang){
             return false;
     }
     else
-        return false;
+        return true;
 
     return true;
 }
@@ -123,10 +145,18 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
     size_t pos=0;
     size_t pos1, pos2; 
 
+    if(pro == ""){
+        prevpro = "";
+        return true;
+    }
+
+    if(lang == nullptr)
+        return false;
+
     while((wrd=getNextWord(layer, wc)).length() > 0){
         /* eine Zuweisung wurde gefunden */
         if(wrd.find(LANG_C_ASSIGN, 0) != std::string::npos){
-
+            
             if(wrd.length()==1)                     //Leerzeichen vor dem = sorgt dafür dass wrd nur aus = besteht, was natürlich falsch wäre
                 return false;
 
@@ -136,26 +166,31 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
             lcommand ass;
             ass._cmd=LCOMMAND::ASSIGNMENT;
             wrd.pop_back();                       /* das letzte Zeichen ist ein '=' */
+            tmp.pop_back();                       /* das letzte Zeichen ist ein ';' */
             ass._args.push_back(wrd);
             ass._args.push_back(tmp);
 
             /* je nach protocol die richtige PDU-Wrapper-Klasse mit Ausführung des Kommandos beauftragen */
             if(pro == LANG_PRO_ETHERNET){
-                if(!_eth.assign(ass, lang))
+                if(!_eth.assign(ass, lang)){
                     return false;
+                }
             }
             if(pro == LANG_PRO_ARP){
-                if(!_arp.assign(ass, lang))
+                if(!_arp.assign(ass, lang)){
                     return false;
+                }
                 pdu = (PDU*)&_arp;
             }
         }   
     }
 
-    if(prevpro=="" && pro != LANG_PRO_ETHERNET)
+    if(prevpro=="" && pro != LANG_PRO_ETHERNET){
         _eth.inner_pdu(pdu);
-    if(prevpro==LANG_PRO_ETHERNET)
+    }
+    if(prevpro==LANG_PRO_ETHERNET){
         _eth.inner_pdu(pdu);
+    }
     /*
     if(prevpro==LANG_PRO_ETHERNET)
         _eth.inner_pdu(pdu);
@@ -165,5 +200,6 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
         _eth.inner_pdu(pdu);
     */
 
+    prevpro = pro;
     return true;
 }

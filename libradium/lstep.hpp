@@ -11,6 +11,9 @@
 
 /* Speichert Informationen zu STEP-Umgebungen */
 class LStep{
+
+    friend class Lang;
+    
 public:
     LStep();
 

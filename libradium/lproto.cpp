@@ -1,4 +1,5 @@
 #include "lproto.hpp"
+#include "lang.hpp"
 
 const std::string LEthernet::s_fields[] = { "SRC", "DST" };
 const unsigned char LEthernet::s_type[] = { VARTYPE_HADDR, VARTYPE_HADDR };
@@ -6,7 +7,7 @@ const unsigned char LEthernet::s_type[] = { VARTYPE_HADDR, VARTYPE_HADDR };
 const std::string LARP::s_fields[] = { "SENDER_IP", "SENDER_HW", "TARGET_IP", "TARGET_HW", "OPCODE" };
 const unsigned char LARP::s_type[] = { VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_BYTE };
 
-bool isValidProtocol(std::string p){
+bool isSupportedProtocol(std::string p){
     if(p == LANG_PRO_ETHERNET)
         return true;
     if(p == LANG_PRO_ARP)
@@ -27,17 +28,19 @@ bool LEthernet::assign(lcommand cmd, const Lang *lang){
     
     bool isfield = false;
     int f = 0;
-    for(int f = 0; f < sizeof(s_fields) / sizeof(s_fields[0]); ++f){
+    for(f = 0; f < sizeof(s_fields) / sizeof(s_fields[0]); ++f){
         if(cmd._args[0] == s_fields[f]){
             isfield = true;
+            break;
         }
     }
 
     if(!isfield)
         return false;
-
+    
     if(lang->getVartype(cmd._args[1]) != s_type[f])
         return false;
+
         
     if(f == LEthernet::SRC){
         _eth.src_addr(lang->getHW(cmd._args[1]));
@@ -63,9 +66,10 @@ bool LARP::assign(lcommand cmd, const Lang *lang){
     
     bool isfield = false;
     int f = 0;
-    for(int f = 0; f < sizeof(s_fields) / sizeof(s_fields[0]); ++f){
+    for(f = 0; f < sizeof(s_fields) / sizeof(s_fields[0]); ++f){
         if(cmd._args[0] == s_fields[f]){
             isfield = true;
+            break;
         }
     }
 

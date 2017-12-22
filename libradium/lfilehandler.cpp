@@ -175,29 +175,6 @@ bool LFileHandler::analyseVar(){
 }
 
 bool LFileHandler::initVar(std::string vardec[3]){
-    /*
-        NUR EINE GEDANKENSTÜTZE: 
-
-        const unsigned char VARTYPE_HADDR   = 1;       // Hardwareaddresse
-        const unsigned char VARTYPE_IPADDR  = 2;       // IPv4-Addresse
-        const unsigned char VARTYPE_PORT    = 3;       // TCP/UDP-Port
-        const unsigned char VARTYPE_BYTE    = 4;
-        const unsigned char VARTYPE_SHORT   = 5;
-        const unsigned char VARTYPE_INT     = 6;
-
-        struct varinfo{
-        unsigned char _type;            // siehe VARTYPE_*
-        std::string _name;              // Name der Variable innerhalb der .lang-Datei
-        short _index;                   // der Index der Variable innerhalb der Vector-Struktur in der alle Variablen des gleichen Typs gespeichert werden
-
-        std::vector<struct varinfo>         _dtinfo;             datatype info, dient dem Nachschlagen, wo eine Variable der .lang-Datei zu finden ist 
-        std::vector<Tins::HWAddress<6>>     _haddr;              speichert alle in der .lang-Datei verwendeten Variablen des Typs Hardwareaddresse 
-        std::vector<Tins::IPv4Address>      _ipaddr;             speichert alle in der .lang-Datei verwendeten Variablen des Typs IPv4-ddresse 
-        std::vector<struct port>            _port;               speichert alle in der .lang-Datei verwendeten Variablen des Typs Port 
-        std::vector<byte>                   _byte;               speichert alle in der .lang-Datei verwendeten Variablen des Typs Byte 
-        std::vector<short>                  _short;              speichert alle in der .lang-Datei verwendeten Variablen des Typs Short 
-        std::vector<int>                    _int;                speichert alle in der .lang-Datei verwendeten Variablen des Typs Integer 
-    */
             
     unsigned char tmp;
     /* kontrollieren dass es sich bei vardec[0] um Vartype handelt auch, wenn dies eigentlich feststehen sollte */
@@ -312,6 +289,9 @@ bool LFileHandler::initVar(std::string vardec[3]){
 bool LFileHandler::readStep(){
     /* analyse() kann nicht verwendet werden, da dann die Headerzeile verloren ginge */
 
+    /* zurücksetzen der Speicher */
+    _lang->_assembler.clear();
+
     char line[1024];
     std::string word ="";
     size_t wc = 0;
@@ -376,6 +356,11 @@ bool LFileHandler::readStep(){
         }
     }
 
+    /* die anderen Umgebungen rausschneiden und initialisieren die zu einem Step gehören */
+
+    if(readAllAssemble(step) == false)
+        return false;
+    
     _lang->_step.setStep(step);
 
     return true;
@@ -449,6 +434,42 @@ bool LFileHandler::readTrigger(){
     return true;
 }
 
+bool LFileHandler::readAllAssemble(std::string step){
+    size_t pos1, pos2 = 0;
+    std::string arg = "";
+    short a;
+
+    while(true){
+        pos1 = step.find(LANG_B_ASSEMBLE, pos2);
+
+        if(pos1==std::string::npos)
+            break;
+
+        pos2 = step.find(LANG_E_ASSEMBLE, pos1);
+
+        if(pos2==std::string::npos)
+            break;
+
+        arg = getArgument(step.substr(pos1, LANG_B_ASSEMBLE.length() + 10));
+
+        if(isValidShort(arg)){
+            a = (short)atoi(arg.c_str());
+        }
+        else
+            return false;
+
+        /* kontrollieren, dass in diesem Step noch kein Paket mit gleicher Nummer erstellt wurde */
+        for(int i = 0; i < _lang->_assembler.size(); ++i){
+            if(_lang->_assembler[i].getNum() == a)
+                return false;
+        }
+
+        _lang->_assembler.push_back(LAssembler());
+        _lang->_assembler[_lang->_assembler.size()-1].setAssembler(step.substr(pos1, pos2 - pos1), _lang);
+        _lang->_assembler[_lang->_assembler.size()-1].setNum(a);
+    }
+}
+
 std::string LFileHandler::getArgument(std::string arg){
     int pos1 = 0, pos2 = 0;
 
@@ -484,7 +505,6 @@ std::string getNextWord(std::string line, size_t &word_count){
             if(line[i]=='"' && (pos_tmp = line.find_first_of('"', i+1)) != std::string::npos){           // es wurde ein zweites "'" gefunden
                 word = line.substr(i + 1, pos_tmp - i - 1);
                 i = pos_tmp+1;
-                break;
             } 
 
             /* auf wortbeendende Zeichen achten*/
@@ -520,13 +540,14 @@ std::string getNextWord(std::string line, size_t &word_count){
 }          
 
 std::string getNextArgument(std::string str, size_t pos){
-    int pos1 = pos, pos2 = 0;
-
-    if((pos1 = str.find_first_of('[')) == std::string::npos){
+    size_t pos1 = 0;
+    size_t pos2 = 0;
+    
+    if((pos1 = str.find_first_of('[', pos)) == std::string::npos){
         return "";
     }
 
-    if((pos2 = str.find_first_of(']')) == std::string::npos){
+    if((pos2 = str.find_first_of(']', pos1)) == std::string::npos){
         return "";
     }
 
