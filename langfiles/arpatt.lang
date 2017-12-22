@@ -1,8 +1,8 @@
 VAR:
-	IP lookup 192.168.2.116;
+	IP lookup "192.168.2.116";
 	IP src 192.168.2.108;
-	HWADDR hwsrc "24:05:0f:5b:98:98";
-	HWADDR broad "ff:ff:ff:ff:ff:ff";
+	HADDR hwsrc "24:05:0f:5b:98:98";
+	HADDR broad "ff:ff:ff:ff:ff:ff";
 	BYTE request 1;
 :VAR
 
@@ -21,9 +21,12 @@ S[0]:
 			SENDER_IP=src;
 			SENDER_HW=hwsrc;
 			TARGET_IP=lookup;
+			TARGET_HW=broad;
 			OPCODE=request;
 		:L3
 	:ASSEMBLE
 	SEND(PACKET[1]);
 :S
+T[0]:
+:T
 :IMPLEMENTATION
