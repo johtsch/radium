@@ -481,6 +481,7 @@ bool LFileHandler::readAllAssemble(std::string step){
 }
 
 bool LFileHandler::readAllFilter(std::string trigger){
+    return true;
     size_t pos1, pos2 = 0;
     std::string arg = "";
     short a;
