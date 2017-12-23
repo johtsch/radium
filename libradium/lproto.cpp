@@ -16,10 +16,28 @@ bool isSupportedProtocol(std::string p){
     return false;
 }
 
+PDU::PDUType LangProtocolToPDUType(std::string pro){
+    if(pro == LANG_PRO_ETHERNET)
+        return PDU::PDUType::ETHERNET_II;
+    if(pro == LANG_PRO_ARP)
+        return PDU::PDUType::ARP;
+    if(pro == LANG_PRO_IPv4)
+        return PDU::PDUType::IP;
+    if(pro == LANG_PRO_ICMP)
+        return PDU::PDUType::ICMP;
+    if(pro == LANG_PRO_TCP)
+        return PDU::PDUType::TCP;
+    if(pro == LANG_PRO_UDP)
+        return PDU::PDUType::UDP;
+    if(pro == LANG_PRO_DHCP)
+        return PDU::PDUType::DHCP;
+
+    return PDU::PDUType::UNKNOWN;
+}
+
 void LEthernet::reset(){
-    NetworkInterface iface = NetworkInterface::default_interface();
-    _eth.src_addr(iface.hw_address());
-    _eth.dst_addr("ff:ff:ff:ff:ff:ff");
+    _eth.src_addr("00:00:00:00:00:00");
+    _eth.dst_addr("00:00:00:00:00:00");
 }
 
 bool LEthernet::assign(lcommand cmd, const Lang *lang){
@@ -52,10 +70,20 @@ bool LEthernet::assign(lcommand cmd, const Lang *lang){
     return true;
 }
 
+bool LEthernet::compare(const EthernetII *eth){
+    bool equal = true;
+    if(_eth.src_addr() != HWAddress<6>("00:00:00:00:00:00"))
+        equal &= (_eth.src_addr() == eth->src_addr());
+    if(_eth.dst_addr() != HWAddress<6>("00:00:00:00:00:00"))
+        equal &= (_eth.dst_addr() == eth->dst_addr());
+
+    return equal;
+}
+
 void LARP::reset(){
-    NetworkInterface iface = NetworkInterface::default_interface();
-    _arp.sender_ip_addr("127.0.0.1");
-    _arp.sender_hw_addr(iface.hw_address());
+    _flagsset = false;
+    _arp.sender_ip_addr("0.0.0.0");
+    _arp.sender_hw_addr("00:00:00:00:00:00");
     _arp.target_ip_addr("0.0.0.0");
     _arp.opcode(ARP::REQUEST);
 }
@@ -92,11 +120,32 @@ bool LARP::assign(lcommand cmd, const Lang *lang){
         _arp.target_hw_addr(lang->getHW(cmd._args[1]));
     }
     else if(f == LARP::OPCODE){
-        if(lang->getByte(cmd._args[1]) == 1)
+        if(lang->getByte(cmd._args[1]) == 1){
             _arp.opcode(ARP::REQUEST);
-        if(lang->getByte(cmd._args[1]) == 2)
+            _flagsset = true;
+        }
+        if(lang->getByte(cmd._args[1]) == 2){
             _arp.opcode(ARP::REPLY);
+            _flagsset = true;
+        }
     }
 
     return true;
+}
+
+bool LARP::compare(const ARP *arp){
+    bool equal = true;
+
+    if(_arp.sender_ip_addr() != IPv4Address("0.0.0.0"))
+        equal &= (_arp.sender_ip_addr() == arp->sender_ip_addr());
+    if(_arp.sender_hw_addr() != HWAddress<6>("00:00:00:00:00:00"))
+        equal &= (_arp.sender_hw_addr() == arp->sender_hw_addr());
+    if(_arp.target_ip_addr() != IPv4Address("0.0.0.0"))
+        equal &= (_arp.target_ip_addr() == arp->target_ip_addr());
+    if(_arp.target_hw_addr() != HWAddress<6>("00:00:00:00:00:00"))
+        equal &= (_arp.target_hw_addr() == arp->target_hw_addr());
+    if(_flagsset)
+        equal &= (_arp.opcode() == arp->opcode());
+
+    return equal;
 }

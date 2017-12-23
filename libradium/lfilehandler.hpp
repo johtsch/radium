@@ -12,6 +12,8 @@
 #include "lconst.hpp"
 #include "lstep.hpp"
 #include "vartypes.hpp"
+#include "lassembler.hpp"
+#include "lfilter.hpp"
 
 /* allgemeine Hilfsfunktionen */
 std::string getNextWord(std::string line, size_t &wc);                      /* gibt nächstes Wort zurück + das Wortbeendende Zeichen (bspw. ';') außer es ist ein Leerzeichen oder Steuerzeichen,
@@ -48,6 +50,7 @@ public:
     bool readTrigger();                     /* liest die aktuelle T-Umgebung ein */
     bool readDescription();                 /* liest Beschreibung eines Steps ein */
     bool readAllAssemble(std::string step); /* liest alle ASSEMBLE-Umgebungen aus übergebenem Step ein */
+    bool readAllFilter(std::string trigger);   /* liest alle PACKETFILTER-Umgebungen aus übergebenem TRIGGER ein */
 
       
     std::string getArgument(std::string arg);                                   /* arg darf höchstens ein Argument beinhalten, gekennzeichnet durch eine []-Umschließung */ 

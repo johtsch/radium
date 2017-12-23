@@ -10,6 +10,7 @@
 #include "vartypes.hpp"         /* Datentypdefinitionen */
 #include "lconst.hpp"           /* Konstanten die für .lang-Dateien und deren Auswertung wichtig sind */
 #include "lassembler.hpp"
+#include "lfilter.hpp"
 #include "lfilehandler.hpp"
 #include "lstep.hpp"
 
@@ -26,7 +27,7 @@ public:
     void pause();                           /* Angriffausführung pausieren */
     void stop();                            /* Angriff stoppen, beim nächsten Start beginnt der Angriff wieder von vorne */
 
-    void update();                          /* Die Angriffloop... managed Steps und Trigger etc. */
+    bool update();                          /* Die Angriffloop... managed Steps und Trigger etc., gibt false zurück wenn keine neue Step/Trigger-Umgebung eingelesen werden konnte */
 
     /* Setter*/
     void setQuiet(bool q){ _quiet = q; }
@@ -47,8 +48,9 @@ public:
     void showTrigger();
     void showCmds(){ _step.showCmds();}
     void showPacket(){ if(_assembler.size() > 0){_assembler[0].showPacket();} }
+    void showFilter(){ if(_filter.size() > 0){_filter[0].showFilter();}else{std::cout << "FICKEN" << std::endl;} }
 private:
-
+    Sniffer                             _sniffer;           /* um reinkommende Pakete auszulesen */
     LFileHandler                        _handler;           /* kümmert sich um das Auslesen der Datei */
     
     bool                                _quiet;             /* Statusmeldungen werden nicht angezeigt (ist Standard) */
@@ -70,6 +72,7 @@ private:
     // temporäre Speicher   
     LStep                               _step;              /* speichert den Inhalt der aktuellen S[n]-Umgebung der .lang-Datei in optimierter Form */
     std::vector<LAssembler>             _assembler;         /* speichert alle Assembler Umgebungen des aktuellen Steps */
+    std::vector<LFilter>                _filter;            /* speichert alle Assembler Umgebungen des aktuellen Steps */  
     std::string                         _trigger;           /* speichert den Inhalt der aktuellen T[n]-Umgebung der .lang-Datei */
     short                               _triggernum;
 

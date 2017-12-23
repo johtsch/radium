@@ -28,5 +28,14 @@ S[0]:
 	SEND(PACKET[1]);
 :S
 T[0]:
+	PACKETFILTER: 
+		L2:
+			
+		:L2
+		L3[ARP]:
+			SENDER_IP=lookup;
+			TARGET_IP=src;
+		:L3
+	:PACKETFILTER
 :T
 :IMPLEMENTATION

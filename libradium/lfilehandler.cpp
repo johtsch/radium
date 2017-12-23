@@ -53,7 +53,6 @@ bool LFileHandler::init(){
             analyseVar();
         } 
         if(tmp == LANG_E_VAR){
-            //analyseVar();
             _lang->setStatus("init()", ">>> VAR-End-Teil erreicht");
         }    
         if(tmp == LANG_B_IMPLEMENTATION){
@@ -369,6 +368,9 @@ bool LFileHandler::readStep(){
 bool LFileHandler::readTrigger(){
     /* analyse() kann nicht verwendet werden, da dann die Headerzeile verloren ginge */
 
+    // alle Filter des vorherigen Triggers zurücksetzen
+    _lang->_filter.clear();
+
     char line[1024];
     std::string word ="";
     size_t wc = 0;
@@ -419,7 +421,7 @@ bool LFileHandler::readTrigger(){
         word.clear();
         ol = optLine(line);
 
-        if(ol == LANG_E_TRIGGER)
+        if(ol.find(LANG_E_TRIGGER) != std::string::npos)
             break;
 
         //Zeilen mit weniger als einem Zeichen werden ignoriert
@@ -429,6 +431,11 @@ bool LFileHandler::readTrigger(){
             _lang->_trigger+=ol;
             _lang->_trigger+="\n";
         }
+    }
+        
+
+    if(readAllFilter(_lang->_trigger)==false){
+        return false;
     }
 
     return true;
@@ -465,11 +472,40 @@ bool LFileHandler::readAllAssemble(std::string step){
         }
 
         _lang->_assembler.push_back(LAssembler());
-        _lang->_assembler[_lang->_assembler.size()-1].setAssembler(step.substr(pos1, pos2 - pos1), _lang);
+        if(_lang->_assembler[_lang->_assembler.size()-1].setAssembler(step.substr(pos1, pos2 - pos1), _lang)==false)
+            return false;
         _lang->_assembler[_lang->_assembler.size()-1].setNum(a);
     }
+
+    return true;
 }
 
+bool LFileHandler::readAllFilter(std::string trigger){
+    size_t pos1, pos2 = 0;
+    std::string arg = "";
+    short a;
+
+    while(true){
+        pos1 = trigger.find(LANG_B_PACKETFILTER, pos2);
+
+        if(pos1==std::string::npos)
+            break;
+
+        pos2 = trigger.find(LANG_E_PACKETFILTER, pos1);
+
+        if(pos2==std::string::npos)
+            break;
+
+        _lang->_filter.push_back(LFilter());
+
+        if(_lang->_filter[_lang->_filter.size()-1].setPacketfilter(trigger.substr(pos1, pos2 - pos1), _lang)==false){
+
+            return false;
+        }
+    }
+
+    return true;
+}
 std::string LFileHandler::getArgument(std::string arg){
     int pos1 = 0, pos2 = 0;
 

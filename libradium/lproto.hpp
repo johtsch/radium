@@ -12,6 +12,7 @@
 using namespace Tins;
 
 bool isSupportedProtocol(std::string p);
+PDU::PDUType LangProtocolToPDUType(std::string pro);
 
 class Lang;
 
@@ -25,6 +26,7 @@ public:
     enum s_fenum { SRC, DST };
 
     bool assign(lcommand cmd, const Lang *lang);
+    bool compare(const EthernetII *eth);
 
     void inner_pdu(PDU *pdu){ _eth.inner_pdu(*pdu); };
     EthernetII* getEth(){ return &_eth; }
@@ -46,12 +48,15 @@ public:
     enum s_fenum { SENDER_IP, SENDER_HW, TARGET_IP, TARGET_HW, OPCODE };
 
     bool assign(lcommand cmd, const Lang *lang);
+    bool compare(const ARP *arp);
 
     void inner_pdu(PDU *pdu){ _arp.inner_pdu(*pdu); }
     ARP* getARP(){ return &_arp; }
+    bool flagsSet(){ return _flagsset; }
 
 private:
     ARP      _arp;
+    bool     _flagsset;
 };
 
 #endif

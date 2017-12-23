@@ -15,6 +15,7 @@ const std::string LANG_B_STEP           = "S[";                     /* es ist "S
 const std::string LANG_B_TRIGGER        = "T[";                     /* siehe LANG_B_STEP */
 const std::string LANG_B_DESCRIPTION    = "DESCRIPTION:";
 const std::string LANG_B_ASSEMBLE       = "ASSEMBLE[";
+const std::string LANG_B_PACKETFILTER   = "PACKETFILTER:";
 
 const std::string LANG_B_L2             = "L2:";
 const std::string LANG_B_L3             = "L3[";
@@ -32,6 +33,7 @@ const std::string LANG_E_STEP           = ":S";
 const std::string LANG_E_TRIGGER        = ":T";
 const std::string LANG_E_DESCRIPTION    = ":DESCRIPTION";
 const std::string LANG_E_ASSEMBLE       = ":ASSEMBLE";
+const std::string LANG_E_PACKETFILTER   = ":PACKETFILTER";
 
 const std::string LANG_E_L2             = ":L2";
 const std::string LANG_E_L3             = ":L3";
@@ -57,14 +59,16 @@ const std::string LANG_NOS          = "";          /* steht für LANG_NOString. 
 
 /* UNTERSTÜTZTE PROTOKOLLE */
 
+const std::string LANG_PRO_NONE     = "NONE";       
 const std::string LANG_PRO_ETHERNET = "ETH";
 const std::string LANG_PRO_IPv4     = "IPv4";
 const std::string LANG_PRO_ARP      = "ARP";
 const std::string LANG_PRO_ICMP     = "ICMP";
 const std::string LANG_PRO_TCP      = "TCP";
-const std::string LANG_PRO_UPD      = "UDP";
+const std::string LANG_PRO_UDP      = "UDP";
 const std::string LANG_PRO_DHCP     = "DHCP";
 
+const int         LANG_COD_NONE     = 00;
 const int         LANG_COD_ETHERNET = 11;
 const int         LANG_COD_IPv4     = 21;
 const int         LANG_COD_ARP      = 31;

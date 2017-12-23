@@ -10,10 +10,11 @@ int main(int argc, char **argv){
     langtest.start();
     
     std::cout << std::endl;
-    langtest.showVars();
-    std::cout << std::endl;
+    //langtest.showVars();
+    //std::cout << std::endl;
     
-    langtest.update();
+
+    while(langtest.update());
     
     std::cout << std::endl;
     langtest.showStep();/*
@@ -22,8 +23,10 @@ int main(int argc, char **argv){
     langtest.showTrigger();
     */
     std::cout << std::endl;
-    langtest.showCmds();
-    std::cout << std::endl;
     langtest.showPacket();
+    std::cout << std::endl;
+    langtest.showFilter();
+    std::cout << std::endl;
+    langtest.showTrigger();
     return 0;
 }

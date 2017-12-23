@@ -1,6 +1,8 @@
 #include "lang.hpp"
 
-Lang::Lang(){
+Lang::Lang()
+    : _sniffer(Sniffer(NetworkInterface::default_interface().name()))
+{
     _running = false;
     _trigger = LANG_NOS;
     _status = "Lang was initialized";
@@ -9,7 +11,9 @@ Lang::Lang(){
         std::cout << "Lang: Lang(): " << _status << std::endl;
 }
 
-Lang::Lang(std::string fpath){
+Lang::Lang(std::string fpath)
+    : _sniffer(Sniffer(NetworkInterface::default_interface().name()))
+{
     _running = false;
     _trigger = LANG_NOS;
     _handler.linkLang(this);
@@ -28,17 +32,19 @@ bool Lang::start(){
     return (_running = _handler.init());                 // alle Variablen einlesen
 }
 
-void Lang::update(){
+bool Lang::update(){
     /* nur die Funktion ausführen, wenn _running true ist. Also wenn alle Vorbereitungen getroffen sind und eine Ausführung gewünscht ist. */
     if(!_running)
-        return;
+        return false;
 
     /* kontrollieren, ob neue Umgebungen eingelesen werden müssen, dabei ist nur step entscheidend, da eine leere Trigger-Umgebung vollkommen legitim ist und lediglich bedeutet, dass
         der TRIGGER sofort erfüllt ist und mit dem nächsten STEP weitergemacht werden kann */
     if(_step.getStep() == LANG_NOS){
+        setStatus("update()", ">>> neue Step-/Trigger-Umgebungen werden eingelesen.");
         if(!_handler.readStep() || !_handler.readTrigger()){
-            setStatus("update()", "Konnte nächste STEP-/TRIGGER-Umgebung nicht einlesen. Ausführung pausiert <<<");
+            setStatus("update()", "Konnte nächste STEP-/TRIGGER-Umgebung nicht einlesen. Ausführung beendet <<<");
             _running = false;
+            return false;
         }
     }
 
@@ -46,10 +52,12 @@ void Lang::update(){
     step();
 
     /* Wenn Bedingung erfüllt, dann wird das nächste STEP/TRIGGER-Paar eingelesen, dazu werden die gespeicherten Umgebungen zurückgesetzt */
-    /*if(trigger()){
+    if(trigger()){
         _trigger == LANG_NOS;
-        _step == LANG_NOS;
-    }*/
+        _step.setStep(LANG_NOS);
+    }
+
+    return true;
 }
 
 unsigned char Lang::getVartype(std::string name) const{
@@ -167,6 +175,19 @@ void Lang::step(){
         else if (_step._cmd[i]._cmd == LCOMMAND::SEND)
             send(_step._cmd[i]);
     }
+}
+
+bool Lang::trigger(){
+    PDU *pdu;
+    bool triggered = false;
+
+    pdu = _sniffer.next_packet();
+
+    for(int i = 0; i < _filter.size(); ++i){
+        triggered |= _filter[i].compare(pdu);
+    }
+
+    return triggered;
 }
 
 /* vorerst werden nur einfache Zuweisungen der Form x=y unterstützt */
