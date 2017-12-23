@@ -52,10 +52,11 @@ bool Lang::update(){
     step();
 
     /* Wenn Bedingung erfüllt, dann wird das nächste STEP/TRIGGER-Paar eingelesen, dazu werden die gespeicherten Umgebungen zurückgesetzt */
-    if(trigger()){
+    /*if(trigger()){
         _trigger == LANG_NOS;
         _step.setStep(LANG_NOS);
-    }
+        std::cout << "Angekommen!" << std::endl;
+    }*/
 
     return true;
 }
