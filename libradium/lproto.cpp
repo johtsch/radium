@@ -91,6 +91,7 @@ void LARP::reset(){
 bool LARP::assign(lcommand cmd, const Lang *lang){
     if(cmd._cmd != LCOMMAND::ASSIGNMENT)
         return false;
+
     
     bool isfield = false;
     int f = 0;
@@ -144,8 +145,8 @@ bool LARP::compare(const ARP *arp){
         equal &= (_arp.target_ip_addr() == arp->target_ip_addr());
     if(_arp.target_hw_addr() != HWAddress<6>("00:00:00:00:00:00"))
         equal &= (_arp.target_hw_addr() == arp->target_hw_addr());
-    if(_flagsset)
-        equal &= (_arp.opcode() == arp->opcode());
+    /*if(_flagsset)
+        equal &= (_arp.opcode() == arp->opcode());*/
 
     return equal;
 }

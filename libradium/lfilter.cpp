@@ -6,6 +6,7 @@ bool LFilter::setPacketfilter(std::string pfilter, const Lang *lang){
 }
 
 bool LFilter::compare(const PDU *pdu){
+
     PDU *tmp = pdu->clone();
     bool equal = true;
     for(int i = 0; i < sizeof(_layer)/sizeof(_layer[0]); ++i){
@@ -13,6 +14,7 @@ bool LFilter::compare(const PDU *pdu){
             if(i > 0)
                 tmp = tmp->inner_pdu(); 
             if(tmp->pdu_type() == LangProtocolToPDUType(_layer[i])){
+
                 if(tmp->pdu_type() == PDU::PDUType::ETHERNET_II)
                     equal &= _ethernet.compare((EthernetII*)tmp);
                 if(tmp->pdu_type() == PDU::PDUType::ARP)

@@ -14,6 +14,8 @@
 #include "lfilehandler.hpp"
 #include "lstep.hpp"
 
+void showARP(const ARP*_arp);
+
 class Lang{
 
     friend class LFileHandler;                    /* Die LFileHandler-Klasse braucht Zugriff auf die Variablen der Lang-Klasse um diese zu initialisieren */

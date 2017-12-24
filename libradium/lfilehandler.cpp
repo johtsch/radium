@@ -309,7 +309,7 @@ bool LFileHandler::readStep(){
             if(word == LANG_E_IMPLEMENTATION){
                 _lang->setStatus("readStep()", ">>> Ende des IMPLEMENTATION-Teils erreicht! <<<");
                 _lang->_running = false;
-                return true;
+                return false;
             }
 
             if(word == LANG_B_STEP)
@@ -481,7 +481,6 @@ bool LFileHandler::readAllAssemble(std::string step){
 }
 
 bool LFileHandler::readAllFilter(std::string trigger){
-    return true;
     size_t pos1, pos2 = 0;
     std::string arg = "";
     short a;

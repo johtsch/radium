@@ -14,7 +14,7 @@ int main(int argc, char **argv){
     //std::cout << std::endl;
     
 
-    langtest.update();
+    while(langtest.update());
     
     //std::cout << std::endl;
     //langtest.showStep();/*

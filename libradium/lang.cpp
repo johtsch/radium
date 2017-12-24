@@ -1,8 +1,20 @@
 #include "lang.hpp"
 
+void showARP(const ARP*_arp){
+    std::cout << "ARP:" << std::endl;
+    std::cout << "src_mac: " << _arp->sender_hw_addr() << std::endl;
+    std::cout << "src_ip: " << _arp->sender_ip_addr() << std::endl;
+    std::cout << "dst_mac: " << _arp->target_hw_addr() << std::endl;
+    std::cout << "dst_ip: " << _arp->target_ip_addr() << std::endl;
+}
+
 Lang::Lang()
     : _sniffer(Sniffer(NetworkInterface::default_interface().name()))
 {
+    SnifferConfiguration conf;
+    conf.set_immediate_mode(true);
+    conf.set_promisc_mode(true);
+    _sniffer = Sniffer(NetworkInterface::default_interface().name(), conf);
     _running = false;
     _trigger = LANG_NOS;
     _status = "Lang was initialized";
@@ -14,6 +26,10 @@ Lang::Lang()
 Lang::Lang(std::string fpath)
     : _sniffer(Sniffer(NetworkInterface::default_interface().name()))
 {
+    SnifferConfiguration conf;
+    conf.set_immediate_mode(true);
+    conf.set_promisc_mode(true);
+    _sniffer = Sniffer(NetworkInterface::default_interface().name(), conf);
     _running = false;
     _trigger = LANG_NOS;
     _handler.linkLang(this);
@@ -52,11 +68,11 @@ bool Lang::update(){
     step();
 
     /* Wenn Bedingung erfüllt, dann wird das nächste STEP/TRIGGER-Paar eingelesen, dazu werden die gespeicherten Umgebungen zurückgesetzt */
-    /*if(trigger()){
+    if(trigger()){
         _trigger == LANG_NOS;
         _step.setStep(LANG_NOS);
         std::cout << "Angekommen!" << std::endl;
-    }*/
+    }
 
     return true;
 }
@@ -179,15 +195,19 @@ void Lang::step(){
 }
 
 bool Lang::trigger(){
+
     PDU *pdu;
     bool triggered = false;
 
     pdu = _sniffer.next_packet();
-
+    showFilter();
+    showARP((ARP*)pdu->inner_pdu());
+    
     for(int i = 0; i < _filter.size(); ++i){
         triggered |= _filter[i].compare(pdu);
     }
-
+    
+    delete pdu;
     return triggered;
 }
 
