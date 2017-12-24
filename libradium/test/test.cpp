@@ -5,8 +5,8 @@
 
 int main(int argc, char **argv){
     Lang langtest;
-    langtest.setQuiet(false);
-    langtest.loadFile("../../langfiles/arpatt.lang");
+    langtest.setQuiet(true);
+    langtest.loadFile("../../langfiles/arpcheck.lang");
     langtest.start();
     
     std::cout << std::endl;

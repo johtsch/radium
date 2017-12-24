@@ -52,11 +52,11 @@ S[0]{50}:                          # S[0]==erster Step {50} bedeutet dass 50ms z
     SEND(PACKET[1]);
 :S
 T[0]:                                       # T[1]==Trigger 1
-    PACKETFILTER:
+    FILTER:
         L3[IPv4]:                           # das IPv4 Paket soll folgende Parameter erfüllen
             SOURCE=victim;
         :L3
-    :PACKETFILTER
+    :FILTER
 :T
 S[1]:
 

@@ -45,6 +45,7 @@ bool LEthernet::assign(lcommand cmd, const Lang *lang){
         return false;
     
     bool isfield = false;
+    bool isExpl = false;
     int f = 0;
     for(f = 0; f < sizeof(s_fields) / sizeof(s_fields[0]); ++f){
         if(cmd._args[0] == s_fields[f]){
@@ -56,15 +57,27 @@ bool LEthernet::assign(lcommand cmd, const Lang *lang){
     if(!isfield)
         return false;
     
-    if(lang->getVartype(cmd._args[1]) != s_type[f])
-        return false;
+    // herausfinden ob es eine Variable oder ein expliziter wert ist
+    isExpl = (lang->getVartype(cmd._args[1]) != s_type[f]) && (lang->getVartype(cmd._args[1]) == VARTYPE_INVALID);
 
+    HWAddress<6> addr;
+
+    if(isExpl){
+        if(assignVal(&addr, cmd._args[1]) == false)
+            return false;
+    }
         
     if(f == LEthernet::SRC){
-        _eth.src_addr(lang->getHW(cmd._args[1]));
+        if(isExpl)
+            _eth.src_addr(addr);
+        else
+            _eth.src_addr(lang->getHW(cmd._args[1]));
     }
     else{
-        _eth.dst_addr(lang->getHW(cmd._args[1]));
+        if(isExpl)
+            _eth.dst_addr(addr);
+        else
+            _eth.dst_addr(lang->getHW(cmd._args[1]));
     }
 
     return true;
@@ -94,6 +107,7 @@ bool LARP::assign(lcommand cmd, const Lang *lang){
 
     
     bool isfield = false;
+    bool isExpl = false;
     int f = 0;
     for(f = 0; f < sizeof(s_fields) / sizeof(s_fields[0]); ++f){
         if(cmd._args[0] == s_fields[f]){
@@ -105,29 +119,71 @@ bool LARP::assign(lcommand cmd, const Lang *lang){
     if(!isfield)
         return false;
 
-    if(lang->getVartype(cmd._args[1]) != s_type[f])
-        return false;
+    // herausfinden ob es eine Variable oder ein expliziter wert ist
+    isExpl = (lang->getVartype(cmd._args[1]) != s_type[f]) && (lang->getVartype(cmd._args[1]) == VARTYPE_INVALID);
+
+    IPv4Address ip;
+    HWAddress<6> hw;
+    byte b;
+
+    if(isExpl){
+        f = getVarTypeVal(cmd._args[1]);
+
+        if(f==VARTYPE_HADDR)
+            if(assignVal(&hw, cmd._args[1]) == false)
+                return false;
+        if(f==VARTYPE_IPADDR)
+            if(assignVal(&ip, cmd._args[1]) == false)
+                return false;
+        if(f==VARTYPE_BYTE)
+            if(assignVal(&b, cmd._args[1]) == false)
+                return false;
+    }
         
     if(f == LARP::SENDER_IP){
-        _arp.sender_ip_addr(lang->getIP(cmd._args[1]));
+        if(isExpl)
+            _arp.sender_ip_addr(ip);
+        else
+            _arp.sender_ip_addr(lang->getIP(cmd._args[1]));
     }
     else if(f == LARP::SENDER_HW){
-        _arp.sender_hw_addr(lang->getHW(cmd._args[1]));
+        if(isExpl)
+            _arp.sender_hw_addr(hw);
+        else
+            _arp.sender_hw_addr(lang->getHW(cmd._args[1]));
     }
     else if(f == LARP::TARGET_IP){
-        _arp.target_ip_addr(lang->getIP(cmd._args[1]));
+        if(isExpl)
+            _arp.target_ip_addr(ip);
+        else
+            _arp.target_ip_addr(lang->getIP(cmd._args[1]));
     }
     else if(f == LARP::TARGET_HW){
-        _arp.target_hw_addr(lang->getHW(cmd._args[1]));
+        if(isExpl)
+            _arp.target_hw_addr(hw);
+        else
+            _arp.target_hw_addr(lang->getHW(cmd._args[1]));
     }
     else if(f == LARP::OPCODE){
-        if(lang->getByte(cmd._args[1]) == 1){
-            _arp.opcode(ARP::REQUEST);
-            _flagsset = true;
+        if(isExpl){
+            if(b==1){
+                _arp.opcode(ARP::REQUEST);
+                _flagsset = true;
+            }
+            if(b==2){
+                _arp.opcode(ARP::REPLY);
+                _flagsset = true;
+            }
         }
-        if(lang->getByte(cmd._args[1]) == 2){
-            _arp.opcode(ARP::REPLY);
-            _flagsset = true;
+        else{
+            if(lang->getByte(cmd._args[1]) == 1){
+                _arp.opcode(ARP::REQUEST);
+                _flagsset = true;
+            }
+            if(lang->getByte(cmd._args[1]) == 2){
+                _arp.opcode(ARP::REPLY);
+                _flagsset = true;
+            }
         }
     }
 
@@ -145,8 +201,8 @@ bool LARP::compare(const ARP *arp){
         equal &= (_arp.target_ip_addr() == arp->target_ip_addr());
     if(_arp.target_hw_addr() != HWAddress<6>("00:00:00:00:00:00"))
         equal &= (_arp.target_hw_addr() == arp->target_hw_addr());
-    /*if(_flagsset)
-        equal &= (_arp.opcode() == arp->opcode());*/
+    if(_flagsset)
+        equal &= (_arp.opcode() == arp->opcode());
 
     return equal;
 }

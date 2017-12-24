@@ -28,7 +28,7 @@ S[0]:
 	SEND(PACKET[1]);
 :S
 T[0]:
-	PACKETFILTER: 
+	FILTER: 
 		L2:
 			
 		:L2
@@ -36,6 +36,6 @@ T[0]:
 			SENDER_IP=lookup;
 			TARGET_IP=src;
 		:L3
-	:PACKETFILTER
+	:FILTER
 :T
 :IMPLEMENTATION

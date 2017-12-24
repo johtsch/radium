@@ -40,7 +40,8 @@ private:
 
 class LARP{
 public:
-    LARP(){}
+    LARP(){_flagsset = false;
+    _arp.opcode(ARP::REQUEST);}
     void reset();
 
     const static std::string s_fields[];

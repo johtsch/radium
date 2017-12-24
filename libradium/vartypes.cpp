@@ -51,6 +51,65 @@ std::string getVarTypeStr(unsigned char type){
     return LG_VT_INVALID;
 }
 
+unsigned char getVarTypeVal(std::string val){
+    if(isValidHaddr(val))
+        return VARTYPE_HADDR;
+    if(isValidIPv4(val))
+        return VARTYPE_IPADDR;
+    if(isValidPort(val))
+        return VARTYPE_PORT;
+    if(isValidByte(val))
+        return VARTYPE_BYTE;
+    if(isValidShort(val))
+        return VARTYPE_SHORT;
+    if(isValidInt(val))
+        return VARTYPE_INT;
+
+    return VARTYPE_INVALID;
+}
+
+bool assignVal(HWAddress<6> *eth, std::string val){
+    if(!isValidHaddr(val))
+        return false;
+    *eth = HWAddress<6>(val.c_str());
+    return true;
+}
+
+bool assignVal(IPv4Address *ip, std::string val){
+    if(!isValidIPv4(val))
+        return false;
+    *ip = IPv4Address(val.c_str());
+    return true;
+}
+
+bool assignVal(port *p, std::string val){
+    if(!isValidPort(val))
+        return false;
+    *p = (port)atoi(val.c_str());
+    return true;
+}
+
+bool assignVal(byte *b, std::string val){
+    if(!isValidByte(val))
+        return false;
+    *b = (byte)atoi(val.c_str());
+    return true;
+}
+
+bool assignVal(short *sh, std::string val){
+    if(!isValidShort(val))
+        return false;
+    *sh = (short)atoi(val.c_str());
+    return true;
+}
+
+bool assignVal(int *integer, std::string val){
+    if(!isValidInt(val))
+        return false;
+    *integer = (int)atoi(val.c_str());
+    return true;
+}
+
 bool isValidHaddr(std::string address){
     for(int i = 0; i < 17; i++) {
         if(i % 3 != 2 && !std::isxdigit(address[i]))
