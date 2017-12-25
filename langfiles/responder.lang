@@ -7,10 +7,6 @@ VAR:
 IMPLEMENTATION:
 	S[0]:
 		ASSEMBLE[1]:
-			L2:
-				SRC=hwsrc;
-				DST="ff:ff:ff:ff:ff:ff";
-			:L2
 			L3[ARP]:
 				SENDER_IP=ipsrc;
 				SENDER_HW=hwsrc;
