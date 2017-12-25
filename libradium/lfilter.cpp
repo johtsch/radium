@@ -1,7 +1,7 @@
 #include "lang.hpp"
 
-bool LFilter::setPacketfilter(std::string pfilter, const Lang *lang){
-    _packetfilter = pfilter;
+bool LFilter::setFilter(std::string pfilter, const Lang *lang){
+    _filter = pfilter;
     return analyse(lang);
 }
 
@@ -30,14 +30,24 @@ bool LFilter::compare(const PDU *pdu){
 }
 
 void LFilter::showFilter(){
+    std::cout << "FILTER " << _num << " ";
+    if(_type == TYPE::REACTION)
+        std::cout << "REACTION" << std::endl;
+    else
+        std::cout << "PASS" << std::endl;
     std::cout << "ETHERNET:" << std::endl;
     std::cout << "src: " << _ethernet.getEth()->src_addr() << std::endl;
     std::cout << "dst: " << _ethernet.getEth()->dst_addr() << std::endl;
     std::cout << "ARP:" << std::endl;
-    std::cout << "src_mac: " << _arp.getARP()->sender_hw_addr() << std::endl;
-    std::cout << "src_ip: " << _arp.getARP()->sender_ip_addr() << std::endl;
-    std::cout << "dst_mac: " << _arp.getARP()->target_hw_addr() << std::endl;
-    std::cout << "dst_ip: " << _arp.getARP()->target_ip_addr() << std::endl;
+    std::cout << "Type: ";
+    if(_arp.getARP()->opcode()==ARP::REPLY)
+        std::cout << "REPLY" << std::endl;
+    else if(_arp.getARP()->opcode()==ARP::REQUEST)
+        std::cout << "REQUEST" << std::endl;
+    std::cout << "sender_hw: " << _arp.getARP()->sender_hw_addr() << std::endl;
+    std::cout << "sender_ip: " << _arp.getARP()->sender_ip_addr() << std::endl;
+    std::cout << "target_hw: " << _arp.getARP()->target_hw_addr() << std::endl;
+    std::cout << "target_ip: " << _arp.getARP()->target_ip_addr() << std::endl;
 }
 
 bool LFilter::analyse(const Lang *lang){
@@ -48,105 +58,105 @@ bool LFilter::analyse(const Lang *lang){
     for(int i = 0; i < sizeof(_layer) / sizeof(_layer[0]); ++i)
         _layer[i] = LANG_PRO_NONE;
 
-    pos1 = _packetfilter.find(LANG_B_L2);
+    pos1 = _filter.find(LANG_B_L2);
 
     if(pos1 != std::string::npos){
-        pos2 = _packetfilter.find(LANG_E_L2);
+        pos2 = _filter.find(LANG_E_L2);
         if(pos2 == std::string::npos)
             return false;
-        if(analyseLayer(lang, LANG_PRO_ETHERNET, _packetfilter.substr(pos1 + LANG_B_L2.length(), pos2 - 1 - (pos1 + LANG_B_L2.length())), 2)==false)
+        if(analyseLayer(lang, LANG_PRO_ETHERNET, _filter.substr(pos1 + LANG_B_L2.length(), pos2 - 1 - (pos1 + LANG_B_L2.length())), 2)==false)
             return false;
     }
     pos1 = pos2 = 0;
 
-    pos1 = _packetfilter.find(LANG_B_L3);
+    pos1 = _filter.find(LANG_B_L3);
 
     if(pos1 != std::string::npos){
-        pos2 = _packetfilter.find(LANG_E_L3);
+        pos2 = _filter.find(LANG_E_L3);
         if(pos2 == std::string::npos)
             return false;
 
-        arg = getNextArgument(_packetfilter, pos1);
+        arg = getNextArgument(_filter, pos1);
         if(!isSupportedProtocol(arg))
             return false;
 
-        if(analyseLayer(lang, arg, _packetfilter.substr(pos1 + LANG_B_L3.length(), pos2 - 1 - (pos1 + LANG_B_L3.length())), 3)==false)
+        if(analyseLayer(lang, arg, _filter.substr(pos1 + LANG_B_L3.length(), pos2 - 1 - (pos1 + LANG_B_L3.length())), 3)==false)
             return false;
     }
 
     if(pos2 == std::string::npos)
         pos2 = 0;
 
-    pos1 = _packetfilter.find(LANG_B_L4, pos2);
+    pos1 = _filter.find(LANG_B_L4, pos2);
 
     if(pos1 != std::string::npos){
-        pos2 = _packetfilter.find(LANG_E_L4);
+        pos2 = _filter.find(LANG_E_L4);
         if(pos2 == std::string::npos)
             return false;
 
-        arg = getNextArgument(_packetfilter, pos1);
+        arg = getNextArgument(_filter, pos1);
 
         if(!isSupportedProtocol(arg))
             return false;
 
-        if(analyseLayer(lang, arg, _packetfilter.substr(pos1 + LANG_B_L4.length(), pos2 - 1 - (pos1 + LANG_B_L4.length())), 4)==false)
+        if(analyseLayer(lang, arg, _filter.substr(pos1 + LANG_B_L4.length(), pos2 - 1 - (pos1 + LANG_B_L4.length())), 4)==false)
             return false;
     }
 
     if(pos2 == std::string::npos)
         pos2 = 0;
 
-    pos1 = _packetfilter.find(LANG_B_L5, pos2);
+    pos1 = _filter.find(LANG_B_L5, pos2);
 
     if(pos1 != std::string::npos){
-        pos2 = _packetfilter.find(LANG_E_L5);
+        pos2 = _filter.find(LANG_E_L5);
         if(pos2 == std::string::npos)
             return false;
 
-        arg = getNextArgument(_packetfilter, pos1);
+        arg = getNextArgument(_filter, pos1);
 
         if(!isSupportedProtocol(arg))
             return false;
 
-        if(analyseLayer(lang, arg, _packetfilter.substr(pos1 + LANG_B_L5.length(), pos2 - 1 - (pos1 + LANG_B_L5.length())), 5)==false)
+        if(analyseLayer(lang, arg, _filter.substr(pos1 + LANG_B_L5.length(), pos2 - 1 - (pos1 + LANG_B_L5.length())), 5)==false)
             return false;
     }
 
     if(pos2 == std::string::npos)
         pos2 = 0;
 
-    pos1 = _packetfilter.find(LANG_B_L6, pos2);
+    pos1 = _filter.find(LANG_B_L6, pos2);
 
     if(pos1 != std::string::npos){
-        pos2 = _packetfilter.find(LANG_E_L6);
+        pos2 = _filter.find(LANG_E_L6);
         if(pos2 == std::string::npos)
             return false;
 
-        arg = getNextArgument(_packetfilter, pos1);
+        arg = getNextArgument(_filter, pos1);
 
         if(!isSupportedProtocol(arg))
             return false;
 
-        if(analyseLayer(lang, arg, _packetfilter.substr(pos1 + LANG_B_L6.length(), pos2 - 1 - (pos1 + LANG_B_L6.length())), 6)==false)
+        if(analyseLayer(lang, arg, _filter.substr(pos1 + LANG_B_L6.length(), pos2 - 1 - (pos1 + LANG_B_L6.length())), 6)==false)
             return false;
     }
 
     if(pos2 == std::string::npos)
         pos2 = 0;
 
-    pos1 = _packetfilter.find(LANG_B_L7, pos2);
+    pos1 = _filter.find(LANG_B_L7, pos2);
 
     if(pos1 != std::string::npos){
-        pos2 = _packetfilter.find(LANG_E_L7);
+        pos2 = _filter.find(LANG_E_L7);
         if(pos2 == std::string::npos)
             return false;
 
-        arg = getNextArgument(_packetfilter, pos1);
+        arg = getNextArgument(_filter, pos1);
 
         if(!isSupportedProtocol(arg))
             return false;
 
-        if(analyseLayer(lang, arg, _packetfilter.substr(pos1 + LANG_B_L7.length(), pos2 - 1 - (pos1 + LANG_B_L7.length())), 7)==false)
+        if(analyseLayer(lang, arg, _filter.substr(pos1 + LANG_B_L7.length(), pos2 - 1 - (pos1 + LANG_B_L7.length())), 7)==false)
             return false;
     }
 

@@ -52,14 +52,15 @@ std::string getVarTypeStr(unsigned char type){
 }
 
 unsigned char getVarTypeVal(std::string val){
+    /** reihenfolge bei den Zahlendatentypen ist entscheidend, da jeder BYTE-Wert ein Shortwert aber nicht jeder Shortwert ein Bytewert sein kann */
     if(isValidHaddr(val))
         return VARTYPE_HADDR;
     if(isValidIPv4(val))
         return VARTYPE_IPADDR;
-    if(isValidPort(val))
-        return VARTYPE_PORT;
     if(isValidByte(val))
         return VARTYPE_BYTE;
+    if(isValidPort(val))
+        return VARTYPE_PORT;
     if(isValidShort(val))
         return VARTYPE_SHORT;
     if(isValidInt(val))
@@ -90,8 +91,9 @@ bool assignVal(port *p, std::string val){
 }
 
 bool assignVal(byte *b, std::string val){
-    if(!isValidByte(val))
+    if(!isValidByte(val)){
         return false;
+    }
     *b = (byte)atoi(val.c_str());
     return true;
 }

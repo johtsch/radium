@@ -17,7 +17,7 @@ class LStep{
 public:
     LStep();
 
-    void            setStep(std::string);          /* Der Inhalt der Step-Umgebung*/
+    bool            setStep(std::string);          /* Der Inhalt der Step-Umgebung*/
     void            setNum(short);
 
     std::string     getStep()           const { return _step; }
@@ -26,7 +26,7 @@ public:
 
     void showCmds();
 
-private:
+protected:
     std::vector<lcommand>       _cmd;
     std::string                 _step;
     std::string                 _description;

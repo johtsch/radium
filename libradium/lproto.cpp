@@ -58,7 +58,7 @@ bool LEthernet::assign(lcommand cmd, const Lang *lang){
         return false;
     
     // herausfinden ob es eine Variable oder ein expliziter wert ist
-    isExpl = (lang->getVartype(cmd._args[1]) != s_type[f]) && (lang->getVartype(cmd._args[1]) == VARTYPE_INVALID);
+    isExpl = (lang->getVartype(cmd._args[1]) == VARTYPE_INVALID);
 
     HWAddress<6> addr;
 
@@ -120,24 +120,26 @@ bool LARP::assign(lcommand cmd, const Lang *lang){
         return false;
 
     // herausfinden ob es eine Variable oder ein expliziter wert ist
-    isExpl = (lang->getVartype(cmd._args[1]) != s_type[f]) && (lang->getVartype(cmd._args[1]) == VARTYPE_INVALID);
+    isExpl = (lang->getVartype(cmd._args[1]) == VARTYPE_INVALID);
 
+    unsigned char t;
     IPv4Address ip;
     HWAddress<6> hw;
     byte b;
 
     if(isExpl){
-        f = getVarTypeVal(cmd._args[1]);
+        t = (unsigned char)getVarTypeVal(cmd._args[1]);
 
-        if(f==VARTYPE_HADDR)
+        if(t==VARTYPE_HADDR)
             if(assignVal(&hw, cmd._args[1]) == false)
                 return false;
-        if(f==VARTYPE_IPADDR)
+        if(t==VARTYPE_IPADDR)
             if(assignVal(&ip, cmd._args[1]) == false)
                 return false;
-        if(f==VARTYPE_BYTE)
+        if(t==VARTYPE_BYTE){
             if(assignVal(&b, cmd._args[1]) == false)
                 return false;
+        }
     }
         
     if(f == LARP::SENDER_IP){

@@ -28,7 +28,7 @@ S[0]:
 	SEND(PACKET[1]);
 :S
 T[0]:
-	FILTER: 
+	FILTER[PASS]: 
 		L2:
 			
 		:L2

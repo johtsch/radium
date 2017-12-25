@@ -2,14 +2,20 @@
 #include "lang.hpp"
 
 void LAssembler::showPacket(){
+    std::cout << "PAKET " << _num << std::endl;
     std::cout << "ETHERNET:" << std::endl;
     std::cout << "src: " << _eth.getEth()->src_addr() << std::endl;
     std::cout << "dst: " << _eth.getEth()->dst_addr() << std::endl;
     std::cout << "ARP:" << std::endl;
-    std::cout << "src_mac: " << _arp.getARP()->sender_hw_addr() << std::endl;
-    std::cout << "src_ip: " << _arp.getARP()->sender_ip_addr() << std::endl;
-    std::cout << "dst_mac: " << _arp.getARP()->target_hw_addr() << std::endl;
-    std::cout << "dst_ip: " << _arp.getARP()->target_ip_addr() << std::endl;
+    std::cout << "Type: ";
+    if(_arp.getARP()->opcode()==ARP::REPLY)
+        std::cout << "REPLY" << std::endl;
+    else if(_arp.getARP()->opcode()==ARP::REQUEST)
+        std::cout << "REQUEST" << std::endl;
+    std::cout << "sender_hw: " << _arp.getARP()->sender_hw_addr() << std::endl;
+    std::cout << "sender_ip: " << _arp.getARP()->sender_ip_addr() << std::endl;
+    std::cout << "target_hw: " << _arp.getARP()->target_hw_addr() << std::endl;
+    std::cout << "target_ip: " << _arp.getARP()->target_ip_addr() << std::endl;
 }
 
 bool LAssembler::setAssembler(std::string assemble, const Lang *lang){
@@ -50,7 +56,7 @@ bool LAssembler::analyse(const Lang *lang){
         if(pos2 == std::string::npos)
             return false;
 
-        arg = getNextArgument(_assemble, pos1);
+        arg = getNextArgument(_assemble.substr(pos1, pos2 - pos1));
         if(!isSupportedProtocol(arg))
             return false;
 
@@ -67,7 +73,7 @@ bool LAssembler::analyse(const Lang *lang){
         if(pos2 == std::string::npos)
             return false;
 
-        arg = getNextArgument(_assemble, pos1);
+        arg = getNextArgument(_assemble.substr(pos1, pos2 - pos1));
 
         if(!isSupportedProtocol(arg))
             return false;
@@ -85,7 +91,7 @@ bool LAssembler::analyse(const Lang *lang){
         if(pos2 == std::string::npos)
             return false;
 
-        arg = getNextArgument(_assemble, pos1);
+        arg = getNextArgument(_assemble.substr(pos1, pos2 - pos1));
 
         if(!isSupportedProtocol(arg))
             return false;
@@ -103,7 +109,7 @@ bool LAssembler::analyse(const Lang *lang){
         if(pos2 == std::string::npos)
             return false;
 
-        arg = getNextArgument(_assemble, pos1);
+        arg = getNextArgument(_assemble.substr(pos1, pos2 - pos1));
 
         if(!isSupportedProtocol(arg))
             return false;
@@ -121,7 +127,7 @@ bool LAssembler::analyse(const Lang *lang){
         if(pos2 == std::string::npos)
             return false;
 
-        arg = getNextArgument(_assemble, pos1);
+        arg = getNextArgument(_assemble.substr(pos1, pos2 - pos1));
 
         if(!isSupportedProtocol(arg))
             return false;
@@ -160,7 +166,9 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
             if(wrd.length()==1)                     //Leerzeichen vor dem = sorgt dafür dass wrd nur aus = besteht, was natürlich falsch wäre
                 return false;
 
+            //Steuer- und Leerzeichen überspringen
             while((tmp = getNextWord(layer, wc))==LANG_CTRL_CHAR);
+
             if(tmp.find(";") == std::string::npos)          // nur Zuweisungen der Art x=y; zulässig, KEINE mehrteiligen der Art x=y+z;
                 return false;
             lcommand ass;
@@ -176,7 +184,7 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
                     return false;
                 }
             }
-            if(pro == LANG_PRO_ARP){
+            else if(pro == LANG_PRO_ARP){
                 if(!_arp.assign(ass, lang)){
                     return false;
                 }

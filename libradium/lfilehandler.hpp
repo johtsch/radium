@@ -21,10 +21,11 @@ std::string getNextWord(std::string line, size_t &wc);                      /* g
                                                                                    eingeschlossene Zeichensequenz zurückgegeben (ohne die umschließenden '"'). Ist nur ein '"' vorhanden wird es wie 
                                                                                    ein wortbeendendes Zeichen behandelt und einzeln zurückgegeben */ 
 
-std::string getNextArgument(std::string str, size_t pos);
+std::string getNextArgument(std::string str, size_t pos=0);
 std::string optLine(std::string line);                                      /* gibt eine übergebene Zeile in optimierter Form zurück: keine unnötigen Steuer-/Leerzeichen und keine Kommentare */
 bool isWordEndingChar(char c);
 bool isOperand(char c);                                                     /* Operanten sind in diesem Fall nur +, -, *, / */
+void cutOut(std::string env, std::string beg, std::string end);             /* schneidet alle durch beg und end eingeschlossenen Umgebungen aus dem String env*/
 
 class Lang;                     /* um circular references aus dem Weg zu gehen*/
 
@@ -50,6 +51,7 @@ public:
     bool readTrigger();                     /* liest die aktuelle T-Umgebung ein */
     bool readDescription();                 /* liest Beschreibung eines Steps ein */
     bool readAllAssemble(std::string step); /* liest alle ASSEMBLE-Umgebungen aus übergebenem Step ein */
+    bool readAllReaction(std::string step);
     bool readAllFilter(std::string trigger);   /* liest alle PACKETFILTER-Umgebungen aus übergebenem TRIGGER ein */
 
       

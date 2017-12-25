@@ -1,0 +1,42 @@
+VAR:
+	IP ipsrc 192.168.2.108;
+	HADDR hwsrc "24:05:0f:5b:98:98";
+	IP lookup 192.168.2.116;
+:VAR
+
+IMPLEMENTATION:
+	S[0]:
+		ASSEMBLE[1]:
+			L2:
+				SRC=hwsrc;
+				DST="ff:ff:ff:ff:ff:ff";
+			:L2
+			L3[ARP]:
+				SENDER_IP=ipsrc;
+				SENDER_HW=hwsrc;
+				TARGET_IP=lookup;
+				TARGET_HW="ff:ff:ff:ff:ff:ff";
+				OPCODE=2;
+			:L3
+		:ASSEMBLE
+		
+		REACTION[3]:
+			SEND(PACKET[1]);
+		:REACTION
+	:S
+	T[0]:
+		FILTER[REACTION[3]]:						
+			L3[ARP]:
+				OPCODE=1;
+			:L3
+		:FILTER
+		FILTER[PASS]:
+			L2:
+				SRC="ff:ff:ff:ff:ff:ff";
+			:L2
+			L3[ARP]:
+				SENDER_HW="ff:ff:ff:ff:ff:ff";
+			:L3
+		:FILTER
+	:T
+:IMPLEMENTATION

@@ -15,7 +15,8 @@ const std::string LANG_B_STEP           = "S[";                     /* es ist "S
 const std::string LANG_B_TRIGGER        = "T[";                     /* siehe LANG_B_STEP */
 const std::string LANG_B_DESCRIPTION    = "DESCRIPTION:";
 const std::string LANG_B_ASSEMBLE       = "ASSEMBLE[";
-const std::string LANG_B_PACKETFILTER   = "FILTER:";
+const std::string LANG_B_FILTER         = "FILTER[";
+const std::string LANG_B_REACTION       = "REACTION[";
 
 const std::string LANG_B_L2             = "L2:";
 const std::string LANG_B_L3             = "L3[";
@@ -24,7 +25,8 @@ const std::string LANG_B_L5             = "L5[";
 const std::string LANG_B_L6             = "L6[";
 const std::string LANG_B_L7             = "L7[";
 
-const std::string LANG_PACKET         = "PACKET[";
+const std::string LANG_PACKET           = "PACKET[";
+const std::string LANG_PASS             = "PASS";
 
 /* _B_ == "Ending", also der abschließende Spezifizierer */
 const std::string LANG_E_IMPLEMENTATION = ":IMPLEMENTATION";
@@ -33,7 +35,8 @@ const std::string LANG_E_STEP           = ":S";
 const std::string LANG_E_TRIGGER        = ":T";
 const std::string LANG_E_DESCRIPTION    = ":DESCRIPTION";
 const std::string LANG_E_ASSEMBLE       = ":ASSEMBLE";
-const std::string LANG_E_PACKETFILTER   = ":FILTER";
+const std::string LANG_E_FILTER         = ":FILTER";
+const std::string LANG_E_REACTION       = ":REACTION";
 
 const std::string LANG_E_L2             = ":L2";
 const std::string LANG_E_L3             = ":L3";

@@ -357,9 +357,19 @@ bool LFileHandler::readStep(){
 
     /* die anderen Umgebungen rausschneiden und initialisieren die zu einem Step gehören */
 
-    if(readAllAssemble(step) == false)
+    if(readAllAssemble(step) == false){
+        _lang->setStatus("readStep()", "die ASSEMBLE-Umgebungen konnten nicht eingelesen werden! <<<");
         return false;
+    }
+    if(readAllReaction(step) == false){
+        _lang->setStatus("readStep()", "die REACTION-Umgebungen konnten nicht eingelesen werden! <<<");
+        return false;
+    }
     
+    /* rausschneiden der anderen Subumgebungen */
+    cutOut(step, LANG_B_ASSEMBLE, LANG_E_ASSEMBLE);
+    cutOut(step, LANG_B_REACTION, LANG_E_REACTION);
+
     _lang->_step.setStep(step);
 
     return true;
@@ -435,6 +445,7 @@ bool LFileHandler::readTrigger(){
         
 
     if(readAllFilter(_lang->_trigger)==false){
+        _lang->setStatus("readTrigger()", "die FILTER-Umgebungen konnten nicht eingelesen werden! <<<");
         return false;
     }
 
@@ -480,26 +491,86 @@ bool LFileHandler::readAllAssemble(std::string step){
     return true;
 }
 
+bool LFileHandler::readAllReaction(std::string step){
+    size_t pos1, pos2 = 0;
+    std::string arg = "";
+    short a;
+
+    while(true){
+        pos1 = step.find(LANG_B_REACTION, pos2);
+
+        if(pos1==std::string::npos)
+            break;
+
+        pos2 = step.find(LANG_E_REACTION, pos1);
+
+        if(pos2==std::string::npos)
+            break;
+
+        arg = getArgument(step.substr(pos1, LANG_B_ASSEMBLE.length() + 10));
+
+        if(isValidShort(arg)){
+            a = (short)atoi(arg.c_str());
+        }
+        else
+            return false;
+
+        /* kontrollieren, dass in diesem Step noch kein Paket mit gleicher Nummer erstellt wurde */
+        for(int i = 0; i < _lang->_reaction.size(); ++i){
+            if(_lang->_reaction[i].getNum() == a)
+                return false;
+        }
+
+        _lang->_reaction.push_back(LReaction());
+        if(_lang->_reaction[_lang->_reaction.size()-1].setReaction(step.substr(pos1, pos2 - pos1))==false)         
+            return false;
+        _lang->_reaction[_lang->_reaction.size()-1].setNum(a);
+        _lang->_reaction[_lang->_reaction.size()-1].setTriggered(false);
+    }
+
+    return true;
+}
+
 bool LFileHandler::readAllFilter(std::string trigger){
     size_t pos1, pos2 = 0;
     std::string arg = "";
     short a;
 
     while(true){
-        pos1 = trigger.find(LANG_B_PACKETFILTER, pos2);
+
+        arg  = "";
+
+        pos1 = trigger.find(LANG_B_FILTER, pos2);
 
         if(pos1==std::string::npos)
             break;
 
-        pos2 = trigger.find(LANG_E_PACKETFILTER, pos1);
+        pos2 = trigger.find(LANG_E_FILTER, pos1);
 
         if(pos2==std::string::npos)
             break;
 
         _lang->_filter.push_back(LFilter());
 
-        if(_lang->_filter[_lang->_filter.size()-1].setPacketfilter(trigger.substr(pos1, pos2 - pos1), _lang)==false){
+        //Argument auslesen
+        arg = getNextArgument(trigger.substr(pos1, trigger.find(":", pos1) - pos1));
+        if(arg == LANG_PASS)
+            _lang->_filter[_lang->_filter.size()-1].setType(LFilter::TYPE::PASS);
+        else if(arg.find(LANG_B_REACTION) != std::string::npos){
+            _lang->_filter[_lang->_filter.size()-1].setType(LFilter::TYPE::REACTION);
+            arg = getNextArgument(arg);
+            if(!isValidShort(arg)){
+                return false;
+            }
+            else{
+                _lang->_filter[_lang->_filter.size()-1].setNum((short)atoi(arg.c_str()));
+            }
+        }    
+        else{
+            return false;
+        }     
 
+        if(_lang->_filter[_lang->_filter.size()-1].setFilter(trigger.substr(pos1, pos2 - pos1), _lang)==false){
             return false;
         }
     }
@@ -582,12 +653,14 @@ std::string getNextArgument(std::string str, size_t pos){
     if((pos1 = str.find_first_of('[', pos)) == std::string::npos){
         return "";
     }
-
-    if((pos2 = str.find_first_of(']', pos1)) == std::string::npos){
+    if((pos2 = str.find_last_of(']')) == std::string::npos){
         return "";
     }
 
-    return str.substr(pos1+1, pos2 - (pos1 + 1));
+    if(pos2 < pos1)
+        return "";
+
+    return str.substr(pos1+1, pos2 - pos1 - 1);
 }                        
 
 std::string optLine(std::string line){
@@ -623,4 +696,19 @@ bool isWordEndingChar(char c){
 
 bool isOperand(char c){
     return (c == '+' || c == '-' || c == '*' || c == '/');
+}
+
+void cutOut(std::string env, std::string beg, std::string end){
+    size_t pos1, pos2;
+    pos1 = pos2 = 0;
+    while(true){
+        pos1 = env.find(beg, pos2);
+        pos2 = env.find(end, pos1+1);
+
+        if(pos1 == std::string::npos || pos2 == std::string::npos)
+            break;
+        else{
+            env.erase(pos1, pos2 + end.length() - pos1 + 1);
+        }
+    }
 }

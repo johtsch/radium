@@ -2,10 +2,10 @@
 
 void showARP(const ARP*_arp){
     std::cout << "ARP:" << std::endl;
-    std::cout << "src_mac: " << _arp->sender_hw_addr() << std::endl;
-    std::cout << "src_ip: " << _arp->sender_ip_addr() << std::endl;
-    std::cout << "dst_mac: " << _arp->target_hw_addr() << std::endl;
-    std::cout << "dst_ip: " << _arp->target_ip_addr() << std::endl;
+    std::cout << "sender_hw: " << _arp->sender_hw_addr() << std::endl;
+    std::cout << "sender_ip: " << _arp->sender_ip_addr() << std::endl;
+    std::cout << "target_hw: " << _arp->target_hw_addr() << std::endl;
+    std::cout << "target_ip: " << _arp->target_ip_addr() << std::endl;
 }
 
 Lang::Lang()
@@ -50,22 +50,31 @@ bool Lang::start(){
 
 bool Lang::update(){
     /* nur die Funktion ausführen, wenn _running true ist. Also wenn alle Vorbereitungen getroffen sind und eine Ausführung gewünscht ist. */
-    if(!_running)
+    if(!_running){
+        setStatus("update()", "Ausführung wurde nie gestartet <<<");
         return false;
+    }
 
     /* kontrollieren, ob neue Umgebungen eingelesen werden müssen, dabei ist nur step entscheidend, da eine leere Trigger-Umgebung vollkommen legitim ist und lediglich bedeutet, dass
         der TRIGGER sofort erfüllt ist und mit dem nächsten STEP weitergemacht werden kann */
-    if(_step.getStep() == LANG_NOS){
+    if(_step.getStep() == LANG_NOS && _trigger == LANG_NOS){
         setStatus("update()", ">>> neue Step-/Trigger-Umgebungen werden eingelesen.");
         if(!_handler.readStep() || !_handler.readTrigger()){
             setStatus("update()", "Konnte nächste STEP-/TRIGGER-Umgebung nicht einlesen. Ausführung beendet <<<");
             _running = false;
             return false;
         }
+        else{
+            showPacket();
+            showFilter();
+        }
     }
 
     /*später noch Timing-Mechanismus einfügen */
     step();
+
+    for(int j = 0; j < _reaction.size(); ++j)
+        _reaction[j].setTriggered(false);
 
     /* Wenn Bedingung erfüllt, dann wird das nächste STEP/TRIGGER-Paar eingelesen, dazu werden die gespeicherten Umgebungen zurückgesetzt */
     if(trigger()){
@@ -185,12 +194,37 @@ void Lang::showTrigger(){
     std::cout << _trigger << std::endl;
 }
 
+void Lang::showPacket(){ 
+    std::cout << ">PAKETLISTE:" << std::endl;
+    for(int i = 0; i < _assembler.size(); ++i){
+        _assembler[i].showPacket();
+    }
+}                 
+void Lang::showFilter(){ 
+    std::cout << ">FILTERLISTE:" << std::endl;
+    for(int i = 0; i < _filter.size(); ++i){
+        _filter[i].showFilter();
+    }
+}                       
+
 void Lang::step(){
     for(int i = 0; i < _step._cmd.size();++i){
         if(_step._cmd[i]._cmd == LCOMMAND::ASSIGNMENT)
             assign(_step._cmd[i]);
         else if (_step._cmd[i]._cmd == LCOMMAND::SEND)
             send(_step._cmd[i]);
+    }
+
+    /* zusätzlich noch alle getriggerten REACTIONs ausführen */
+    for(int i = 0; i < _reaction.size();++i){
+        if(_reaction[i].getTriggered()){
+            for(int j = 0; j < _reaction[i]._cmd.size();++j){
+                    if(_reaction[i]._cmd[j]._cmd == LCOMMAND::ASSIGNMENT)
+                        assign(_reaction[i]._cmd[j]);
+                    else if (_reaction[i]._cmd[j]._cmd == LCOMMAND::SEND)
+                        send(_reaction[i]._cmd[j]);
+            }
+        }
     }
 }
 
@@ -200,11 +234,22 @@ bool Lang::trigger(){
     bool triggered = false;
 
     pdu = _sniffer.next_packet();
-    showFilter();
-    showARP((ARP*)pdu->inner_pdu());
     
     for(int i = 0; i < _filter.size(); ++i){
-        triggered |= _filter[i].compare(pdu);
+        /* handelt es sich um einen PASS Filter kann auch der Trigger ausgelöst werden*/
+        if(_filter[i].getType() == LFilter::TYPE::PASS)
+            triggered |= _filter[i].compare(pdu);
+        else if(_filter[i].getType() == LFilter::TYPE::REACTION){
+            if(_filter[i].compare(pdu)){
+                int r = _filter[i].getNum();
+
+                for(int j = 0; j < _reaction.size(); ++j){
+                    _reaction[j].setTriggered(false);
+                    if(r == _reaction[j].getNum())
+                        _reaction[j].setTriggered(true);
+                }
+            }
+        }
     }
     
     delete pdu;
@@ -224,6 +269,7 @@ void Lang::send(lcommand cmd){
     for(int i = 0; i < _assembler.size(); ++i){
         if(_assembler[i].getNum() == (short)atoi(cmd._args[0].c_str())){
             _assembler[i].send();
+            std::cout << "SENDEN!" << std::endl;
         }
     }
 }          

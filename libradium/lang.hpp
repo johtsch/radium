@@ -13,6 +13,7 @@
 #include "lfilter.hpp"
 #include "lfilehandler.hpp"
 #include "lstep.hpp"
+#include "lreaction.hpp"
 
 void showARP(const ARP*_arp);
 
@@ -49,8 +50,8 @@ public:
     void showStep();
     void showTrigger();
     void showCmds(){ _step.showCmds();}
-    void showPacket(){ if(_assembler.size() > 0){_assembler[0].showPacket();} }
-    void showFilter(){ if(_filter.size() > 0){_filter[0].showFilter();}else{std::cout << "FICKEN" << std::endl;} }
+    void showPacket();               
+    void showFilter();
 private:
     Sniffer                             _sniffer;           /* um reinkommende Pakete auszulesen */
     LFileHandler                        _handler;           /* kümmert sich um das Auslesen der Datei */
@@ -74,7 +75,8 @@ private:
     // temporäre Speicher   
     LStep                               _step;              /* speichert den Inhalt der aktuellen S[n]-Umgebung der .lang-Datei in optimierter Form */
     std::vector<LAssembler>             _assembler;         /* speichert alle Assembler Umgebungen des aktuellen Steps */
-    std::vector<LFilter>                _filter;            /* speichert alle Assembler Umgebungen des aktuellen Steps */  
+    std::vector<LReaction>              _reaction;          /* speichert alle Reaction Umgebungen des aktuellen Steps */
+    std::vector<LFilter>                _filter;            /* speichert alle Filter Umgebungen des aktuellen Triggers */  
     std::string                         _trigger;           /* speichert den Inhalt der aktuellen T[n]-Umgebung der .lang-Datei */
     short                               _triggernum;
 

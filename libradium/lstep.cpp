@@ -6,7 +6,7 @@ LStep::LStep(){
     _num = 0;
 }
 
-void LStep::setStep(std::string step){
+bool LStep::setStep(std::string step){
     size_t pos1, pos2;
 
     pos1 = step.find(LANG_B_DESCRIPTION);
@@ -16,24 +16,9 @@ void LStep::setStep(std::string step){
         _description = step.substr(pos1 + LANG_B_DESCRIPTION.length(), pos2 - pos1 - LANG_B_DESCRIPTION.length());
         step.erase(pos1, pos2 + LANG_E_DESCRIPTION.length() - pos1 + 1);            // + 1 für das '\n' am Ende von :DESCRIPTION
     }
-
-    /* ASSEMBLE-Umgebung aus String löschen */
-    pos1 = pos2 = 0;
-    while(true){
-        pos1 = step.find(LANG_B_ASSEMBLE, pos2);
-        pos2 = step.find(LANG_E_ASSEMBLE, pos1+1);
-
-        if(pos1 == std::string::npos || pos2 == std::string::npos)
-            break;
-        else{
-            step.erase(pos1, pos2 + LANG_E_ASSEMBLE.length() - pos1 + 1);
-        }
-    }
     
     _step = step;
-    if(analyse()==false){
-        std::cout << "AM ARSCH!!!" << std::endl;
-    }
+    return analyse();
 }
 
 void LStep::setNum(short num){
@@ -164,9 +149,6 @@ bool LStep::manageAssignment(std::string ass){
 }
 
 bool LStep::manageSend(std::string arg){    
-    std::cout << "LStep::manageSend(): " << std::endl;
-    std::cout << "\t" << arg << std::endl;
-
     size_t pos1;
     short num;
     std::string numstr;
