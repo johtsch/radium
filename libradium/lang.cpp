@@ -257,11 +257,45 @@ bool Lang::trigger(){
 }
 
 /* vorerst werden nur einfache Zuweisungen der Form x=y unterstützt */
-void Lang::assign(lcommand cmd){
-    // SPÄTER
+bool Lang::assign(lcommand cmd){
+    if(cmd._cmd != LCOMMAND::ASSIGNMENT)
+        return false;
+
+    long unsigned int index = -1;
+    unsigned char type = VARTYPE_INVALID;
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        if(_dtinfo[i]._name == cmd._args[0]){
+            index = _dtinfo[i]._index;
+            type = _dtinfo[i]._type;
+        }
+    }
+
+    if(index == -1 || type == VARTYPE_INVALID)
+        return false;
+
+    switch(type){
+        case VARTYPE_HADDR:
+            _haddr[index] = HWAddress<6>(cmd._args[1]);
+            break;
+        case VARTYPE_IPADDR:
+            _ipaddr[index] = IPv4Address(cmd._args[1]);
+            break;
+        case VARTYPE_PORT:
+            _port[index] = (port)atoi(cmd._args[1]);
+            break;
+        case VARTYPE_BYTE:
+            _byte[index] = (byte)atoi(cmd._args[1]);
+            break;
+        case VARTYPE_SHORT:
+            _short[index] = (short)atoi(cmd._args[1]);
+            break;
+        case VARTYPE_INT:
+            _int[index] = (int)atoi(cmd._args[1]);
+            break;
+    };
 }   
 
-void Lang::send(lcommand cmd){
+bool Lang::send(lcommand cmd){
 
     if(cmd._cmd != LCOMMAND::SEND)
         return;

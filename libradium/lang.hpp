@@ -32,6 +32,9 @@ public:
 
     bool update();                          /* Die Angriffloop... managed Steps und Trigger etc., gibt false zurück wenn keine neue Step/Trigger-Umgebung eingelesen werden konnte */
 
+    bool assign(lcommand cmd);              /* führt ein assign Kommando aus */
+    bool send(lcommand cmd);                /* führt ein versenden Kommando aus */
+
     /* Setter*/
     void setQuiet(bool q){ _quiet = q; }
 
@@ -84,8 +87,6 @@ private:
     //Hilfsfunktionen
     void step();                            /* führt den in _step gespeicherten Schritt aus, wenn es wieder an der Zeit ist (->_intervall) */
     bool trigger();                         /* kontrolliert die angekommenen Datenpakete, ob sie den Vorgaben in _trigger entsprechen */
-    void assign(lcommand cmd);              /* führt ein assign Kommando aus */
-    void send(lcommand cmd);                /* führt ein versenden Kommando aus */
 
     bool varNameNotUsed(std::string name);
     void setStatus(std::string fct_name, std::string s);                        /* steht nicht bei den Settern, da nur die Klasse Statusmeldungen produzieren darf. fct_name ist der Name
