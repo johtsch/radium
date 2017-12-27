@@ -12,21 +12,8 @@ int main(int argc, char **argv){
     std::cout << std::endl;
     //langtest.showVars();
     //std::cout << std::endl;
-    
-    std::cout << std::endl;
-    langtest.showCmds();
 
     while(langtest.update());
     
-    /*
-    std::cout << std::endl;
-    langtest.showTrigger();
-    */
-    std::cout << std::endl;
-    langtest.showPacket();
-    std::cout << std::endl;
-    langtest.showFilter();
-    //std::cout << std::endl;
-    //langtest.showTrigger();
     return 0;
 }

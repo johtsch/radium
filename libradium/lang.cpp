@@ -17,6 +17,7 @@ Lang::Lang()
     _sniffer = Sniffer(NetworkInterface::default_interface().name(), conf);
     _running = false;
     _trigger = LANG_NOS;
+    _forward = true;
     _status = "Lang was initialized";
     _handler.linkLang(this);
     if(!_quiet)
@@ -32,6 +33,7 @@ Lang::Lang(std::string fpath)
     _sniffer = Sniffer(NetworkInterface::default_interface().name(), conf);
     _running = false;
     _trigger = LANG_NOS;
+    _forward = true;
     _handler.linkLang(this);
     if(_handler.loadFile(fpath))
         setStatus("Lang()", "Lang was initialized");
@@ -57,17 +59,15 @@ bool Lang::update(){
 
     /* kontrollieren, ob neue Umgebungen eingelesen werden müssen, dabei ist nur step entscheidend, da eine leere Trigger-Umgebung vollkommen legitim ist und lediglich bedeutet, dass
         der TRIGGER sofort erfüllt ist und mit dem nächsten STEP weitergemacht werden kann */
-    if(_step.getStep() == LANG_NOS && _trigger == LANG_NOS){
+    if(_forward){
         setStatus("update()", ">>> neue Step-/Trigger-Umgebungen werden eingelesen.");
         if(!_handler.readStep() || !_handler.readTrigger()){
             setStatus("update()", "Konnte nächste STEP-/TRIGGER-Umgebung nicht einlesen. Ausführung beendet <<<");
             _running = false;
             return false;
         }
-        else{
-            showPacket();
-            showFilter();
-        }
+        
+        _forward = false;
     }
 
     /*später noch Timing-Mechanismus einfügen */
@@ -78,9 +78,8 @@ bool Lang::update(){
 
     /* Wenn Bedingung erfüllt, dann wird das nächste STEP/TRIGGER-Paar eingelesen, dazu werden die gespeicherten Umgebungen zurückgesetzt */
     if(trigger()){
-        _trigger == LANG_NOS;
+        _trigger = LANG_NOS;
         _step.setStep(LANG_NOS);
-        std::cout << "Angekommen!" << std::endl;
     }
 
     return true;
@@ -217,16 +216,15 @@ void Lang::step(){
     /* zusätzlich noch alle getriggerten REACTIONs in explizite Kommandos umwandeln */
     for(int i = 0; i < _reaction.size();++i){
         if(_reaction[i].getTriggered()){
-            std::cout << "TRIGGERED" << std::endl;
+            setStatus("step()", "Eine Reaction wurde ausgelöst!");
             if(_reaction[i].process()==false){
-                std::cout << "FUIUUUUUUUUUU" << std::endl;
+                setStatus("step()", "Die Reaction konnte nicht verarbeitet werden!");
                 return;
             }
         }
     }
 
     for(int i = 0; i < _reaction.size();++i){
-        _reaction[i].showRCmds();
         if(_reaction[i].getTriggered()){
             for(int j = 0; j < _reaction[i]._cmd.size(); ++j){
                 if(_reaction[i]._realcmd[j]._cmd == LCOMMAND::ASSIGNMENT)
@@ -248,6 +246,17 @@ void Lang::step(){
             for(int j = 0; j < _reaction[i]._cmd.size(); ++j){
                 if (_reaction[i]._realcmd[j]._cmd == LCOMMAND::SEND)
                     send(_reaction[i]._realcmd[j]);
+            }
+        }
+    }
+
+
+    for(int i = 0; i < _reaction.size();++i){
+        if(_reaction[i].getTriggered()){
+            for(int j = 0; j < _reaction[i]._cmd.size(); ++j){
+                if(_reaction[i]._realcmd[j]._cmd == LCOMMAND::PASS){
+                    _forward = true;
+                }
             }
         }
     }
@@ -335,14 +344,14 @@ bool Lang::send(lcommand cmd){
     for(int i = 0; i < _assembler.size(); ++i){
         if(_assembler[i].getNum() == (short)atoi(cmd._args[0].c_str())){
             try{
-            _assembler[i].send();
+                _assembler[i].send();
             }
             catch(Tins::invalid_address e){
                 std::cout << "DIE UNGÜLTIGE ADRESSE : "; 
                 _assembler[i].showPacket();
                 std::cout << std::endl;
             }
-            std::cout << "SENDEN!" << std::endl;
+            setStatus("send()", "Ein Paket wurde verschickt!");
         }
     }
     return true;

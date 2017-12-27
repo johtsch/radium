@@ -4,23 +4,17 @@
 bool LReaction::process(){
     _realcmd = _cmd;
     
-    std::cout << "DIE COMMANDS WERDEN BEHANDELT " << _cmd.size() << " > " <<  _realcmd.size() << std::endl;
+    //qstd::cout << "DIE COMMANDS WERDEN BEHANDELT " << _cmd.size() << " > " <<  _realcmd.size() << std::endl;
     
     for(int i = 0; i < _realcmd.size();++i){
-        std::cout << "HEY" << std::endl;
 
         if(_realcmd[i]._cmd == LCOMMAND::ASSIGNMENT){
             /* herausfinden ob ein ASSIGNMENT implizit oder explizit ist */
             if(isImplicit(i)){
-                std::cout << "RESOLVE " << _realcmd[i]._args[0] << " = " << _realcmd[i]._args[1] << std::endl;
                 if(!resolveImplicit(i)){
-                    std::cout << "FAILED!";
                     return false;
                 }
             }
-        }
-        else if (_realcmd[i]._cmd == LCOMMAND::SEND){
-            std::cout << "ATTACKE" << std::endl;
         }
     }
 
@@ -41,27 +35,24 @@ bool LReaction::analyse(){
         tmp = ass = "";
         /* eine Zuweisung wurde gefunden */
         if(wrd.find(LANG_C_ASSIGN, 0) != std::string::npos){
-            std::cout << "DAS WROT: " << wrd << std::endl;
-            pos1 = pos;
-            if(pos1==std::string::npos)
-                pos1 = 0;
-                
-            pos2 = _step.find(';', pos1);
-            if(pos2==std::string::npos)
-                return false;
 
-            // sollte sich eine implizite Anweisung andeuten dann wird diese extra behandelt. Wichtig, da LReaction auf LStep aufbaut und diese impliziten Zuweisungen dort eine Rolle spielen. Für LStep sind sie hingegen irrelevant
-            pos2 = _step.find(LCOMMAND_ARG_PACKET, pos1);
-            if(pos2 != std::string::npos){
-                pos1 = pos2;
-                pos2 = _step.find(';', pos);
-                ass = _step.substr(pos1, pos2 - pos1);
+            pos1 = _step.find(LANG_PACKET, pos - 5);            // der pos Counter ist nicht allzu genau, deswegen gehen wir nochmal 5 Zeichen zurück, um den LAN_PACKET Teil nicht zu übersehen
+            if(pos1==std::string::npos){
+                std::cout << "KEIN PACKETSPEZIFIZIERER gefunden" << std::endl;
+                return false;
             }
+            pos2 = _step.find(";", pos1);
+            if(pos1==std::string::npos){
+                std::cout << "KEIN SEMIKOLON gefunden" << std::endl;
+                return false;
+            }
+
+            ass = _step.substr(pos1, pos2 - pos1);
 
             if(manageAssignment(wrd + ass) == false)
                 return false;
         }   
-        if(wrd==LCOMMAND_STR_SEND){
+        else if(wrd==LCOMMAND_STR_SEND){
             pos1=_step.find(')', pos);
             pos2=_step.find("\n", pos+wrd.length());
             if(pos1 > pos2)
@@ -73,9 +64,12 @@ bool LReaction::analyse(){
 
             wc++;   //sonst würde zweimal manageSend aufgerufen werden ;)
         }
+        else if(wrd==LCOMMAND_STR_PASS){
+            _cmd.push_back(lcommand());
+            _cmd[_cmd.size()-1]._cmd = LCOMMAND::PASS;
+        }
+
         pos+=wrd.length();                  /* Position im String mitzählen */
-        if(wrd.length() == 0)
-            pos+=1;
     }
 
     return true;
@@ -87,7 +81,6 @@ bool LReaction::manageAssignment(std::string ass){
     size_t wc = 0;
     _cmd.push_back(lcommand());
     _cmd[_cmd.size()-1]._cmd = LCOMMAND::ASSIGNMENT;
-    std::cout << "DAS ASSIGNMENT: " << ass << std::endl;
     /* Einlesen des Linken Teils der Zuweisung */
     while((wrd=getNextWord(ass, wc)).length() > 0){
         if(wrd.find("=") != std::string::npos){
@@ -104,7 +97,7 @@ bool LReaction::manageAssignment(std::string ass){
     }
     wc++;
     
-    ass.pop_back();                 /* Semikolon entfernen */
+    //ass.pop_back();                 /* Semikolon entfernen */
 
     size_t pos1;
     pos1 = ass.find("=");
@@ -136,7 +129,6 @@ bool LReaction::resolveImplicit(int index){
 
     if((pos1=_realcmd[index]._args[1].find("].")) != std::string::npos){
         field = _realcmd[index]._args[1].substr(pos1+2, _realcmd[index]._args[1].length() - pos1 - 2);
-        std::cout << "FIELD = " << field << "|" << std::endl;
     } 
     else{
         std::cout << "2: " << _realcmd[index]._args[1] << std::endl;
@@ -225,11 +217,6 @@ std::string LReaction::getExplicit(std::string field, const ARP *arp){
             str = std::to_string((int)b);
         break;
         }
-        default:
-        {
-            std::cout << "DEFALTDEFAULT" << std::endl;
-        }
     };
-    std::cout << "DAS IST DER GETEXPLICIT STRIN: " << str << std::endl;
     return str;
 }
