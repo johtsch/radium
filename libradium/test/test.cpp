@@ -5,19 +5,19 @@
 
 int main(int argc, char **argv){
     Lang langtest;
-    langtest.setQuiet(true);
-    langtest.loadFile("../../langfiles/responder.lang");
+    langtest.setQuiet(false);
+    langtest.loadFile("../../langfiles/conflict.lang");
     langtest.start();
     
     std::cout << std::endl;
     //langtest.showVars();
     //std::cout << std::endl;
     
+    std::cout << std::endl;
+    langtest.showCmds();
 
     while(langtest.update());
     
-    std::cout << std::endl;
-    langtest.showStep();
     /*
     std::cout << std::endl;
     langtest.showTrigger();

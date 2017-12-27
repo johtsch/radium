@@ -44,15 +44,9 @@ bool LEthernet::assign(lcommand cmd, const Lang *lang){
     if(cmd._cmd != LCOMMAND::ASSIGNMENT)
         return false;
     
-    bool isfield = false;
     bool isExpl = false;
     int f = 0;
-    for(f = 0; f < sizeof(s_fields) / sizeof(s_fields[0]); ++f){
-        if(cmd._args[0] == s_fields[f]){
-            isfield = true;
-            break;
-        }
-    }
+    bool isfield = isField(cmd._args[0], &f);
 
     if(!isfield)
         return false;
@@ -93,6 +87,33 @@ bool LEthernet::compare(const EthernetII *eth){
     return equal;
 }
 
+
+bool LEthernet::isField(std::string field, int *which){
+    for(int i = 0; i < sizeof(s_fields) / sizeof(s_fields[0]); ++i){
+        if(field == s_fields[i]){
+            if(which!=nullptr)
+                *which=i;
+            return true;
+        }
+    }
+    return false;
+}
+
+HWAddress<6> LEthernet::getHW(std::string field){
+    int f = 0;
+    bool isfield = isField(field, &f);
+
+    if(!isfield)
+        return HWAddress<6>("00:00:00:00:00:00");
+    
+    if(f == LEthernet::SRC){
+        return _eth.src_addr();
+    }
+    else{
+        return _eth.dst_addr();
+    }
+}
+
 void LARP::reset(){
     _flagsset = false;
     _arp.sender_ip_addr("0.0.0.0");
@@ -105,16 +126,9 @@ bool LARP::assign(lcommand cmd, const Lang *lang){
     if(cmd._cmd != LCOMMAND::ASSIGNMENT)
         return false;
 
-    
-    bool isfield = false;
     bool isExpl = false;
     int f = 0;
-    for(f = 0; f < sizeof(s_fields) / sizeof(s_fields[0]); ++f){
-        if(cmd._args[0] == s_fields[f]){
-            isfield = true;
-            break;
-        }
-    }
+    bool isfield = isField(cmd._args[0], &f);
 
     if(!isfield)
         return false;
@@ -207,4 +221,63 @@ bool LARP::compare(const ARP *arp){
         equal &= (_arp.opcode() == arp->opcode());
 
     return equal;
+}
+
+bool LARP::isField(std::string field, int *which){
+    for(int i = 0; i < sizeof(s_fields) / sizeof(s_fields[0]); ++i){
+        if(field == s_fields[i]){
+            if(which!=nullptr)
+                *which=i;
+            return true;
+        }
+    }
+    return false;
+}
+
+HWAddress<6> LARP::getHW(std::string field){
+    int f = 0;
+    bool isfield = isField(field, &f);
+
+    if(!isfield)
+        return HWAddress<6>("00:00:00:00:00:00");
+    if(s_type[f] != VARTYPE_HADDR)
+        return HWAddress<6>("00:00:00:00:00:00");
+    
+    if(f == LARP::SENDER_HW){
+        return _arp.sender_hw_addr();
+    }
+    else if(f == LARP::TARGET_HW){
+        return _arp.target_hw_addr();
+    }
+}
+
+IPv4Address LARP::getIP(std::string field){
+    int f = 0;
+    bool isfield = isField(field, &f);
+
+    if(!isfield)
+        return IPv4Address("0.0.0.0");
+    if(s_type[f] != VARTYPE_IPADDR)
+        return IPv4Address("0.0.0.0");
+
+    if(f == LARP::SENDER_IP){
+        return _arp.sender_ip_addr();
+    }
+    else if(f == LARP::TARGET_IP){
+        return _arp.target_ip_addr();
+    }
+}
+
+byte LARP::getByte(std::string field){
+    int f = 0;
+    bool isfield = isField(field, &f);
+
+    if(!isfield)
+        return 1;
+    if(s_type[f] != VARTYPE_BYTE)
+        return 1;
+
+    if(f == LARP::OPCODE){
+        return _arp.opcode();
+    }
 }

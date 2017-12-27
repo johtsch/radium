@@ -27,7 +27,11 @@ public:
 
     bool assign(lcommand cmd, const Lang *lang);
     bool compare(const EthernetII *eth);
+    bool isField(std::string field, int *which);
 
+    HWAddress<6> getHW(std::string field);
+
+    void setEth(const EthernetII *eth){ _eth = *eth; }
     void inner_pdu(PDU *pdu){ _eth.inner_pdu(*pdu); };
     EthernetII* getEth(){ return &_eth; }
 
@@ -50,7 +54,13 @@ public:
 
     bool assign(lcommand cmd, const Lang *lang);
     bool compare(const ARP *arp);
+    bool isField(std::string field, int *which);
 
+    HWAddress<6>    getHW(std::string field);
+    IPv4Address     getIP(std::string field);
+    byte            getByte(std::string field);
+
+    void setARP(const ARP *arp){ _arp = *arp; }
     void inner_pdu(PDU *pdu){ _arp.inner_pdu(*pdu); }
     ARP* getARP(){ return &_arp; }
     bool flagsSet(){ return _flagsset; }

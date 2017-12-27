@@ -25,7 +25,7 @@ std::string getNextArgument(std::string str, size_t pos=0);
 std::string optLine(std::string line);                                      /* gibt eine übergebene Zeile in optimierter Form zurück: keine unnötigen Steuer-/Leerzeichen und keine Kommentare */
 bool isWordEndingChar(char c);
 bool isOperand(char c);                                                     /* Operanten sind in diesem Fall nur +, -, *, / */
-void cutOut(std::string env, std::string beg, std::string end);             /* schneidet alle durch beg und end eingeschlossenen Umgebungen aus dem String env*/
+void cutOut(std::string *env, std::string beg, std::string end);             /* schneidet alle durch beg und end eingeschlossenen Umgebungen aus dem String env*/
 
 class Lang;                     /* um circular references aus dem Weg zu gehen*/
 

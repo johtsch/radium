@@ -33,8 +33,8 @@ protected:
     short                       _num;
     clock_t                     _intervall;
 
-    bool analyse();
-    bool manageAssignment(std::string ass);
-    bool manageSend(std::string arg);
+    virtual bool analyse();
+    virtual bool manageAssignment(std::string ass);
+    virtual bool manageSend(std::string arg);
 };
 #endif

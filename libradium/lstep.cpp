@@ -4,6 +4,7 @@ LStep::LStep(){
     _step = LANG_NOS;
     _description = LANG_NOS;
     _num = 0;
+    _cmd.clear();
 }
 
 bool LStep::setStep(std::string step){
@@ -17,6 +18,7 @@ bool LStep::setStep(std::string step){
         step.erase(pos1, pos2 + LANG_E_DESCRIPTION.length() - pos1 + 1);            // + 1 für das '\n' am Ende von :DESCRIPTION
     }
     
+    _cmd.clear();
     _step = step;
     return analyse();
 }
@@ -43,6 +45,8 @@ bool LStep::analyse(){
     std::string ass;
     size_t wc = 0;
 
+    std::cout << "ZU ANALYSIERENDER STEP: " << _step << std::endl; 
+
     size_t pos=0;
     size_t pos1, pos2; 
 
@@ -59,16 +63,26 @@ bool LStep::analyse(){
             if(pos2==std::string::npos)
                 return false;
 
-            while(true){
-                tmp=getNextWord(_step, wc);
-                if(tmp == LANG_CTRL_CHAR)
-                    tmp = " ";
-                if(isOperand(tmp[0]))
-                    tmp = " " + tmp;                    // da ansonsten das Leerzeichen vor einem Operanden übersprungen werden würde
-                ass+=tmp;
-                if(tmp.find(";", 0) != std::string::npos)
-                break;
+            // sollte sich eine implizite Anweisung andeuten dann wird diese extra behandelt. Wichtig, da LReaction auf LStep aufbaut und diese impliziten Zuweisungen dort eine Rolle spielen. Für LStep sind sie hingegen irrelevant
+            pos2 = _step.find(LCOMMAND_ARG_PACKET, pos1);
+            if(pos2 != std::string::npos && pos2 < _step.find(";", pos1)){
+                std::cout << "BIM DRIN" << std::endl;
+                pos2 = _step.find(';', pos1);
+                ass = _step.substr(pos1 + wrd.length(), pos2 - pos1 - wrd.length());
             }
+            else{
+                while(true){
+                    tmp=getNextWord(_step, wc);
+                    if(tmp == LANG_CTRL_CHAR)
+                        tmp = " ";
+                    if(isOperand(tmp[0]))
+                        tmp = " " + tmp;                    // da ansonsten das Leerzeichen vor einem Operanden übersprungen werden würde
+                    ass+=tmp;
+                    if(tmp.find(";", 0) != std::string::npos)
+                    break;
+                }
+            }
+
             if(manageAssignment(wrd + ass) == false)
                 return false;
         }   

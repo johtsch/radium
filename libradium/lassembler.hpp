@@ -19,6 +19,8 @@ class LAssembler{
 public:
     LAssembler(){ _assemble = ""; }
     
+    bool            reassemble(const Lang *lang){ return analyse(lang); }
+
     bool            setAssembler(std::string assemble, const Lang *lang);
     void            setNum(short num){ _num = num; }
 

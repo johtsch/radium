@@ -367,8 +367,9 @@ bool LFileHandler::readStep(){
     }
     
     /* rausschneiden der anderen Subumgebungen */
-    cutOut(step, LANG_B_ASSEMBLE, LANG_E_ASSEMBLE);
-    cutOut(step, LANG_B_REACTION, LANG_E_REACTION);
+    cutOut(&step, LANG_B_ASSEMBLE, LANG_E_ASSEMBLE);
+    cutOut(&step, LANG_B_REACTION, LANG_E_REACTION);
+    cutOut(&step, LANG_B_REACTION, LANG_E_REACTION);
 
     _lang->_step.setStep(step);
 
@@ -495,7 +496,6 @@ bool LFileHandler::readAllReaction(std::string step){
     size_t pos1, pos2 = 0;
     std::string arg = "";
     short a;
-
     while(true){
         pos1 = step.find(LANG_B_REACTION, pos2);
 
@@ -512,18 +512,21 @@ bool LFileHandler::readAllReaction(std::string step){
         if(isValidShort(arg)){
             a = (short)atoi(arg.c_str());
         }
-        else
+        else{
             return false;
-
-        /* kontrollieren, dass in diesem Step noch kein Paket mit gleicher Nummer erstellt wurde */
-        for(int i = 0; i < _lang->_reaction.size(); ++i){
-            if(_lang->_reaction[i].getNum() == a)
-                return false;
         }
+        /* kontrollieren, dass in diesem Step noch kein Paket mit gleicher Nummer erstellt wurde */
+        /*for(int i = 0; i < _lang->_reaction.size(); ++i){
+            if(_lang->_reaction[i].getNum() == a){
+                std::cout << "2" << std::endl;
+                return false;
+            }
+        }*/
 
         _lang->_reaction.push_back(LReaction());
-        if(_lang->_reaction[_lang->_reaction.size()-1].setReaction(step.substr(pos1, pos2 - pos1))==false)         
+        if(_lang->_reaction[_lang->_reaction.size()-1].setReaction(step.substr(pos1, pos2 - pos1))==false)  {  
             return false;
+        }
         _lang->_reaction[_lang->_reaction.size()-1].setNum(a);
         _lang->_reaction[_lang->_reaction.size()-1].setTriggered(false);
     }
@@ -698,17 +701,17 @@ bool isOperand(char c){
     return (c == '+' || c == '-' || c == '*' || c == '/');
 }
 
-void cutOut(std::string env, std::string beg, std::string end){
+void cutOut(std::string *env, std::string beg, std::string end){
     size_t pos1, pos2;
     pos1 = pos2 = 0;
     while(true){
-        pos1 = env.find(beg, pos2);
-        pos2 = env.find(end, pos1+1);
+        pos1 = env->find(beg, pos2);
+        pos2 = env->find(end, pos1+1);
 
         if(pos1 == std::string::npos || pos2 == std::string::npos)
             break;
         else{
-            env.erase(pos1, pos2 + end.length() - pos1 + 1);
+            env->erase(pos1, pos2 + end.length() - pos1);
         }
     }
 }

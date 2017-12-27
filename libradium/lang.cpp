@@ -208,21 +208,46 @@ void Lang::showFilter(){
 }                       
 
 void Lang::step(){
+    
     for(int i = 0; i < _step._cmd.size();++i){
         if(_step._cmd[i]._cmd == LCOMMAND::ASSIGNMENT)
             assign(_step._cmd[i]);
-        else if (_step._cmd[i]._cmd == LCOMMAND::SEND)
+    }
+
+    /* zusätzlich noch alle getriggerten REACTIONs in explizite Kommandos umwandeln */
+    for(int i = 0; i < _reaction.size();++i){
+        if(_reaction[i].getTriggered()){
+            std::cout << "TRIGGERED" << std::endl;
+            if(_reaction[i].process()==false){
+                std::cout << "FUIUUUUUUUUUU" << std::endl;
+                return;
+            }
+        }
+    }
+
+    for(int i = 0; i < _reaction.size();++i){
+        _reaction[i].showRCmds();
+        if(_reaction[i].getTriggered()){
+            for(int j = 0; j < _reaction[i]._cmd.size(); ++j){
+                if(_reaction[i]._realcmd[j]._cmd == LCOMMAND::ASSIGNMENT)
+                    assign(_reaction[i]._realcmd[j]);
+            }
+        }
+    }
+
+    for(int i = 0; i < _assembler.size(); ++i)
+        _assembler[i].reassemble(this);
+
+    for(int i = 0; i < _step._cmd.size();++i){
+        if (_step._cmd[i]._cmd == LCOMMAND::SEND)
             send(_step._cmd[i]);
     }
 
-    /* zusätzlich noch alle getriggerten REACTIONs ausführen */
     for(int i = 0; i < _reaction.size();++i){
         if(_reaction[i].getTriggered()){
-            for(int j = 0; j < _reaction[i]._cmd.size();++j){
-                    if(_reaction[i]._cmd[j]._cmd == LCOMMAND::ASSIGNMENT)
-                        assign(_reaction[i]._cmd[j]);
-                    else if (_reaction[i]._cmd[j]._cmd == LCOMMAND::SEND)
-                        send(_reaction[i]._cmd[j]);
+            for(int j = 0; j < _reaction[i]._cmd.size(); ++j){
+                if (_reaction[i]._realcmd[j]._cmd == LCOMMAND::SEND)
+                    send(_reaction[i]._realcmd[j]);
             }
         }
     }
@@ -234,6 +259,10 @@ bool Lang::trigger(){
     bool triggered = false;
 
     pdu = _sniffer.next_packet();
+
+    for(int j = 0; j < _reaction.size(); ++j){
+        _reaction[j].setTriggered(false);
+    }
     
     for(int i = 0; i < _filter.size(); ++i){
         /* handelt es sich um einen PASS Filter kann auch der Trigger ausgelöst werden*/
@@ -244,9 +273,10 @@ bool Lang::trigger(){
                 int r = _filter[i].getNum();
 
                 for(int j = 0; j < _reaction.size(); ++j){
-                    _reaction[j].setTriggered(false);
-                    if(r == _reaction[j].getNum())
+                    if(r == _reaction[j].getNum()){
+                        _reaction[j].setPDU(pdu->clone());
                         _reaction[j].setTriggered(true);
+                    }
                 }
             }
         }
@@ -275,37 +305,47 @@ bool Lang::assign(lcommand cmd){
 
     switch(type){
         case VARTYPE_HADDR:
-            _haddr[index] = HWAddress<6>(cmd._args[1]);
+            _haddr[index] = HWAddress<6>(cmd._args[1].c_str());
             break;
         case VARTYPE_IPADDR:
-            _ipaddr[index] = IPv4Address(cmd._args[1]);
+            _ipaddr[index] = IPv4Address(cmd._args[1].c_str());
             break;
         case VARTYPE_PORT:
-            _port[index] = (port)atoi(cmd._args[1]);
+            _port[index] = (port)atoi(cmd._args[1].c_str());
             break;
         case VARTYPE_BYTE:
-            _byte[index] = (byte)atoi(cmd._args[1]);
+            _byte[index] = (byte)atoi(cmd._args[1].c_str());
             break;
         case VARTYPE_SHORT:
-            _short[index] = (short)atoi(cmd._args[1]);
+            _short[index] = (short)atoi(cmd._args[1].c_str());
             break;
         case VARTYPE_INT:
-            _int[index] = (int)atoi(cmd._args[1]);
+            _int[index] = (int)atoi(cmd._args[1].c_str());
             break;
     };
+
+    return true;
 }   
 
 bool Lang::send(lcommand cmd){
 
     if(cmd._cmd != LCOMMAND::SEND)
-        return;
+        return false;
 
     for(int i = 0; i < _assembler.size(); ++i){
         if(_assembler[i].getNum() == (short)atoi(cmd._args[0].c_str())){
+            try{
             _assembler[i].send();
+            }
+            catch(Tins::invalid_address e){
+                std::cout << "DIE UNGÜLTIGE ADRESSE : "; 
+                _assembler[i].showPacket();
+                std::cout << std::endl;
+            }
             std::cout << "SENDEN!" << std::endl;
         }
     }
+    return true;
 }          
 
 bool Lang::varNameNotUsed(std::string name){
