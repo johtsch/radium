@@ -1,0 +1,52 @@
+VAR:
+	IP ipsrc 127.0.0.1;
+	IP iptar 127.0.0.1;
+	HADDR hwtar "ff:ff:ff:ff:ff:ff";
+	HADDr hwmy "24:05:0f:5b:98:98";
+:VAR
+
+IMPLEMENTATION:
+	S[0]:
+	
+		REACTION[0]:
+			ipsrc=PACKET[ARP].TARGET_IP;
+			iptar=PACKET[ARP].SENDER_IP;
+			hwtar=PACKET[ARP].SENDER_HW;
+		:REACTION
+	
+		ASSEMBLE[1]:
+			L3[ARP]:
+				SENDER_IP=ipsrc;
+				SENDER_HW=hwmy;
+				TARGET_IP=iptar;
+				TARGET_HW=hwsrc;
+				OPCODE=2;
+			:L3
+		:ASSEMBLE
+		
+		REACTION[1]:
+			SEND(PACKET[1]);
+		:REACTION
+	:S
+	T[0]:
+		FILTER[REACTION[0]]:
+			L3[ARP]:
+				OPCODE=1;
+			:L3
+		:FILTER
+		FILTER[REACTION[1]]:
+			L3[ARP]:
+				OPCODE=1;
+			:L3
+		:FILTER
+		
+		FILTER[PASS]:
+			L2:
+				SRC="ff:ff:ff:ff:ff:ff";
+			:L2
+			L3[ARP]:
+				SENDER_HW="ff:ff:ff:ff:ff:ff";
+			:L3
+		:FILTER
+	:T
+:IMPLEMENTATION
