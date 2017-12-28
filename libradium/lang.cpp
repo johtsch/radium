@@ -66,7 +66,7 @@ bool Lang::update(){
             _running = false;
             return false;
         }
-        
+        setStatus("update()", ">>> neue Step-/Trigger-Umgebungen wurden erfolgreich eingelesen!");
         _forward = false;
     }
 

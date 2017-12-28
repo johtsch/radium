@@ -168,6 +168,23 @@ bool LReaction::resolveImplicit(int index){
         }
         _realcmd[index]._args[1] = tmp;
     }
+    else if(arg==LANG_PRO_IPv4){
+        IP *ip;
+        try{ 
+            ip = &_packet->rfind_pdu<IP>();
+        }
+        catch(pdu_not_found e){
+            std::cout << "5.1" << e.what() << std::endl;
+            return false;
+        }
+ 
+        tmp = getExplicit(field, ip);
+        if(tmp == LANG_NOS){
+            std::cout << "6.1" << std::endl;
+            return false;
+        }
+        _realcmd[index]._args[1] = tmp;
+    }
     else{
         std::cout << "7" << std::endl;
         return false;
@@ -203,6 +220,38 @@ std::string LReaction::getExplicit(std::string field, const ARP *arp){
         {
             HWAddress<6> hw = p.getHW(field);
             str = hw.to_string();
+        break;
+        }
+        case VARTYPE_IPADDR:
+        {
+            IPv4Address ip = p.getIP(field);
+            str = ip.to_string();
+        break;
+        }
+        case VARTYPE_BYTE:
+        {
+            byte b = p.getByte(field);
+            str = std::to_string((int)b);
+        break;
+        }
+    };
+    return str;
+}
+
+std::string LReaction::getExplicit(std::string field, const IP *ip){
+    int f = -1;
+    LIPv4 p;
+    p.setIP(ip);
+    std::string str;
+
+    if(!p.isField(field, &f))
+        return "";
+
+    switch(LIPv4::s_type[f]){
+        case VARTYPE_SHORT:
+        {
+            short s = p.getShort(field);
+            str = std::to_string((int)s);
         break;
         }
         case VARTYPE_IPADDR:

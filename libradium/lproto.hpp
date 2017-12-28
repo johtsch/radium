@@ -70,4 +70,30 @@ private:
     bool     _flagsset;
 };
 
+class LIPv4{
+public:
+    LIPv4(){_flagsset = false; }
+    void reset();
+
+    const static std::string s_fields[];
+    const static unsigned char s_type[];
+    enum s_fenum { TOS, ID, FLAGS, TTL, SRC_ADDR, DST_ADDR };
+
+    bool assign(lcommand cmd, const Lang *lang);
+    bool compare(const IP *ip);
+    bool isField(std::string field, int *which);
+
+    IPv4Address     getIP(std::string field);
+    short           getShort(std::string field);
+    byte            getByte(std::string field);
+
+    void setIP(const IP *ip){ _ip = *ip; }
+    void inner_pdu(PDU *pdu){ _ip.inner_pdu(*pdu); }
+    IP* getIP(){ return &_ip; }
+
+private:
+    IP       _ip;
+    bool     _flagsset;
+};
+
 #endif

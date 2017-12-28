@@ -35,6 +35,7 @@ private:
     /* mögliche Protokolle (zumindest die bis jetzt implementierten) */
     LEthernet       _eth;
     LARP            _arp;
+    LIPv4           _ip;
 
     short           _num;
     bool            analyse(const Lang *lang);                      /* selektiert die einzelnen Layer und gibt sie an analyseLayer() weiter */

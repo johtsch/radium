@@ -63,8 +63,6 @@ bool LAssembler::analyse(const Lang *lang){
         if(analyseLayer(lang, arg, _assemble.substr(pos1 + LANG_B_L3.length(), pos2 - 1 - (pos1 + LANG_B_L3.length())))==false)
             return false;
     }
-    else
-        return false;
 
     pos1 = _assemble.find(LANG_B_L4, pos2);
 
@@ -81,8 +79,6 @@ bool LAssembler::analyse(const Lang *lang){
         if(analyseLayer(lang, arg, _assemble.substr(pos1 + LANG_B_L4.length(), pos2 - 1 - (pos1 + LANG_B_L4.length())))==false)
             return false;
     }
-    else
-        return true;
 
     pos1 = _assemble.find(LANG_B_L5, pos2);
 
@@ -99,8 +95,6 @@ bool LAssembler::analyse(const Lang *lang){
         if(analyseLayer(lang, arg, _assemble.substr(pos1 + LANG_B_L5.length(), pos2 - 1 - (pos1 + LANG_B_L5.length())))==false)
             return false;
     }
-    else
-        return true;
 
     pos1 = _assemble.find(LANG_B_L6, pos2);
 
@@ -117,8 +111,6 @@ bool LAssembler::analyse(const Lang *lang){
         if(analyseLayer(lang, arg, _assemble.substr(pos1 + LANG_B_L6.length(), pos2 - 1 - (pos1 + LANG_B_L6.length())))==false)
             return false;
     }
-    else
-        return true;
 
     pos1 = _assemble.find(LANG_B_L7, pos2);
 
@@ -135,8 +127,6 @@ bool LAssembler::analyse(const Lang *lang){
         if(analyseLayer(lang, arg, _assemble.substr(pos1 + LANG_B_L7.length(), pos2 - 1 - (pos1 + LANG_B_L7.length())))==false)
             return false;
     }
-    else
-        return true;
 
     return true;
 }
@@ -190,6 +180,12 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
                 }
                 pdu = (PDU*)&_arp;
             }
+            else if(pro == LANG_PRO_IPv4){
+                if(!_ip.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_ip;
+            }
         }   
     }
 
@@ -199,9 +195,9 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
     if(prevpro==LANG_PRO_ETHERNET){
         _eth.inner_pdu(pdu);
     }
+    if(prevpro==LANG_PRO_IPv4)
+        _ip.inner_pdu(pdu);
     /*
-    if(prevpro==LANG_PRO_ETHERNET)
-        _eth.inner_pdu(pdu);
     if(prevpro==LANG_PRO_ETHERNET)
         _eth.inner_pdu(pdu);
     if(prevpro==LANG_PRO_ETHERNET)

@@ -41,6 +41,7 @@ private:
     /* für jedes mögliche Protokoll eine Member-Instanz anlegen, die im Falle, dass sie benötigt wird festgelegt werden kann */
     LEthernet       _ethernet;
     LARP            _arp;      
+    LIPv4           _ip;
 
     bool            analyse(const Lang *lang);                                                    /* selektiert die einzelnen Layer und gibt sie an analyseLayer() weiter */
     bool            analyseLayer(const Lang *lang, std::string pro, std::string layer, int num);  /* pro ist der Protokollstring (siehe lconst); num speichert nummer der Schicht im OSI-Modell */

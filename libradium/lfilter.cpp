@@ -19,6 +19,8 @@ bool LFilter::compare(const PDU *pdu){
                     equal &= _ethernet.compare((EthernetII*)tmp);
                 if(tmp->pdu_type() == PDU::PDUType::ARP)
                     equal &= _arp.compare((ARP*)tmp);
+                if(tmp->pdu_type() == PDU::PDUType::IP)
+                    equal &= _ip.compare((IP*)tmp);
             }
             else    
                 equal = false;
@@ -203,6 +205,12 @@ bool LFilter::analyseLayer(const Lang *lang, std::string pro, std::string layer,
                     return false;
                 }
                 pdu = (PDU*)&_arp;
+            }
+            if(pro == LANG_PRO_IPv4){
+                if(!_ip.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_ip;
             }
         }   
     }

@@ -59,10 +59,10 @@ unsigned char getVarTypeVal(std::string val){
         return VARTYPE_IPADDR;
     if(isValidByte(val))
         return VARTYPE_BYTE;
-    if(isValidPort(val))
-        return VARTYPE_PORT;
     if(isValidShort(val))
         return VARTYPE_SHORT;
+    if(isValidPort(val))
+        return VARTYPE_PORT;
     if(isValidInt(val))
         return VARTYPE_INT;
 

@@ -46,6 +46,7 @@ private:
     
     std::string getExplicit(std::string field, const EthernetII *eth);
     std::string getExplicit(std::string field, const ARP *arp);
+    std::string getExplicit(std::string field, const IP *ip);
 };
 
 #endif
