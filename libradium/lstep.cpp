@@ -45,8 +45,6 @@ bool LStep::analyse(){
     std::string ass;
     size_t wc = 0;
 
-    std::cout << "ZU ANALYSIERENDER STEP: " << _step << std::endl; 
-
     size_t pos=0;
     size_t pos1, pos2; 
 
@@ -66,7 +64,6 @@ bool LStep::analyse(){
             // sollte sich eine implizite Anweisung andeuten dann wird diese extra behandelt. Wichtig, da LReaction auf LStep aufbaut und diese impliziten Zuweisungen dort eine Rolle spielen. Für LStep sind sie hingegen irrelevant
             pos2 = _step.find(LCOMMAND_ARG_PACKET, pos1);
             if(pos2 != std::string::npos && pos2 < _step.find(";", pos1)){
-                std::cout << "BIM DRIN" << std::endl;
                 pos2 = _step.find(';', pos1);
                 ass = _step.substr(pos1 + wrd.length(), pos2 - pos1 - wrd.length());
             }
@@ -86,7 +83,7 @@ bool LStep::analyse(){
             if(manageAssignment(wrd + ass) == false)
                 return false;
         }   
-        if(wrd==LCOMMAND_STR_SEND){
+        else if(wrd==LCOMMAND_STR_SEND){
             pos1=_step.find(')', pos);
             pos2=_step.find("\n", pos+wrd.length());
             if(pos1 > pos2)
@@ -97,6 +94,10 @@ bool LStep::analyse(){
                 return false;
 
             wc++;   //sonst würde zweimal manageSend aufgerufen werden ;)
+        }
+        else if(wrd==LCOMMAND_STR_PASS){
+            _cmd.push_back(lcommand());
+            _cmd[_cmd.size()-1]._cmd = LCOMMAND::PASS;
         }
         pos+=wrd.length();                  /* Position im String mitzählen */
         if(wrd.length() == 0)

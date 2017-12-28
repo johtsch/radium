@@ -62,6 +62,7 @@ private:
     bool                                _quiet;             /* Statusmeldungen werden nicht angezeigt (ist Standard) */
     bool                                _running;           /* dient unter Anderem dazu festzustellen ob die Datei überhaupt ausführbar ist. Sollte im init-Teil etwas schief gehen 
                                                                wird _running nie true */
+    bool                                _forward;           /* gibt an ob ein Filter zugeschlagen hat (also ob eine neue Step Trigger kombi eingelesen werden soll */
     std::string                         _status;            /* speichert Statusmeldungen */
     std::vector<struct varinfo>         _dtinfo;            /* datatype info, dient dem Nachschlagen, wo eine Variable der .lang-Datei zu finden ist */
     std::vector<Tins::HWAddress<6>>     _haddr;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Hardwareaddresse */

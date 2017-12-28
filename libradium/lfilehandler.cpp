@@ -369,7 +369,7 @@ bool LFileHandler::readStep(){
     /* rausschneiden der anderen Subumgebungen */
     cutOut(&step, LANG_B_ASSEMBLE, LANG_E_ASSEMBLE);
     cutOut(&step, LANG_B_REACTION, LANG_E_REACTION);
-    cutOut(&step, LANG_B_REACTION, LANG_E_REACTION);
+    //cutOut(&step, LANG_B_REACTION, LANG_E_REACTION);
 
     _lang->_step.setStep(step);
 
@@ -705,7 +705,7 @@ void cutOut(std::string *env, std::string beg, std::string end){
     size_t pos1, pos2;
     pos1 = pos2 = 0;
     while(true){
-        pos1 = env->find(beg, pos2);
+        pos1 = env->find(beg);
         pos2 = env->find(end, pos1+1);
 
         if(pos1 == std::string::npos || pos2 == std::string::npos)
@@ -713,5 +713,6 @@ void cutOut(std::string *env, std::string beg, std::string end){
         else{
             env->erase(pos1, pos2 + end.length() - pos1);
         }
+        pos1=pos2=0;
     }
 }
