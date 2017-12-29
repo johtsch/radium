@@ -39,9 +39,6 @@ private:
     EthernetII      _eth;
 };
 
-
-
-
 class LARP{
 public:
     LARP(){_flagsset = false;
@@ -95,5 +92,107 @@ private:
     IP       _ip;
     bool     _flagsset;
 };
+
+class LICMP{
+public:
+    LICMP(){_codeset[0] = false; _codeset[1] = false; _codeset[2] = false;}
+    void reset();
+
+    const static std::string s_fields[];
+    const static unsigned char s_type[];
+    enum s_fenum { CODE, TYPE, MTU };
+
+    bool assign(lcommand cmd, const Lang *lang);
+    bool compare(const ICMP *icmp);
+    bool isField(std::string field, int *which);
+
+    short           getShort(std::string field);
+    byte            getByte(std::string field);
+
+    void setICMP(const ICMP *icmp){ _icmp = *icmp; }
+    void inner_pdu(PDU *pdu){ _icmp.inner_pdu(*pdu); }
+    ICMP* getICMP(){ return &_icmp; }
+
+private:
+    ICMP     _icmp;
+    bool     _codeset[3];
+};
+
+class LTCP{
+public:
+    LTCP(){_flagsset=false;}
+    void reset();
+
+    const static std::string s_fields[];
+    const static unsigned char s_type[];
+    enum s_fenum { DPORT, SPORT, SEQ, ACK_SEQ, WINDOW, FLAGS };
+
+    bool assign(lcommand cmd, const Lang *lang);
+    bool compare(const TCP *tcp);
+    bool isField(std::string field, int *which);
+
+    short           getShort(std::string field);
+    byte            getByte(std::string field);
+    int             getInt(std::string field);
+
+    void setTCP(const TCP *tcp){ _tcp = *tcp; }
+    void inner_pdu(PDU *pdu){ _tcp.inner_pdu(*pdu); }
+    TCP* getTCP(){ return &_tcp; }
+
+private:
+    TCP     _tcp;
+    bool     _flagsset;
+};
+
+class LUDP{
+public:
+    LUDP(){}
+    void reset();
+
+    const static std::string s_fields[];
+    const static unsigned char s_type[];
+    enum s_fenum { DPORT, SPORT, LENGTH };
+
+    bool assign(lcommand cmd, const Lang *lang);
+    bool compare(const UDP *udp);
+    bool isField(std::string field, int *which);
+
+    short           getShort(std::string field);
+
+    void setUDP(const UDP *udp){ _udp = *udp; }
+    void inner_pdu(PDU *pdu){ _udp.inner_pdu(*pdu); }
+    UDP* getUDP(){ return &_udp; }
+
+private:
+    UDP     _udp;
+};
+
+class LDHCP{
+public:
+    LDHCP();
+    void reset();
+
+    const static std::string s_fields[];
+    const static unsigned char s_type[];
+    enum s_fenum { OPCODE, HTYPE, HLEN, HOPS, XID, CIADDR, YIADDR, SIADDR, GIADDR, CHADDR, TYPE };
+
+    bool assign(lcommand cmd, const Lang *lang);
+    bool compare(const DHCP *dhcp);
+    bool isField(std::string field, int *which);
+
+    byte            getByte(std::string field);
+    int             getInt(std::string field);
+    IPv4Address     getIP(std::string field);
+    HWAddress<6>    getHW(std::string field);
+
+    void setDHCP(const DHCP *dhcp){ _dhcp = *dhcp; }
+    void inner_pdu(PDU *pdu){ _dhcp.inner_pdu(*pdu); }
+    DHCP* getDHCP(){ return &_dhcp; }
+
+private:
+    DHCP     _dhcp;
+    bool     _set[11];      // entsprechend der Anzahl der elemente in s_fenum
+};
+
 
 #endif

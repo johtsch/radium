@@ -185,6 +185,40 @@ bool LReaction::resolveImplicit(int index){
         }
         _realcmd[index]._args[1] = tmp;
     }
+    else if(arg==LANG_PRO_ICMP){
+        ICMP *icmp;
+        try{ 
+            icmp = &_packet->rfind_pdu<ICMP>();
+        }
+        catch(pdu_not_found e){
+            std::cout << "5.2" << e.what() << std::endl;
+            return false;
+        }
+ 
+        tmp = getExplicit(field, icmp);
+        if(tmp == LANG_NOS){
+            std::cout << "6.2" << std::endl;
+            return false;
+        }
+        _realcmd[index]._args[1] = tmp;
+    }
+    else if(arg==LANG_PRO_TCP){
+        TCP *tcp;
+        try{ 
+            tcp = &_packet->rfind_pdu<TCP>();
+        }
+        catch(pdu_not_found e){
+            std::cout << "5.2" << e.what() << std::endl;
+            return false;
+        }
+ 
+        tmp = getExplicit(field, tcp);
+        if(tmp == LANG_NOS){
+            std::cout << "6.2" << std::endl;
+            return false;
+        }
+        _realcmd[index]._args[1] = tmp;
+    }
     else{
         std::cout << "7" << std::endl;
         return false;
@@ -265,6 +299,120 @@ std::string LReaction::getExplicit(std::string field, const IP *ip){
             byte b = p.getByte(field);
             str = std::to_string((int)b);
         break;
+        }
+    };
+    return str;
+}
+
+std::string LReaction::getExplicit(std::string field, const ICMP *icmp){
+    int f = -1;
+    LICMP p;
+    p.setICMP(icmp);
+    std::string str;
+
+    if(!p.isField(field, &f))
+        return "";
+
+    switch(LICMP::s_type[f]){
+        case VARTYPE_SHORT:
+        {
+            short s = p.getShort(field);
+            str = std::to_string((int)s);
+        break;
+        }
+        case VARTYPE_BYTE:
+        {
+            byte b = p.getByte(field);
+            str = std::to_string((int)b);
+        break;
+        }
+    };
+    return str;
+}
+
+std::string LReaction::getExplicit(std::string field, const TCP *tcp){
+    int f = -1;
+    LTCP p;
+    p.setTCP(tcp);
+    std::string str;
+
+    if(!p.isField(field, &f))
+        return "";
+
+    switch(LTCP::s_type[f]){
+        case VARTYPE_SHORT:
+        {
+            short s = p.getShort(field);
+            str = std::to_string((int)s);
+        break;
+        }
+        case VARTYPE_BYTE:
+        {
+            byte b = p.getByte(field);
+            str = std::to_string((int)b);
+        break;
+        }
+        case VARTYPE_INT:
+        {
+            int i = p.getInt(field);
+            str = std::to_string(i);
+        break;
+        }
+    };
+    return str;
+}
+
+std::string LReaction::getExplicit(std::string field, const UDP *udp){
+    int f = -1;
+    LUDP p;
+    p.setUDP(udp);
+    std::string str;
+
+    if(!p.isField(field, &f))
+        return "";
+
+    switch(LTCP::s_type[f]){
+        case VARTYPE_SHORT:
+        {
+            short s = p.getShort(field);
+            str = std::to_string((int)s);
+        break;
+        }
+    };
+    return str;
+}
+
+std::string LReaction::getExplicit(std::string field, const DHCP *dhcp){
+    int f = -1;
+    LDHCP p;
+    p.setDHCP(dhcp);
+    std::string str;
+
+    if(!p.isField(field, &f))
+        return "";
+
+    switch(LDHCP::s_type[f]){
+        case VARTYPE_BYTE:
+        {
+            byte b = p.getByte(field);
+            str = std::to_string((int)b);
+        break;
+        }
+        case VARTYPE_INT:
+        {
+            int i = p.getInt(field);
+            str = std::to_string(i);
+        break;
+        }
+        case VARTYPE_IPADDR:
+        {
+            IPv4Address ip = p.getIP(field);
+            str = ip.to_string();
+        }
+        case VARTYPE_HADDR:
+        {
+            HWAddress<6> hw = p.getHW(field);
+            str = hw.to_string();
         }
     };
     return str;

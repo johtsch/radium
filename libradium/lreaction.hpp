@@ -47,6 +47,10 @@ private:
     std::string getExplicit(std::string field, const EthernetII *eth);
     std::string getExplicit(std::string field, const ARP *arp);
     std::string getExplicit(std::string field, const IP *ip);
+    std::string getExplicit(std::string field, const ICMP *icmp);
+    std::string getExplicit(std::string field, const TCP *tcp);
+    std::string getExplicit(std::string field, const UDP *udp);
+    std::string getExplicit(std::string field, const DHCP *dhcp);
 };
 
 #endif

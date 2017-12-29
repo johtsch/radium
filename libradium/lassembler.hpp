@@ -36,6 +36,10 @@ private:
     LEthernet       _eth;
     LARP            _arp;
     LIPv4           _ip;
+    LICMP           _icmp;
+    LTCP            _tcp;
+    LUDP            _udp;
+    LDHCP           _dhcp;
 
     short           _num;
     bool            analyse(const Lang *lang);                      /* selektiert die einzelnen Layer und gibt sie an analyseLayer() weiter */

@@ -21,6 +21,12 @@ bool LFilter::compare(const PDU *pdu){
                     equal &= _arp.compare((ARP*)tmp);
                 if(tmp->pdu_type() == PDU::PDUType::IP)
                     equal &= _ip.compare((IP*)tmp);
+                if(tmp->pdu_type() == PDU::PDUType::ICMP)
+                    equal &= _icmp.compare((ICMP*)tmp);
+                if(tmp->pdu_type() == PDU::PDUType::TCP)
+                    equal &= _tcp.compare((TCP*)tmp);
+                if(tmp->pdu_type() == PDU::PDUType::UDP)
+                    equal &= _udp.compare((UDP*)tmp);
             }
             else    
                 equal = false;
@@ -211,6 +217,30 @@ bool LFilter::analyseLayer(const Lang *lang, std::string pro, std::string layer,
                     return false;
                 }
                 pdu = (PDU*)&_ip;
+            }
+            if(pro == LANG_PRO_ICMP){
+                if(!_icmp.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_icmp;
+            }
+            if(pro == LANG_PRO_TCP){
+                if(!_tcp.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_tcp;
+            }
+            if(pro == LANG_PRO_UDP){
+                if(!_udp.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_udp;
+            }
+            if(pro == LANG_PRO_DHCP){
+                if(!_dhcp.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_dhcp;
             }
         }   
     }

@@ -186,6 +186,30 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
                 }
                 pdu = (PDU*)&_ip;
             }
+            else if(pro == LANG_PRO_ICMP){
+                if(!_icmp.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_icmp;
+            }
+            else if(pro == LANG_PRO_TCP){
+                if(!_tcp.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_tcp;
+            }
+            else if(pro == LANG_PRO_UDP){
+                if(!_udp.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_udp;
+            }
+            else if(pro == LANG_PRO_DHCP){
+                if(!_dhcp.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_dhcp;
+            }
         }   
     }
 
@@ -197,13 +221,17 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
     }
     if(prevpro==LANG_PRO_IPv4)
         _ip.inner_pdu(pdu);
-    /*
-    if(prevpro==LANG_PRO_ETHERNET)
-        _eth.inner_pdu(pdu);
-    if(prevpro==LANG_PRO_ETHERNET)
-        _eth.inner_pdu(pdu);
-    */
-
+    if(prevpro==LANG_PRO_ICMP)
+        _icmp.inner_pdu(pdu);
+    if(prevpro==LANG_PRO_ARP)
+        _arp.inner_pdu(pdu);
+    if(prevpro==LANG_PRO_TCP)
+        _tcp.inner_pdu(pdu);
+    if(prevpro==LANG_PRO_UDP)
+        _udp.inner_pdu(pdu);
+    if(prevpro==LANG_PRO_DHCP)
+        _dhcp.inner_pdu(pdu);
+        
     prevpro = pro;
     return true;
 }
