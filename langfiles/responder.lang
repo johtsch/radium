@@ -16,12 +16,12 @@ IMPLEMENTATION:
 			:L3
 		:ASSEMBLE
 		
-		REACTION[3]:
+		REACTION[0]:
 			SEND(PACKET[1]);
 		:REACTION
 	:S
 	T[0]:
-		FILTER[REACTION[3]]:						
+		FILTER[REACTION[0]]:						
 			L3[ARP]:
 				OPCODE=1;
 			:L3

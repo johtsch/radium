@@ -25,7 +25,7 @@ IMPLEMENTATION:
 		SEND(PACKET[1]);
 	:S
 	T[0]:
-		FILTER:
+		FILTER[PASS]:
 			L3[ARP]:
 				SENDER_IP=lookup1;
 				TARGET_IP=ipsrc;

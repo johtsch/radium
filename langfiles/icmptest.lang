@@ -1,0 +1,35 @@
+VAR:
+	IP ipsrc 192.168.2.108;
+	HADDR hwsrc "24:05:0f:5b:98:98";
+	IP iptar 192.168.2.1;
+	HADDR hwtar "ff:ff:ff:ff:ff:ff";
+:VAR
+
+IMPLEMENTATION:
+	S[0]:
+		
+		ASSEMBLE[1]:
+			L2:
+				SRC=hwsrc;
+				DST=hwtar;
+			:L2
+			L3[IPv4]:
+				SRC_ADDR=ipsrc;
+				DST_ADDR=iptar;
+			:L3
+			L4[ICMP]:
+				TYPE=8;
+				CODE=0;
+			:L4
+		:ASSEMBLE
+		
+		SEND(PACKET[1]);
+		
+	:S
+	T[0]:
+		FILTER[PASS]:
+			L2:
+			:L2
+		:FILTER
+	:T
+:IMPLEMENTATION
