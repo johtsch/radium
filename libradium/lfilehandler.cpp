@@ -281,6 +281,34 @@ bool LFileHandler::initVar(std::string vardec[3]){
             _lang->_int.push_back((unsigned int)(std::stoul(vardec[2])));
         } 
     }
+    if(tmp == VARTYPE_FILE){
+        _lang->_dtinfo.push_back({tmp, vardec[1], _lang->_vtfile.size()});
+       
+       if(vardec[2].length() == 0){  
+            _lang->_vtfile.push_back("");
+        }
+        else if(!isValidFile(vardec[2])){       
+            _lang->setStatus("initVar()", "Übergebener FILE (" + vardec[2] + ") ist kein gültiger FILE! Standardwert "" wird eingesetzt <<<");
+            _lang->_vtfile.push_back("");
+        }
+        else{        
+            _lang->_vtfile.push_back(getFileData(vardec[2]));
+        } 
+    }
+    if(tmp == VARTYPE_DATA){
+        _lang->_dtinfo.push_back({tmp, vardec[1], _lang->_vtdata.size()});
+       
+       if(vardec[2].length() == 0){  
+            _lang->_vtdata.push_back("");
+        }
+        else if(!isValidData(vardec[2])){       
+            _lang->setStatus("initVar()", "Übergebener DATA (" + vardec[2] + ") ist kein gültiger DATA! Standardwert \"\" wird eingesetzt <<<");
+            _lang->_vtdata.push_back("");
+        }
+        else{        
+            _lang->_vtdata.push_back(vardec[2]);
+        } 
+    }
     
     return true;
 }

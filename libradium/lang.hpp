@@ -47,6 +47,8 @@ public:
     byte                    getByte(std::string name) const;
     short                   getShort(std::string name) const;
     int                     getInt(std::string name) const;
+    vtdata                  getData(std::string name) const;
+    vtdata                  getFile(std::string name) const;
 
     /* Analyzer / Shower */
     void showVars();
@@ -71,6 +73,8 @@ private:
     std::vector<byte>                   _byte;              /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Byte */
     std::vector<short>                  _short;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Short */
     std::vector<int>                    _int;               /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Integer */
+    std::vector<vtfile>                 _vtfile;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Integer */
+    std::vector<vtdata>                 _vtdata;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Integer */
 
     //std::vector<unsigned char[1200]>    _packet;            /* die von assemble() erstellte pakete */
     

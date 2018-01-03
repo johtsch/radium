@@ -13,6 +13,10 @@ bool isVartype(std::string word){
         return true;
     if(word == LG_VT_INT)
         return true;
+    if(word == LG_VT_FILE)
+        return true;
+    if(word == LG_VT_DATA)
+        return true;
 
     return false;
 }
@@ -30,6 +34,10 @@ unsigned char getVarType(std::string type){
         return VARTYPE_SHORT;
     if(type == LG_VT_INT)
         return VARTYPE_INT;
+    if(type == LG_VT_FILE)
+        return VARTYPE_FILE;
+    if(type == LG_VT_DATA)
+        return VARTYPE_DATA;
 
     return VARTYPE_INVALID;
 }
@@ -47,6 +55,10 @@ std::string getVarTypeStr(unsigned char type){
         return LG_VT_SHORT;
     if(type == VARTYPE_INT)
         return LG_VT_INT;
+    if(type == VARTYPE_FILE)
+        return LG_VT_FILE;
+    if(type == VARTYPE_DATA)
+        return LG_VT_DATA;
 
     return LG_VT_INVALID;
 }
@@ -65,8 +77,31 @@ unsigned char getVarTypeVal(std::string val){
         return VARTYPE_PORT;
     if(isValidInt(val))
         return VARTYPE_INT;
+    if(isValidFile(val))
+        return VARTYPE_FILE;
+    if(isValidData(val))
+        return VARTYPE_DATA;
 
     return VARTYPE_INVALID;
+}
+
+std::string getFileData(std::string fpath){
+    std::ifstream f;
+    f.open(fpath, std::ios::in);
+    
+    if(!f.good() | !f.is_open())
+        return LANG_NOS;
+
+    std::string data = "";
+    std::string line = "";
+
+    while(!f.eof()){
+        getline(f, line);          
+        data += line + "\n";
+    }
+
+    f.close();
+    return data;
 }
 
 bool assignVal(HWAddress<6> *eth, std::string val){
@@ -112,6 +147,20 @@ bool assignVal(int *integer, std::string val){
     return true;
 }
 
+bool assignData(vtdata *dat, std::string val){
+    if(!isValidData(val))
+        return false;
+    *dat = val;
+    return true;
+}
+
+bool assignFile(vtdata *fil, std::string val){
+    if(!isValidFile(val))
+        return false;
+    *fil = val;
+    return true;
+}
+
 bool isValidHaddr(std::string address){
     for(int i = 0; i < 17; i++) {
         if(i % 3 != 2 && !std::isxdigit(address[i]))
@@ -132,6 +181,7 @@ bool isValidIPv4(std::string address){
 bool isValidPort(std::string po){
     return isValidShort(po);
 }
+
 bool isValidByte(std::string by){
     unsigned long l = std::strtoul(by.c_str(), NULL, 0);                       /* strtoul gibt 0 zurück, wenn po nicht zu unsigned long konvertiert werden kann */
 
@@ -159,6 +209,7 @@ bool isValidShort(std::string sh){
     else
         return false;
 }
+
 bool isValidInt(std::string in){
     unsigned int l = std::strtoul(in.c_str(), NULL, 0);                       /* strtoul gibt 0 zurück, wenn po nicht zu unsigned long konvertiert werden kann */
 
@@ -171,4 +222,18 @@ bool isValidInt(std::string in){
         return true;
     else
         return false;
+}
+
+bool isValidFile(std::string fi){
+    std::ifstream tmp;
+    tmp.open(fi, std::ios::in);
+    bool va = tmp.good() | tmp.is_open();
+
+    tmp.close();
+
+    return va;
+}
+
+bool isValidData(std::string da){
+    return true;
 }

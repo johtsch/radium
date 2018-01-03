@@ -80,6 +80,7 @@ bool Lang::update(){
     if(trigger()){
         _trigger = LANG_NOS;
         _step.setStep(LANG_NOS);
+        _forward=true;
     }
 
     return true;
@@ -146,6 +147,24 @@ int Lang::getInt(std::string name) const{
     return 0;
 }
 
+vtdata Lang::getData(std::string name) const{
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        if(_dtinfo[i]._name == name)
+            return _vtdata[_dtinfo[i]._index];
+    }
+
+    return LANG_NOS;
+}
+
+vtfile Lang::getFile(std::string name) const{
+    for(int i = 0; i < _dtinfo.size(); ++i){
+        if(_dtinfo[i]._name == name)
+            return _vtfile[_dtinfo[i]._index];
+    }
+
+    return LANG_NOS;
+}
+
 void Lang::showVars(){
     std::cout << "Variablenliste \"" << _handler.getPath() << "\": " << std::endl;
     for(int i = 0; i < _dtinfo.size(); ++i){
@@ -173,6 +192,12 @@ void Lang::showVars(){
                 break;
             case VARTYPE_INT:
                 std::cout << _int[_dtinfo[i]._index] << std::endl;
+                break;
+            case VARTYPE_FILE:
+                std::cout << _vtfile[_dtinfo[i]._index] << std::endl;
+                break;
+            case VARTYPE_DATA:
+                std::cout << _vtdata[_dtinfo[i]._index] << std::endl;
                 break;
             default:
                 std::cout << std::endl;
@@ -331,6 +356,13 @@ bool Lang::assign(lcommand cmd){
         case VARTYPE_INT:
             _int[index] = (int)atoi(cmd._args[1].c_str());
             break;
+        case VARTYPE_FILE:
+            _vtfile[index] = cmd._args[1];
+            break;
+        case VARTYPE_DATA:
+            _vtdata[index] = cmd._args[1];
+            break;
+
     };
 
     return true;

@@ -10,7 +10,7 @@ int main(int argc, char **argv){
     langtest.start();
     
     std::cout << std::endl;
-    //langtest.showVars();
+    langtest.showVars();
     //std::cout << std::endl;
 
     while(langtest.update());
