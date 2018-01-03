@@ -1,6 +1,8 @@
 # radium
 
-<h1>Grundideen für Lang (Projektname für die Sprache)</h1>
+# DEPRECATED wird (hoffentlich) bald überarbeitet 
+
+<h1>Grundideen für Lang</h1>
 
 
 <h2>Inhalt:</h2>
