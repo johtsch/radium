@@ -1,0 +1,86 @@
+VAR:
+	IP dst 192.168.2.116;
+	IP src 192.168.2.108;
+	IP gateway 192.168.2.1;
+	HADDR hwdst "ff:ff:ff:ff:ff:ff";
+	HADDR hwsrc "24:05:0f:5b:98:98";
+:VAR
+
+IMPLEMENTATION:
+	S[0]:
+		REACTION[0]:
+			hwdst=PACKET[ARP].SENDER_HW;
+			PASS;
+		:REACTION
+	
+		ASSEMBLE[0]:
+			L2:
+				SRC=hwsrc;
+				DST=hwdst;
+			:L2
+			L3[ARP]:
+				SENDER_IP=src;
+				SENDER_HW=hwsrc;
+				TARGET_IP=dst;
+				TARGET_HW=hwdst;
+				OPCODE=1;					# 1 == REQUEST; 2 == REPLY;
+			:L3
+		:ASSEMBLE	
+		
+		SEND(PACKET[0]);
+	:S
+	T[0]:
+		FILTER[REACTION[0]]:
+			L3[ARP]:
+				SENDER_IP=dst;
+				TARGET_IP=src;
+				OPCODE=2;
+			:L3
+		:FILTER
+	:T
+	S[1]:
+		ASSEMBLE[0]:
+			L2:
+				SRC=hwsrc;
+				DST=hwdst;
+			:L2
+			L3[ARP]:
+				SENDER_IP=gateway;
+				SENDER_HW=hwsrc;
+				TARGET_IP=dst;
+				TARGET_HW=hwdst;
+				OPCODE=2;					# 1 == REQUEST; 2 == REPLY;
+			:L3
+		:ASSEMBLE
+		
+		SEND(PACKET[0]);
+	:S
+	T[1]:
+		FILTER[PASS]:
+			L2:
+				SRC="ff:ff:ff:ff:ff:ff";
+			:L2
+		:FILTER
+	:T
+:IMPLEMENTATION
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

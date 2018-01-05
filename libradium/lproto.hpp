@@ -69,12 +69,12 @@ private:
 
 class LIPv4{
 public:
-    LIPv4(){_flagsset = false; }
+    LIPv4(){_flagsset = false; _tosset = false; _idset=false; _ttlset=0;}
     void reset();
 
     const static std::string s_fields[];
     const static unsigned char s_type[];
-    enum s_fenum { TOS, ID, FLAGS, TTL, SRC_ADDR, DST_ADDR };
+    enum s_fenum { TOS, ID, FLAGS, TTL, SRC_ADDR, DST_ADDR};
 
     bool assign(lcommand cmd, const Lang *lang);
     bool compare(const IP *ip);
@@ -91,16 +91,19 @@ public:
 private:
     IP       _ip;
     bool     _flagsset;
+    bool     _tosset;
+    bool     _idset;
+    bool     _ttlset;
 };
 
 class LICMP{
 public:
-    LICMP(){_codeset[0] = false; _codeset[1] = false; _codeset[2] = false;}
+    LICMP(){_codeset[0] = false; _codeset[1] = false; _codeset[2] = false; _codeset[3] = false; _codeset[5] = false;}
     void reset();
 
     const static std::string s_fields[];
     const static unsigned char s_type[];
-    enum s_fenum { CODE, TYPE, MTU };
+    enum s_fenum { CODE, TYPE, MTU, ID, SEQ, GATEWAY  };
 
     bool assign(lcommand cmd, const Lang *lang);
     bool compare(const ICMP *icmp);
@@ -108,6 +111,7 @@ public:
 
     short           getShort(std::string field);
     byte            getByte(std::string field);
+    IPv4Address     getIP(std::string);
 
     void setICMP(const ICMP *icmp){ _icmp = *icmp; }
     void inner_pdu(PDU *pdu){ _icmp.inner_pdu(*pdu); }
@@ -115,7 +119,7 @@ public:
 
 private:
     ICMP     _icmp;
-    bool     _codeset[3];
+    bool     _codeset[5];
 };
 
 class LTCP{

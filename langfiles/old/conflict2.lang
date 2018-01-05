@@ -1,19 +1,23 @@
 VAR:
 	IP ipsrc 127.0.0.1;
-	HADDR hwsrc "7c:67:a2:07:e6:21";
+	HADDR hwsrc "24:05:0f:5b:98:98";
 	IP iptar 127.0.0.1;
-	HADDR hwtar "ff:ff:ff:ff:ff:ff"
+	HADDR hwtar "ff:ff:ff:ff:ff:ff";
 :VAR
 
 IMPLEMENTATION:
 	S[0]:
 		REACTION[1]:
-			ipsrc=PACKET[ARP].SENDER_IP;
-			iptar=PACKET[ARP].TARGET_IP;
-			hwtar=PACKET[ARP].TARGET_HW;
+			ipsrc=PACKET[ARP].TARGET_IP;
+			iptar=PACKET[ARP].SENDER_IP;
+			hwtar=PACKET[ARP].SENDER_HW;
 		:REACTION	
 		
 		ASSEMBLE[1]:
+			L2:
+				SRC=hwsrc;
+				DST=hwtar;
+			:L2
 			L3[ARP]:
 				SENDER_IP=ipsrc;
 				SENDER_HW=hwsrc;
@@ -30,7 +34,7 @@ IMPLEMENTATION:
 	T[0]:
 		FILTER[REACTION[1]]:						
 			L3[ARP]:
-				OPCODE=2;
+				OPCODE=1;
 			:L3
 		:FILTER
 		FILTER[PASS]:

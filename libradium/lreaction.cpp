@@ -184,6 +184,7 @@ bool LReaction::resolveImplicit(int index){
             return false;
         }
         _realcmd[index]._args[1] = tmp;
+        std::cout << tmp << std::endl;
     }
     else if(arg==LANG_PRO_ICMP){
         ICMP *icmp;

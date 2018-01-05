@@ -61,6 +61,9 @@ bool Lang::update(){
         der TRIGGER sofort erfüllt ist und mit dem nächsten STEP weitergemacht werden kann */
     if(_forward){
         setStatus("update()", ">>> neue Step-/Trigger-Umgebungen werden eingelesen.");
+        _assembler.clear();
+        _reaction.clear();
+        _filter.clear();
         if(!_handler.readStep() || !_handler.readTrigger()){
             setStatus("update()", "Konnte nächste STEP-/TRIGGER-Umgebung nicht einlesen. Ausführung beendet <<<");
             _running = false;
@@ -310,6 +313,7 @@ bool Lang::trigger(){
                     if(r == _reaction[j].getNum()){
                         _reaction[j].setPDU(pdu->clone());
                         _reaction[j].setTriggered(true);
+                        setStatus("trigger()", "Reaction ausgelöst.");
                     }
                 }
             }

@@ -7,11 +7,11 @@ const unsigned char LEthernet::s_type[] = { VARTYPE_HADDR, VARTYPE_HADDR };
 const std::string LARP::s_fields[] = { "SENDER_IP", "SENDER_HW", "TARGET_IP", "TARGET_HW", "OPCODE" };
 const unsigned char LARP::s_type[] = { VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_BYTE };
 
-const std::string LIPv4::s_fields[] = { "TOS", "ID", "FLAGS", "TTL", "SRC_ADDR", "DST_ADDR" };
-const unsigned char LIPv4::s_type[] = { VARTYPE_BYTE, VARTYPE_SHORT, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_IPADDR, VARTYPE_IPADDR };
+const std::string LIPv4::s_fields[] = { "TOS", "ID", "FLAGS", "TTL", "SRC_ADDR", "DST_ADDR"};
+const unsigned char LIPv4::s_type[] = { VARTYPE_BYTE, VARTYPE_SHORT, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_IPADDR };
 
-const std::string LICMP::s_fields[] = { "CODE", "TYPE", "MTU" };
-const unsigned char LICMP::s_type[] = { VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_SHORT };
+const std::string LICMP::s_fields[] = { "CODE", "TYPE", "MTU", "ID", "SEQ", "GATEWAY" };
+const unsigned char LICMP::s_type[] = { VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_IPADDR };
 
 const std::string LTCP::s_fields[] = { "DPORT", "SPORT", "SEQ", "SEQ_ACK", "WINDOW", "FLAGS" };
 const unsigned char LTCP::s_type[] = { VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_INT, VARTYPE_INT, VARTYPE_SHORT, VARTYPE_BYTE };
@@ -311,6 +311,9 @@ void LIPv4::reset(){
     _ip.ttl(0);
     _ip.flags(IP::FLAG_RESERVED);
     _flagsset = false;
+    _tosset = false;
+    _idset = false;
+    _ttlset = false;
     _ip.id(0);
     _ip.src_addr(IPv4Address("0.0.0.0"));
     _ip.dst_addr(IPv4Address("0.0.0.0"));
@@ -360,12 +363,14 @@ bool LIPv4::assign(lcommand cmd, const Lang *lang){
             _ip.tos(b);
         else
             _ip.tos(lang->getByte(cmd._args[1]));
+        _tosset = true;
     }
     else if(f == LIPv4::ID){
         if(isExpl)
             _ip.id(s);
         else
             _ip.id(lang->getShort(cmd._args[1]));
+        _idset = true;
     }
     else if(f == LIPv4::FLAGS){
         byte a;
@@ -390,6 +395,7 @@ bool LIPv4::assign(lcommand cmd, const Lang *lang){
             _ip.ttl(b);
         else
             _ip.ttl(lang->getByte(cmd._args[1]));
+        _ttlset = false;
     }
     else if(f == LIPv4::SRC_ADDR){
         if(isExpl)
@@ -409,19 +415,24 @@ bool LIPv4::assign(lcommand cmd, const Lang *lang){
 
 bool LIPv4::compare(const IP *ip){
     bool equal = true;
-
-    if(_ip.tos() != 0)
+    if(_tosset){
         equal &= (_ip.tos() == ip->tos());
-    if(_ip.id() != 0)
+    }
+    if(_idset){
         equal &= (_ip.id() == ip->id());
-    if(_flagsset)
+    }
+    if(_flagsset){
         equal &= (_ip.flags() == ip->flags());
-    if(_ip.ttl() != 0)
+    }
+    if(_ttlset){
         equal &= (_ip.ttl() == ip->ttl());
-    if(_ip.src_addr() != IPv4Address("0.0.0.0"))
+    }
+    if(_ip.src_addr() != IPv4Address("0.0.0.0")){
         equal &= (_ip.src_addr() == ip->src_addr());
-    if(_ip.dst_addr() != IPv4Address("0.0.0.0"))
+    }
+    if(_ip.dst_addr() != IPv4Address("0.0.0.0")){
         equal &= (_ip.dst_addr() == ip->dst_addr());
+    }
 
     return equal;
 }
@@ -501,6 +512,8 @@ void LICMP::reset(){
     _codeset[0]=false;
     _codeset[1]=false;
     _codeset[2]=false;
+    _codeset[3]=false;
+    _codeset[4]=false;
 }
 
 bool LICMP::assign(lcommand cmd, const Lang *lang){
@@ -520,6 +533,7 @@ bool LICMP::assign(lcommand cmd, const Lang *lang){
     unsigned char t;
     byte b;
     short s;
+    IPv4Address ip;
 
     if(isExpl){
         t = (unsigned char)getVarTypeVal(cmd._args[1]);
@@ -529,6 +543,10 @@ bool LICMP::assign(lcommand cmd, const Lang *lang){
         }
         if(t==VARTYPE_SHORT){
             if(assignVal(&s, cmd._args[1]) == false)
+                return false;
+        }
+        if(t==VARTYPE_IPADDR){
+            if(assignVal(&ip, cmd._args[1]) == false)
                 return false;
         }
     }
@@ -582,7 +600,27 @@ bool LICMP::assign(lcommand cmd, const Lang *lang){
             _icmp.mtu(s);
         else
             _icmp.mtu(lang->getShort(cmd._args[1]));
-        _codeset[2] = true;
+        _codeset[LICMP::MTU] = true;
+    }
+    else if(f == LICMP::ID){
+        if(isExpl)
+            _icmp.id(s);
+        else
+            _icmp.id(lang->getShort(cmd._args[1]));
+        _codeset[LICMP::ID] = true;
+    }
+    else if(f == LICMP::SEQ){
+        if(isExpl)
+            _icmp.sequence(s);
+        else
+            _icmp.sequence(lang->getShort(cmd._args[1]));
+        _codeset[LICMP::SEQ] = true;
+    }
+    else if(f == LICMP::GATEWAY){
+        if(isExpl)
+            _icmp.gateway(ip);
+        else
+            _icmp.gateway(lang->getIP(cmd._args[1]));
     }
 
     return true;
@@ -597,6 +635,12 @@ bool LICMP::compare(const ICMP *icmp){
         equal &= (_icmp.type() == icmp->type());
     if(_codeset[LICMP::MTU])
         equal &= (_icmp.mtu() == icmp->mtu());
+    if(_codeset[LICMP::ID])
+        equal &= (_icmp.id() == icmp->id());
+    if(_codeset[LICMP::SEQ])
+        equal &= (_icmp.sequence() == icmp->sequence());
+    if(_icmp.gateway() != IPv4Address("00:00:00:00:00:00"))
+        equal &= (_icmp.gateway() == icmp->gateway());
 
     return equal;
 }
@@ -666,6 +710,28 @@ short LICMP::getShort(std::string field){
     if(f == LICMP::MTU){
         return _icmp.mtu();
     }
+    if(f == LICMP::ID){
+        return _icmp.id();
+    }
+    if(f == LICMP::SEQ){
+        return _icmp.sequence();
+    }
+}
+
+IPv4Address LICMP::getIP(std::string field){
+    int f = 0;
+    bool isfield = isField(field, &f);
+
+    if(!isfield)
+        return IPv4Address("0.0.0.0");
+    if(s_type[f] != VARTYPE_IPADDR)
+        return IPv4Address("0.0.0.0");
+
+    if(f == LICMP::GATEWAY){
+        return _icmp.gateway();
+    }
+
+    return IPv4Address("0.0.0.0");
 }
 
 void LTCP::reset(){

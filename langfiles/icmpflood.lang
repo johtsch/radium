@@ -1,0 +1,87 @@
+VAR:
+	IP iptar 192.168.2.116;
+	IP ipsrc 192.168.2.108;
+	HADDR hwtar "ff:ff:ff:ff:ff:ff";
+	HADDR hwsrc "24:05:0f:5b:98:98"; 
+:VAR
+IMPLEMENTATION:
+	S[0]:
+	
+		REACTION[0]:
+			hwtar=PACKET[ARP].SENDER_HW;
+			PASS;
+		:REACTION
+	
+		ASSEMBLE[0]:
+			L2:
+				SRC=hwsrc;
+				DST=hwtar;
+			:L2
+			L3[ARP]:
+				SENDER_IP=ipsrc;
+				SENDER_HW=hwsrc;
+				TARGET_IP=iptar;
+				TARGET_HW=hwtar;
+				OPCODE=1;
+			:L3
+		:ASSEMBLE
+		
+		SEND(PACKET[0]);
+	:S
+	T[0]:
+		FILTER[REACTION[0]]:
+			L3[ARP]:
+				SENDER_IP=iptar;
+				TARGET_IP=ipsrc;
+				OPCODE=2;
+			:L3
+		:FILTER
+	:T
+	S[1]:
+		ASSEMBLE[0]:
+			L2:
+				SRC=hwsrc;
+				DST=hwtar;
+			:L2
+			L3[IPv4]:
+				SRC_ADDR=ipsrc;
+				DST_ADDR=iptar;
+			:L3	
+			L4[ICMP]:
+				TYPE=5;
+				CODE=0;
+			:L4
+		:ASSEMBLE
+		
+		SEND(PACKET[0]);
+	:S
+	T[1]:
+		FILTER[PASS]:
+			L2:
+				SRC="ff:ff:ff:ff:ff:ff";
+			:L2
+		:FILTER
+	:T
+:IMPLEMENTATION
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
