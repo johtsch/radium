@@ -183,6 +183,7 @@ public:
     bool assign(lcommand cmd, const Lang *lang);
     bool compare(const DHCP *dhcp);
     bool isField(std::string field, int *which);
+    void end(){ _dhcp.end(); }
 
     byte            getByte(std::string field);
     int             getInt(std::string field);

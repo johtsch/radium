@@ -19,8 +19,8 @@ const unsigned char LTCP::s_type[] = { VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_INT
 const std::string LUDP::s_fields[] = { "DPORT", "SPORT", "LENGTH" };
 const unsigned char LUDP::s_type[] = { VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_SHORT };
 
-const std::string LDHCP::s_fields[] = { "HTYPE", "HLEN", "HOPS", "XID", "CIADDR", "YIADDR", "SIADDR", "GIADDR", "CHADDR", "TYPE" };
-const unsigned char LDHCP::s_type[] = { VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_INT, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_BYTE };
+const std::string LDHCP::s_fields[] = { "OPCODE", "HTYPE", "HLEN", "HOPS", "XID", "CIADDR", "YIADDR", "SIADDR", "GIADDR", "CHADDR", "TYPE" };
+const unsigned char LDHCP::s_type[] = { VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_INT, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_BYTE };
 
 
 bool isSupportedProtocol(std::string p){
@@ -35,6 +35,8 @@ bool isSupportedProtocol(std::string p){
     if(p == LANG_PRO_TCP)
         return true;
     if(p == LANG_PRO_UDP)
+        return true;
+    if(p == LANG_PRO_DHCP)
         return true;
 
     return false;
@@ -352,7 +354,7 @@ bool LIPv4::assign(lcommand cmd, const Lang *lang){
             if(assignVal(&b, cmd._args[1]) == false)
                 return false;
         }
-        if(t==VARTYPE_SHORT){
+        if(t==VARTYPE_SHORT || t == VARTYPE_BYTE){
             if(assignVal(&s, cmd._args[1]) == false)
                 return false;
         }
@@ -541,7 +543,7 @@ bool LICMP::assign(lcommand cmd, const Lang *lang){
             if(assignVal(&b, cmd._args[1]) == false)
                 return false;
         }
-        if(t==VARTYPE_SHORT){
+        if(t==VARTYPE_SHORT || t == VARTYPE_BYTE){
             if(assignVal(&s, cmd._args[1]) == false)
                 return false;
         }
@@ -769,11 +771,11 @@ bool LTCP::assign(lcommand cmd, const Lang *lang){
             if(assignVal(&b, cmd._args[1]) == false)
                 return false;
         }
-        if(t==VARTYPE_SHORT){
+        if(t==VARTYPE_SHORT || t == VARTYPE_BYTE){
             if(assignVal(&s, cmd._args[1]) == false)
                 return false;
         }
-        if(t==VARTYPE_INT){
+        if(t==VARTYPE_INT || t==VARTYPE_SHORT || t == VARTYPE_BYTE){
             if(assignVal(&i, cmd._args[1]) == false)
                 return false;
         }
@@ -929,7 +931,7 @@ bool LUDP::assign(lcommand cmd, const Lang *lang){
 
     if(isExpl){
         t = (unsigned char)getVarTypeVal(cmd._args[1]);
-        if(t==VARTYPE_SHORT){
+        if(t == VARTYPE_SHORT || t == VARTYPE_BYTE){
             if(assignVal(&s, cmd._args[1]) == false)
                 return false;
         }
@@ -1008,17 +1010,7 @@ LDHCP::LDHCP(){
 }
 
 void LDHCP::reset(){
-    _dhcp.opcode(0);
-    _dhcp.htype(0);
-    _dhcp.hlen(0);
-    _dhcp.hops(0);
-    _dhcp.xid(0);
-    _dhcp.ciaddr(IPv4Address("0.0.0.0"));
-    _dhcp.yiaddr(IPv4Address("0.0.0.0"));
-    _dhcp.siaddr(IPv4Address("0.0.0.0"));
-    _dhcp.giaddr(IPv4Address("0.0.0.0"));
-    _dhcp.chaddr(HWAddress<6>("00:00:00:00:00:00"));
-    _dhcp.type(DHCP::DISCOVER);
+    _dhcp = DHCP();
 
     for(int i = 0; i < sizeof(s_type) / sizeof(s_type[0]);++i)
         _set[i] = false;
@@ -1050,7 +1042,7 @@ bool LDHCP::assign(lcommand cmd, const Lang *lang){
             if(assignVal(&b, cmd._args[1]) == false)
                 return false;
         }
-        if(t==VARTYPE_INT){
+        if(t==VARTYPE_INT || t==VARTYPE_SHORT || t == VARTYPE_BYTE){
             if(assignVal(&i, cmd._args[1]) == false)
                 return false;
         }

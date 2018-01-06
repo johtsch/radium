@@ -31,12 +31,24 @@ bool LAssembler::send(){
     return true;
 }
 
+void LAssembler::reset(){
+    _eth.reset();
+    _arp.reset();
+    _ip.reset();
+    _icmp.reset();
+    _tcp.reset();
+    _udp.reset();
+    _dhcp.reset();
+}
+
 bool LAssembler::analyse(const Lang *lang){
     std::string arg;
     size_t pos1, pos2;
 
     // die statische Variable in analyse Layer zurücksetzen
     analyseLayer(lang, "", "");
+    // alle protokolle zurücksetzen
+    reset();
 
     pos1 = _assemble.find(LANG_B_L2);
 
@@ -212,6 +224,9 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
             }
         }   
     }
+
+    if(pro==LANG_PRO_DHCP)
+        _dhcp.end();
 
     if(prevpro=="" && pro != LANG_PRO_ETHERNET){
         _eth.inner_pdu(pdu);

@@ -27,6 +27,8 @@ public:
     short           getNum() const { return _num; }
     bool            send();
 
+    void            reset();
+
     void showPacket();
 private:
     std::string     _assemble;
