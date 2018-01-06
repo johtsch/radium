@@ -49,9 +49,12 @@ IMPLEMENTATION:
 				DST_ADDR=dst;
 				TTL=128;
 			:L3
-			L4[UDP]:
-				DPORT=68;
-				SPORT=67;
+			L4[TCP]:
+				DPORT=21;
+				SPORT=21;
+				SEQ=123456789;
+				WINDOW=500;
+				FLAGS=2;
 			:L4
 		:ASSEMBLE
 		

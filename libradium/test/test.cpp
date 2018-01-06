@@ -6,7 +6,7 @@
 int main(int argc, char **argv){
     Lang langtest;
     langtest.setQuiet(true);
-    langtest.loadFile("../../langfiles/dhcptest.lang");
+    langtest.loadFile("../../langfiles/synflood.lang");
     langtest.start();
     
     std::cout << std::endl;
