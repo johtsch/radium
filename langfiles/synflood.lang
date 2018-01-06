@@ -50,12 +50,11 @@ IMPLEMENTATION:
 				TTL=128;
 			:L3
 			L4[TCP]:
-				DPORT=23;
-				SPORT=21;
-				SEQ=100;
-				WINDOW=100;
+				DPORT=80;
+				SPORT=2870;
+				SEQ=0;
+				WINDOW=2920;
 				FLAGS=2;
-				FLAGS=4;
 			:L4
 		:ASSEMBLE
 		
@@ -63,6 +62,52 @@ IMPLEMENTATION:
 	:S
 	T[1]:
 		FILTER[PASS]:
+			L4[TCP]:
+				DPORT=2870;
+				SPORT=80;
+				FLAGS=2;
+				FLAGS=16;
+			:L4
+		:FILTER
+	:T
+	S[2]:
+		ASSEMBLE[0]:
+			L2:
+				SRC=hwsrc;
+				DST=hwdst;
+			:L2
+			L3[IPv4]:
+				SRC_ADDR=src;
+				DST_ADDR=dst;
+				TTL=128;
+			:L3
+			L4[TCP]:
+				DPORT=80;
+				SPORT=2870;
+				SEQ=1;
+				SEQ_ACK=1;
+				WINDOW=2920;
+				FLAGS=16;
+			:L4
+		:ASSEMBLE
+		
+		SEND(PACKET[0]);
+	:S
+	T[2]:
+		FILTER[PASS]:
+		
 		:FILTER
 	:T
 :IMPLEMENTATION
+
+
+
+
+
+
+
+
+
+
+
+

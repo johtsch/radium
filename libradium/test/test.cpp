@@ -5,7 +5,7 @@
 
 int main(int argc, char **argv){
     Lang langtest;
-    langtest.setQuiet(true);
+    langtest.setQuiet(false);
     langtest.loadFile("../../langfiles/synflood.lang");
     langtest.start();
     
