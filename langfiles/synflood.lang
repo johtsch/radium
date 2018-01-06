@@ -1,9 +1,9 @@
 VAR:
-	IP dst 192.168.2.116;
-	IP src 192.168.2.108;
+	IP dst 192.168.2.108;
+	IP src 192.168.2.116;
 	IP gateway 192.168.2.1;
 	HADDR hwdst "ff:ff:ff:ff:ff:ff";
-	HADDR hwsrc "24:05:0f:5b:98:98";
+	HADDR hwsrc "7c:67:a2:07:e6:21";
 :VAR
 
 IMPLEMENTATION:
@@ -50,11 +50,12 @@ IMPLEMENTATION:
 				TTL=128;
 			:L3
 			L4[TCP]:
-				DPORT=21;
+				DPORT=23;
 				SPORT=21;
-				SEQ=123456789;
-				WINDOW=500;
+				SEQ=100;
+				WINDOW=100;
 				FLAGS=2;
+				FLAGS=4;
 			:L4
 		:ASSEMBLE
 		

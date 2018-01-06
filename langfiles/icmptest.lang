@@ -1,0 +1,27 @@
+VAR:
+	IP src 192.168.2.116;
+	IP dst 192.168.2.1;
+:VAR
+
+IMPLEMENTATION:
+	S[0]:
+		ASSEMBLE[0]:
+			L3[IPv4]:
+				TTL=64;
+				SRC_ADDR=src;
+				DST_ADDR=dst;	
+			:L3
+			L4[ICMP]:
+				TYPE=8;
+				CODE=0;
+			:L4
+		:ASSEMBLE
+		SEND(PACKET[0]);
+	:S
+	T[0]:
+		FILTER[PASS]:
+			L4[ICMP]:			
+			:L4
+		:FILTER	
+	:T
+:IMPLEMENTATION

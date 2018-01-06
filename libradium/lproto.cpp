@@ -813,10 +813,12 @@ bool LTCP::assign(lcommand cmd, const Lang *lang){
             _tcp.window(lang->getShort(cmd._args[1]));
     }
     else if(f == LTCP::FLAGS){
-        if(isExpl)
-            _tcp.flags(b);
+        if(b == 0)
+            _tcp.flags(0);
+        else if(isExpl)
+            _tcp.flags(_tcp.flags() | b);
         else
-            _tcp.flags(lang->getByte(cmd._args[1]));
+            _tcp.flags(_tcp.flags() | lang->getByte(cmd._args[1]));
         _flagsset = true;
     }
 
