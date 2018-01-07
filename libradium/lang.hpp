@@ -55,8 +55,7 @@ public:
     void showStep();
     void showTrigger();
     void showCmds(){ _step.showCmds();}
-    void showPacket();               
-    void showFilter();
+    void showPacket();        
 private:
     Sniffer                             _sniffer;           /* um reinkommende Pakete auszulesen */
     LFileHandler                        _handler;           /* kümmert sich um das Auslesen der Datei */
@@ -87,6 +86,7 @@ private:
     std::vector<LFilter>                _filter;            /* speichert alle Filter Umgebungen des aktuellen Triggers */  
     std::string                         _trigger;           /* speichert den Inhalt der aktuellen T[n]-Umgebung der .lang-Datei */
     short                               _triggernum;
+    bool                                _reactime;          /* speichert ob eine Reaction ausgelöst wurde, also ob Zeit für eine Reaction ist */
 
 
     //Hilfsfunktionen

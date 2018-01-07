@@ -361,8 +361,26 @@ bool LFileHandler::readStep(){
     }
 
     _lang->_step.setNum((short)std::stoul(arg));
-    std::string step;
 
+    // nach optionaler Option ausschau halten
+    std::string opt = getNextOption(line);
+    if(opt == LANG_NOS){
+        _lang->setStatus("readStep()", "Keine Option gefunden. <<<");
+    }
+    else{
+        _lang->setStatus("readStep()", "Option " + opt + " gefunden. <<<");
+        if(!isValidInt(opt)){
+            _lang->setStatus("readStep()", "STEP-Umgebung Option: \"" + opt + "\" ist kein Integer <<<");
+            return false;
+        }
+
+        _lang->_step.setIntervalMS((unsigned int)std::stoul(opt));
+        _lang->_step.setTimed(true);
+        _lang->_step.setLastStepNow();
+    }
+
+
+    std::string step;
     std::string ol;
     while(true){
         _file.clear();                      /* damit, wenn nur < 250 Byte ausgelesen werden können, trz weitergemacht wird.
@@ -451,8 +469,9 @@ bool LFileHandler::readTrigger(){
     }
 
     _lang->_triggernum = (short)std::stoul(arg);
-
+    _lang->_trigger.clear();
     std::string ol;
+
     while(true){
         _file.clear();                      /* damit, wenn nur < 250 Byte ausgelesen werden können, trz weitergemacht wird.
                                                die schlechten bits wie ios::fail werden durch clear zurückgesetzt. */
@@ -471,7 +490,6 @@ bool LFileHandler::readTrigger(){
             _lang->_trigger+="\n";
         }
     }
-        
 
     if(readAllFilter(_lang->_trigger)==false){
         _lang->setStatus("readTrigger()", "die FILTER-Umgebungen konnten nicht eingelesen werden! <<<");
@@ -600,7 +618,7 @@ bool LFileHandler::readAllFilter(std::string trigger){
         else{
             return false;
         }     
-
+        
         if(_lang->_filter[_lang->_filter.size()-1].setFilter(trigger.substr(pos1, pos2 - pos1), _lang)==false){
             return false;
         }
@@ -685,6 +703,23 @@ std::string getNextArgument(std::string str, size_t pos){
         return "";
     }
     if((pos2 = str.find_last_of(']')) == std::string::npos){
+        return "";
+    }
+
+    if(pos2 < pos1)
+        return "";
+
+    return str.substr(pos1+1, pos2 - pos1 - 1);
+}       
+
+std::string getNextOption(std::string str, size_t pos){
+    size_t pos1 = 0;
+    size_t pos2 = 0;
+    
+    if((pos1 = str.find_first_of('{', pos)) == std::string::npos){
+        return "";
+    }
+    if((pos2 = str.find_last_of('}')) == std::string::npos){
         return "";
     }
 

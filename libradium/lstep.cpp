@@ -4,6 +4,8 @@ LStep::LStep(){
     _step = LANG_NOS;
     _description = LANG_NOS;
     _num = 0;
+    _interval = 0;
+    _timed = false;
     _cmd.clear();
 }
 
@@ -25,6 +27,21 @@ bool LStep::setStep(std::string step){
 
 void LStep::setNum(short num){
     _num = num;
+}
+
+void LStep::setIntervalMS(unsigned int i){
+    _firstRep = true;
+    _interval = (double)(i / 1000);
+}
+
+bool LStep::isTimeForNextStep() { 
+    if(_firstRep){
+        _firstRep = false;
+        return true;
+    }
+    if(!_timed)
+        return true;
+    return (_timer.elapsed()) > (_interval); 
 }
 
 void LStep::showCmds(){

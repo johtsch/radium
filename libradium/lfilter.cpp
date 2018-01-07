@@ -8,24 +8,32 @@ bool LFilter::setFilter(std::string pfilter, const Lang *lang){
 bool LFilter::compare(const PDU *pdu){
 
     PDU *tmp = pdu->clone();
+    PDU *del = tmp;
     bool equal = true;
     for(int i = 0; i < sizeof(_layer)/sizeof(_layer[0]); ++i){
+        
+        if(i > 0)
+            tmp = tmp->inner_pdu(); 
+
+        if(tmp == nullptr){
+            delete del;
+            return equal;
+        }
+
         if(_layer[i] != LANG_PRO_NONE){
-            if(i > 0)
-                tmp = tmp->inner_pdu(); 
             if(tmp->pdu_type() == LangProtocolToPDUType(_layer[i])){
 
                 if(tmp->pdu_type() == PDU::PDUType::ETHERNET_II)
                     equal &= _ethernet.compare((EthernetII*)tmp);
                 if(tmp->pdu_type() == PDU::PDUType::ARP)
                     equal &= _arp.compare((ARP*)tmp);
-                if(tmp->pdu_type() == PDU::PDUType::IP)
+                if(tmp->pdu_type() == PDU::PDUType::IP){
                     equal &= _ip.compare((IP*)tmp);
-                if(tmp->pdu_type() == PDU::PDUType::ICMP)
+                }if(tmp->pdu_type() == PDU::PDUType::ICMP)
                     equal &= _icmp.compare((ICMP*)tmp);
-                if(tmp->pdu_type() == PDU::PDUType::TCP)
+                if(tmp->pdu_type() == PDU::PDUType::TCP){
                     equal &= _tcp.compare((TCP*)tmp);
-                if(tmp->pdu_type() == PDU::PDUType::UDP)
+                }if(tmp->pdu_type() == PDU::PDUType::UDP)
                     equal &= _udp.compare((UDP*)tmp);
             }
             else    
@@ -33,32 +41,12 @@ bool LFilter::compare(const PDU *pdu){
         }
     }
 
-    delete tmp;
+    delete del;
     return equal;
 }
 
-void LFilter::showFilter(){
-    std::cout << "FILTER " << _num << " ";
-    if(_type == TYPE::REACTION)
-        std::cout << "REACTION" << std::endl;
-    else
-        std::cout << "PASS" << std::endl;
-    std::cout << "ETHERNET:" << std::endl;
-    std::cout << "src: " << _ethernet.getEth()->src_addr() << std::endl;
-    std::cout << "dst: " << _ethernet.getEth()->dst_addr() << std::endl;
-    std::cout << "ARP:" << std::endl;
-    std::cout << "Type: ";
-    if(_arp.getARP()->opcode()==ARP::REPLY)
-        std::cout << "REPLY" << std::endl;
-    else if(_arp.getARP()->opcode()==ARP::REQUEST)
-        std::cout << "REQUEST" << std::endl;
-    std::cout << "sender_hw: " << _arp.getARP()->sender_hw_addr() << std::endl;
-    std::cout << "sender_ip: " << _arp.getARP()->sender_ip_addr() << std::endl;
-    std::cout << "target_hw: " << _arp.getARP()->target_hw_addr() << std::endl;
-    std::cout << "target_ip: " << _arp.getARP()->target_ip_addr() << std::endl;
-}
-
 bool LFilter::analyse(const Lang *lang){
+    
     std::string arg;
     size_t pos1, pos2;
 
@@ -104,6 +92,7 @@ bool LFilter::analyse(const Lang *lang){
 
         arg = getNextArgument(_filter, pos1);
 
+        
         if(!isSupportedProtocol(arg))
             return false;
 

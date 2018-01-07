@@ -71,6 +71,7 @@ bool Lang::update(){
         }
         setStatus("update()", ">>> neue Step-/Trigger-Umgebungen wurden erfolgreich eingelesen!");
         _forward = false;
+        return true;
     }
 
     /*später noch Timing-Mechanismus einfügen */
@@ -78,7 +79,7 @@ bool Lang::update(){
 
     for(int j = 0; j < _reaction.size(); ++j)
         _reaction[j].setTriggered(false);
-
+    _reactime = false;
     /* Wenn Bedingung erfüllt, dann wird das nächste STEP/TRIGGER-Paar eingelesen, dazu werden die gespeicherten Umgebungen zurückgesetzt */
     if(trigger()){
         _trigger = LANG_NOS;
@@ -227,14 +228,22 @@ void Lang::showPacket(){
         _assembler[i].showPacket();
     }
 }                 
-void Lang::showFilter(){ 
-    std::cout << ">FILTERLISTE:" << std::endl;
-    for(int i = 0; i < _filter.size(); ++i){
-        _filter[i].showFilter();
-    }
-}                       
 
 void Lang::step(){
+
+    if(_forward)
+        return;
+
+    if(_step.isTimed()){
+        if(_step.isTimeForNextStep()){
+            _step.setLastStepNow();
+        }
+        else if(_reactime){
+        }
+        else{
+            return;
+        }
+    }
     
     for(int i = 0; i < _step._cmd.size();++i){
         if(_step._cmd[i]._cmd == LCOMMAND::ASSIGNMENT)
@@ -263,6 +272,7 @@ void Lang::step(){
 
     for(int i = 0; i < _assembler.size(); ++i)
         _assembler[i].reassemble(this);
+    
 
     for(int i = 0; i < _step._cmd.size();++i){
         if (_step._cmd[i]._cmd == LCOMMAND::SEND)
@@ -314,6 +324,7 @@ bool Lang::trigger(){
                         _reaction[j].setPDU(pdu->clone());
                         _reaction[j].setTriggered(true);
                         setStatus("trigger()", "Reaction ausgelöst.");
+                        _reactime = true;
                     }
                 }
             }

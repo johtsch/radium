@@ -838,9 +838,9 @@ bool LTCP::compare(const TCP *tcp){
         equal &= (_tcp.ack_seq() == tcp->ack_seq());
     if(_tcp.window()!=0)
         equal &= (_tcp.window() == tcp->window());
-    if(_tcp.flags()!=0)
+    if(_tcp.flags()!=0){
         equal &= (_tcp.flags() == tcp->flags());
-
+    }    
     return equal;
 }
 

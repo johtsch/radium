@@ -11,7 +11,6 @@ int main(int argc, char **argv){
     
     std::cout << std::endl;
     langtest.showVars();
-    //std::cout << std::endl;
 
     while(langtest.update());
     

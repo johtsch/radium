@@ -1,13 +1,16 @@
 VAR:
-	IP dst 192.168.2.108;
-	IP src 192.168.2.116;
+	IP dst 192.168.2.1;
+	IP src 192.168.2.108;
 	IP gateway 192.168.2.1;
 	HADDR hwdst "ff:ff:ff:ff:ff:ff";
-	HADDR hwsrc "7c:67:a2:07:e6:21";
+	HADDR hwsrc "24:05:0f:5b:98:98";
+	SHORT sport 7777;
 :VAR
 
+# iptables -A OUTPUT -p tcp --tcp-flags RST RST -s 192.168.1.20 -j DROP so-link: https://stackoverflow.com/questions/9058052/unwanted-rst-tcp-packet-with-scapy
+
 IMPLEMENTATION:
-	S[0]:
+	S[0]{5000}:
 		REACTION[0]:
 			hwdst=PACKET[ARP].SENDER_HW;
 			PASS;
@@ -38,7 +41,7 @@ IMPLEMENTATION:
 			:L3
 		:FILTER
 	:T
-	S[1]:
+	S[1]{5000}:
 		ASSEMBLE[0]:
 			L2:
 				SRC=hwsrc;
@@ -51,7 +54,7 @@ IMPLEMENTATION:
 			:L3
 			L4[TCP]:
 				DPORT=80;
-				SPORT=2870;
+				SPORT=sport;
 				SEQ=0;
 				WINDOW=2920;
 				FLAGS=2;
@@ -63,14 +66,10 @@ IMPLEMENTATION:
 	T[1]:
 		FILTER[PASS]:
 			L4[TCP]:
-				DPORT=2870;
-				SPORT=80;
-				FLAGS=2;
-				FLAGS=16;
 			:L4
 		:FILTER
 	:T
-	S[2]:
+	S[2]{5000}:
 		ASSEMBLE[0]:
 			L2:
 				SRC=hwsrc;
@@ -83,7 +82,7 @@ IMPLEMENTATION:
 			:L3
 			L4[TCP]:
 				DPORT=80;
-				SPORT=2870;
+				SPORT=sport;
 				SEQ=1;
 				SEQ_ACK=1;
 				WINDOW=2920;

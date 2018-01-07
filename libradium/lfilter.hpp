@@ -27,7 +27,6 @@ public:
     short           getNum() const { return _num; }
     bool            compare(const PDU *pdu);
 
-    void showFilter();
 private:
     /* speichert den Filtertyp */
     TYPE            _type;
