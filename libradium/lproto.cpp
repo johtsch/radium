@@ -22,6 +22,9 @@ const unsigned char LUDP::s_type[] = { VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_SHO
 const std::string LDHCP::s_fields[] = { "OPCODE", "HTYPE", "HLEN", "HOPS", "XID", "CIADDR", "YIADDR", "SIADDR", "GIADDR", "CHADDR", "TYPE" };
 const unsigned char LDHCP::s_type[] = { VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_INT, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_BYTE };
 
+const std::string LRaw::s_fields[] = { "DATA" };
+const unsigned char LRaw::s_type[] = { VARTYPE_DATA };
+
 
 bool isSupportedProtocol(std::string p){
     if(p == LANG_PRO_ETHERNET)
@@ -37,6 +40,8 @@ bool isSupportedProtocol(std::string p){
     if(p == LANG_PRO_UDP)
         return true;
     if(p == LANG_PRO_DHCP)
+        return true;
+    if(p == LANG_PRO_RAW)
         return true;
 
     return false;
@@ -57,6 +62,8 @@ PDU::PDUType LangProtocolToPDUType(std::string pro){
         return PDU::PDUType::UDP;
     if(pro == LANG_PRO_DHCP)
         return PDU::PDUType::DHCP;
+    if(pro == LANG_PRO_RAW)
+        return PDU::PDUType::RAW;
 
     return PDU::PDUType::UNKNOWN;
 }
@@ -1275,5 +1282,87 @@ HWAddress<6> LDHCP::getHW(std::string field){
     
     if(f == LDHCP::CHADDR){
         return _dhcp.chaddr();
+    }
+}
+
+
+void LRaw::reset(){
+    _raw = RawPDU("default");
+    _set = false;
+}
+
+bool LRaw::assign(lcommand cmd, const Lang *lang){
+    if(cmd._cmd != LCOMMAND::ASSIGNMENT)
+        return false;
+    
+    bool isExpl = false;
+    int f = 0;
+    bool isfield = isField(cmd._args[0], &f);
+
+    if(!isfield)
+        return false;
+    
+    // herausfinden ob es eine Variable oder ein expliziter wert ist
+    isExpl = (lang->getVartype(cmd._args[1]) == VARTYPE_INVALID);
+
+    std::string str = "";
+
+
+    if(isExpl){
+        if(assignData(&str, cmd._args[1]) == false)
+            return false;
+    }
+        
+    if(f == LRaw::DATA){
+        if(isExpl)
+            _raw = RawPDU(str);
+        else
+            if(lang->getVartype(cmd._args[1]) == VARTYPE_FILE)
+                _raw = RawPDU(lang->getFile(cmd._args[1]));
+            else
+                _raw = RawPDU(lang->getData(cmd._args[1]));
+
+        _set = true;
+    }
+
+    return true;
+}
+
+bool LRaw::compare(const RawPDU *raw){
+    bool equal = true;
+    if(_set)
+        equal &= (_raw.payload() == raw->payload());
+
+    return equal;
+}
+
+
+bool LRaw::isField(std::string field, int *which){
+    for(int i = 0; i < sizeof(s_fields) / sizeof(s_fields[0]); ++i){
+        if(field == s_fields[i]){
+            if(which!=nullptr)
+                *which=i;
+            return true;
+        }
+    }
+    return false;
+}
+
+std::string LRaw::getData(std::string field){
+    int f = 0;
+    bool isfield = isField(field, &f);
+
+    if(!isfield)
+        return LANG_NOS;
+    if(s_type[f] != VARTYPE_DATA && s_type[f] != VARTYPE_FILE)
+        return LANG_NOS;
+    
+    if(f == LRaw::DATA){
+        std::string s = "";
+        std::vector<uint8_t> v = _raw.payload();
+        for(int i = 0; i < v.size(); ++i){
+            s+=v[i];
+        }
+        return s;
     }
 }

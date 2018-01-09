@@ -70,6 +70,7 @@ const std::string LANG_PRO_ICMP     = "ICMP";
 const std::string LANG_PRO_TCP      = "TCP";
 const std::string LANG_PRO_UDP      = "UDP";
 const std::string LANG_PRO_DHCP     = "DHCP";
+const std::string LANG_PRO_RAW      = "RAW";
 
 const int         LANG_COD_NONE     = 00;
 const int         LANG_COD_ETHERNET = 11;

@@ -42,6 +42,7 @@ private:
     LTCP            _tcp;
     LUDP            _udp;
     LDHCP           _dhcp;
+    LRaw            _raw;
 
     short           _num;
     bool            analyse(const Lang *lang);                      /* selektiert die einzelnen Layer und gibt sie an analyseLayer() weiter */

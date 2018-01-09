@@ -6,7 +6,7 @@
 int main(int argc, char **argv){
     Lang langtest;
     langtest.setQuiet(false);
-    langtest.loadFile("../../langfiles/synflood.lang");
+    langtest.loadFile("../../langfiles/rawtest.lang");
     langtest.start();
     
     std::cout << std::endl;

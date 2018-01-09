@@ -161,6 +161,7 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
     if(lang == nullptr)
         return false;
 
+
     while((wrd=getNextWord(layer, wc)).length() > 0){
         /* eine Zuweisung wurde gefunden */
         if(wrd.find(LANG_C_ASSIGN, 0) != std::string::npos){
@@ -222,6 +223,12 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
                 }
                 pdu = (PDU*)&_dhcp;
             }
+            else if(pro == LANG_PRO_RAW){
+                if(!_raw.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_raw;
+            }
         }   
     }
 
@@ -246,6 +253,8 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
         _udp.inner_pdu(pdu);
     if(prevpro==LANG_PRO_DHCP)
         _dhcp.inner_pdu(pdu);
+    if(prevpro==LANG_PRO_RAW)
+        _raw.inner_pdu(pdu);
         
     prevpro = pro;
     return true;

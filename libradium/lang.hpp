@@ -14,6 +14,7 @@
 #include "lfilehandler.hpp"
 #include "lstep.hpp"
 #include "lreaction.hpp"
+#include "lproto.hpp"
 
 void showARP(const ARP*_arp);
 

@@ -231,6 +231,12 @@ bool LFilter::analyseLayer(const Lang *lang, std::string pro, std::string layer,
                 }
                 pdu = (PDU*)&_dhcp;
             }
+            if(pro == LANG_PRO_RAW){
+                if(!_raw.assign(ass, lang)){
+                    return false;
+                }
+                pdu = (PDU*)&_raw;
+            }
         }   
     }
 

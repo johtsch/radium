@@ -209,13 +209,64 @@ bool LReaction::resolveImplicit(int index){
             tcp = &_packet->rfind_pdu<TCP>();
         }
         catch(pdu_not_found e){
-            std::cout << "5.2" << e.what() << std::endl;
+            std::cout << "5.3" << e.what() << std::endl;
             return false;
         }
  
         tmp = getExplicit(field, tcp);
         if(tmp == LANG_NOS){
-            std::cout << "6.2" << std::endl;
+            std::cout << "6.3" << std::endl;
+            return false;
+        }
+        _realcmd[index]._args[1] = tmp;
+    }
+    else if(arg==LANG_PRO_UDP){
+        UDP *udp;
+        try{ 
+            udp = &_packet->rfind_pdu<UDP>();
+        }
+        catch(pdu_not_found e){
+            std::cout << "5.4" << e.what() << std::endl;
+            return false;
+        }
+ 
+        tmp = getExplicit(field, udp);
+        if(tmp == LANG_NOS){
+            std::cout << "6.4" << std::endl;
+            return false;
+        }
+        _realcmd[index]._args[1] = tmp;
+    }
+    else if(arg==LANG_PRO_DHCP){
+        DHCP *dhcp;
+        try{ 
+            dhcp = &_packet->rfind_pdu<DHCP>();
+        }
+        catch(pdu_not_found e){
+            std::cout << "5.5" << e.what() << std::endl;
+            return false;
+        }
+ 
+        tmp = getExplicit(field, dhcp);
+        if(tmp == LANG_NOS){
+            std::cout << "6.5" << std::endl;
+            return false;
+        }
+        _realcmd[index]._args[1] = tmp;
+    }
+    else if(arg==LANG_PRO_RAW){
+        RawPDU *raw;
+        try{ 
+            raw = &_packet->rfind_pdu<RawPDU>();
+        }
+        catch(pdu_not_found e){
+            std::cout << "5.6" << e.what() << std::endl;
+            return false;
+        }
+ 
+        tmp = getExplicit(field, raw);
+        if(tmp == LANG_NOS){
+            std::cout << "6.6" << std::endl;
             return false;
         }
         _realcmd[index]._args[1] = tmp;
@@ -409,11 +460,33 @@ std::string LReaction::getExplicit(std::string field, const DHCP *dhcp){
         {
             IPv4Address ip = p.getIP(field);
             str = ip.to_string();
+        break;
         }
         case VARTYPE_HADDR:
         {
             HWAddress<6> hw = p.getHW(field);
             str = hw.to_string();
+        break;
+        }
+    };
+    return str;
+}
+
+std::string LReaction::getExplicit(std::string field, const RawPDU *raw){
+    int f = -1;
+    LRaw p;
+    p.setRaw(raw);
+    std::string str;
+
+    if(!p.isField(field, &f))
+        return "";
+
+    switch(LRaw::s_type[f]){
+        case VARTYPE_FILE:
+        case VARTYPE_DATA:
+        {
+            str = p.getData(field);
+        break;
         }
     };
     return str;

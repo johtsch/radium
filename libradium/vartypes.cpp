@@ -94,11 +94,17 @@ std::string getFileData(std::string fpath){
 
     std::string data = "";
     std::string line = "";
-
-    while(!f.eof()){
-        getline(f, line);          
-        data += line + "\n";
+    char c;
+    
+    while(f.get(c)){
+        //getline(f, line);
+         
+        if(c != 0)         
+            data += c;           
     }
+
+    // komischerweise wird ans ende der Datei immer noch ein '\n' angehängt (im Bytecode) deswegen letztes Zeichen entfernen
+    data.pop_back();
 
     f.close();
     return data;
@@ -160,6 +166,8 @@ bool assignFile(vtdata *fil, std::string val){
     *fil = val;
     return true;
 }
+
+
 
 bool isValidHaddr(std::string address){
     for(int i = 0; i < 17; i++) {

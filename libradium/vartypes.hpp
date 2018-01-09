@@ -62,8 +62,8 @@ bool assignVal(port *p, std::string val);
 bool assignVal(byte *b, std::string val);
 bool assignVal(short *sh, std::string val);
 bool assignVal(int *integer, std::string val);
-bool assignVal(vtdata *dat, std::string val);
-bool assignVal(vtfile *fil, std::string val);
+bool assignData(vtdata *dat, std::string val);
+bool assignFile(vtfile *fil, std::string val);
 
 /* str muss eine MAC-Adresse der Form "xx:xx:xx:xx:xx:xx" */
 bool isValidHaddr(std::string address);

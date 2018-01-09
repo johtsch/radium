@@ -379,7 +379,7 @@ bool LFileHandler::readStep(){
         _lang->_step.setLastStepNow();
     }
 
-
+    std::cout << "AAA" << std::endl;
     std::string step;
     std::string ol;
     while(true){
@@ -401,6 +401,7 @@ bool LFileHandler::readStep(){
         }
     }
 
+    std::cout << "BBB" << std::endl;
     /* die anderen Umgebungen rausschneiden und initialisieren die zu einem Step gehören */
 
     if(readAllAssemble(step) == false){
@@ -505,6 +506,9 @@ bool LFileHandler::readAllAssemble(std::string step){
     short a;
 
     while(true){
+
+
+    std::cout << "CCC1" << std::endl;
         pos1 = step.find(LANG_B_ASSEMBLE, pos2);
 
         if(pos1==std::string::npos)
@@ -515,25 +519,43 @@ bool LFileHandler::readAllAssemble(std::string step){
         if(pos2==std::string::npos)
             break;
 
-        arg = getArgument(step.substr(pos1, LANG_B_ASSEMBLE.length() + 10));
 
+    std::cout << "CCC2" << std::endl;
+        arg = getArgument(step.substr(pos1, pos1 + LANG_B_ASSEMBLE.length() + 10));
+
+
+    std::cout << "CCC3" << std::endl;
         if(isValidShort(arg)){
             a = (short)atoi(arg.c_str());
         }
         else
             return false;
 
+
+    std::cout << "CCC4" << std::endl;
         /* kontrollieren, dass in diesem Step noch kein Paket mit gleicher Nummer erstellt wurde */
         for(int i = 0; i < _lang->_assembler.size(); ++i){
             if(_lang->_assembler[i].getNum() == a)
                 return false;
         }
 
+    std::cout << "CCC5" << std::endl;
+
         _lang->_assembler.push_back(LAssembler());
-        if(_lang->_assembler[_lang->_assembler.size()-1].setAssembler(step.substr(pos1, pos2 - pos1), _lang)==false)
+
+
+    std::cout << "CCC6" << std::endl;
+        if(_lang->_assembler[_lang->_assembler.size()-1].setAssembler(step.substr(pos1, pos2 - pos1), _lang)==false){
             return false;
+        }
+
+    std::cout << "CCC7" << std::endl;
         _lang->_assembler[_lang->_assembler.size()-1].setNum(a);
+
+
+    std::cout << "CCC8" << std::endl;
     }
+    std::cout << "DDD" << std::endl;
 
     return true;
 }

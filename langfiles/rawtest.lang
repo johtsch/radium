@@ -1,0 +1,25 @@
+VAR:
+	HADDR hwtar "ff:ff:ff:ff:ff:ff";
+	HADDR hwsrc "24:05:0f:5b:98:98"; 
+	FILE file "./aaa.dat";
+:VAR
+IMPLEMENTATION:
+	S[0]:
+	
+		ASSEMBLE[0]:
+			L2:
+				SRC=hwsrc;
+				DST=hwtar;
+			:L2
+			L3[RAW]:
+				DATA=file;
+			:L3
+		:ASSEMBLE
+		
+		SEND(PACKET[0]);
+	:S
+	T[0]:
+		FILTER[PASS]:
+		:FILTER
+	:T
+:IMPLEMENTATION

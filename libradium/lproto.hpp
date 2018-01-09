@@ -4,6 +4,8 @@
 #include <tins/tins.h>
 #include <tins/arp.h>
 #include <string>
+#include <iostream>
+#include <vector>
 
 #include "lcommand.hpp"
 #include "vartypes.hpp"
@@ -197,6 +199,32 @@ public:
 private:
     DHCP     _dhcp;
     bool     _set[11];      // entsprechend der Anzahl der elemente in s_fenum
+};
+
+class LRaw{
+public:
+    LRaw()
+        : _raw(RawPDU("default"))
+    { _set = false; }
+    void reset();
+
+    const static std::string s_fields[];
+    const static unsigned char s_type[];
+    enum s_fenum {DATA};
+
+    bool assign(lcommand cmd, const Lang *lang);
+    bool compare(const RawPDU *raw);
+    bool isField(std::string field, int *which);
+
+    std::string getData(std::string field);
+
+    void setRaw(const RawPDU *raw){ _raw = *raw; }
+    void inner_pdu(PDU *pdu){ _raw.inner_pdu(*pdu); }
+    RawPDU* getRaw(){ return &_raw; }
+
+private:
+    RawPDU  _raw;
+    bool    _set;
 };
 
 

@@ -51,6 +51,7 @@ private:
     std::string getExplicit(std::string field, const TCP *tcp);
     std::string getExplicit(std::string field, const UDP *udp);
     std::string getExplicit(std::string field, const DHCP *dhcp);
+    std::string getExplicit(std::string field, const RawPDU *raw);
 };
 
 #endif
