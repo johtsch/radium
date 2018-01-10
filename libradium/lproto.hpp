@@ -180,7 +180,7 @@ public:
 
     const static std::string s_fields[];
     const static unsigned char s_type[];
-    enum s_fenum { OPCODE, HTYPE, HLEN, HOPS, XID, CIADDR, YIADDR, SIADDR, GIADDR, CHADDR, TYPE };
+    enum s_fenum { OPCODE, HTYPE, HLEN, HOPS, XID, CIADDR, YIADDR, SIADDR, GIADDR, CHADDR, TYPE, BPFILE };
 
     bool assign(lcommand cmd, const Lang *lang);
     bool compare(const DHCP *dhcp);
@@ -198,7 +198,7 @@ public:
 
 private:
     DHCP     _dhcp;
-    bool     _set[11];      // entsprechend der Anzahl der elemente in s_fenum
+    bool     _set[12];      // entsprechend der Anzahl der elemente in s_fenum
 };
 
 class LRaw{

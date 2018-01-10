@@ -19,8 +19,8 @@ const unsigned char LTCP::s_type[] = { VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_INT
 const std::string LUDP::s_fields[] = { "DPORT", "SPORT", "LENGTH" };
 const unsigned char LUDP::s_type[] = { VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_SHORT };
 
-const std::string LDHCP::s_fields[] = { "OPCODE", "HTYPE", "HLEN", "HOPS", "XID", "CIADDR", "YIADDR", "SIADDR", "GIADDR", "CHADDR", "TYPE" };
-const unsigned char LDHCP::s_type[] = { VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_INT, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_BYTE };
+const std::string LDHCP::s_fields[] = { "OPCODE", "HTYPE", "HLEN", "HOPS", "XID", "CIADDR", "YIADDR", "SIADDR", "GIADDR", "CHADDR", "TYPE", "BPFILE" };
+const unsigned char LDHCP::s_type[] = { VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_INT, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_BYTE, VARTYPE_DATA };
 
 const std::string LRaw::s_fields[] = { "DATA" };
 const unsigned char LRaw::s_type[] = { VARTYPE_DATA };
@@ -1023,6 +1023,7 @@ void LDHCP::reset(){
 
     for(int i = 0; i < sizeof(s_type) / sizeof(s_type[0]);++i)
         _set[i] = false;
+
 }
 
 bool LDHCP::assign(lcommand cmd, const Lang *lang){
@@ -1044,6 +1045,7 @@ bool LDHCP::assign(lcommand cmd, const Lang *lang){
     int i;
     IPv4Address ip;
     HWAddress<6> hw;
+    std::string str = "";
 
     if(isExpl){
         t = (unsigned char)getVarTypeVal(cmd._args[1]);
@@ -1063,6 +1065,9 @@ bool LDHCP::assign(lcommand cmd, const Lang *lang){
             if(assignVal(&hw, cmd._args[1]) == false)
                 return false;
         }
+        if(t==VARTYPE_FILE | t==VARTYPE_DATA)
+        if(assignData(&str, cmd._args[1]) == false)
+            return false;
     }
         
     if(f == LDHCP::OPCODE){
@@ -1162,6 +1167,37 @@ bool LDHCP::assign(lcommand cmd, const Lang *lang){
         };
         _set[LDHCP::TYPE] = true;
     }
+    if(f == LDHCP::BPFILE){
+        if(isExpl){
+
+            uint8_t d[str.length()+1];
+
+            for(int i = 0; i < str.length(); ++i){
+                d[i] = str[i];
+            }
+            /* nicht hierher gucken das ist nur ein hässlicher Hack weil immer noch ein extrazeichen angefügt wurde das nie zugewiesen wurde*/
+            d[str.length()] = 0;
+            _dhcp.file(d);
+        }else{
+            std::string s; 
+
+            if(lang->getVartype(cmd._args[1]) == VARTYPE_FILE)
+                s = lang->getFile(cmd._args[1]);
+            else
+                s = lang->getData(cmd._args[1]);
+
+            uint8_t d[s.length()];
+
+            for(int i = 0; i < s.length(); ++i){
+                d[i] = s[i];
+            }
+            d[s.length()] = 0;
+
+            _dhcp.file(d);
+        }
+        
+        _set[LDHCP::BPFILE] = true;
+    }
 
     return true;
 }
@@ -1191,6 +1227,8 @@ bool LDHCP::compare(const DHCP *dhcp){
         equal &= (_dhcp.chaddr() == dhcp->chaddr());
     if(_set[TYPE])
         equal &= (_dhcp.type() == dhcp->type());
+    if(_set[BPFILE])
+        equal &= (_dhcp.file() == dhcp->file());
 
     return equal;
 }

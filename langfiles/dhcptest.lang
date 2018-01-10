@@ -1,5 +1,5 @@
 VAR:
-	IP dst 192.168.2.116;
+	IP dst 192.168.2.1;
 	IP src 192.168.2.108;
 	IP gateway 192.168.2.1;
 	HADDR hwdst "ff:ff:ff:ff:ff:ff";
@@ -62,6 +62,7 @@ IMPLEMENTATION:
 				CHADDR=hwdst; 
 				HOPS=64;
 				XID=12345;
+				BPFILE="configuration.data";
 			:L5
 			
 		:ASSEMBLE
