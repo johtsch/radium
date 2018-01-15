@@ -630,6 +630,7 @@ bool LICMP::assign(lcommand cmd, const Lang *lang){
             _icmp.gateway(ip);
         else
             _icmp.gateway(lang->getIP(cmd._args[1]));
+        _codeset[LICMP::GATEWAY] = true;
     }
 
     return true;
@@ -648,7 +649,7 @@ bool LICMP::compare(const ICMP *icmp){
         equal &= (_icmp.id() == icmp->id());
     if(_codeset[LICMP::SEQ])
         equal &= (_icmp.sequence() == icmp->sequence());
-    if(_icmp.gateway() != IPv4Address("00:00:00:00:00:00"))
+    if(_codeset[LICMP::GATEWAY])
         equal &= (_icmp.gateway() == icmp->gateway());
 
     return equal;

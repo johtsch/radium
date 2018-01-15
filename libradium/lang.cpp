@@ -53,7 +53,7 @@ bool Lang::start(){
 bool Lang::update(){
     /* nur die Funktion ausführen, wenn _running true ist. Also wenn alle Vorbereitungen getroffen sind und eine Ausführung gewünscht ist. */
     if(!_running){
-        setStatus("update()", "Ausführung wurde nie gestartet <<<");
+        setStatus("update()", "Interpreter nicht gestartet <<<");
         return false;
     }
 
@@ -64,6 +64,7 @@ bool Lang::update(){
         _assembler.clear();
         _reaction.clear();
         _filter.clear();
+        _step.setTimed(false);
         if(!_handler.readStep() || !_handler.readTrigger()){
             setStatus("update()", "Konnte nächste STEP-/TRIGGER-Umgebung nicht einlesen. Ausführung beendet <<<");
             _running = false;
@@ -71,7 +72,7 @@ bool Lang::update(){
         }
         setStatus("update()", ">>> neue Step-/Trigger-Umgebungen wurden erfolgreich eingelesen!");
         _forward = false;
-        return true;
+        //return true;
     }
 
     /*später noch Timing-Mechanismus einfügen */

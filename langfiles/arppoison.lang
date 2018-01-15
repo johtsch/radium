@@ -7,7 +7,7 @@ VAR:
 :VAR
 
 IMPLEMENTATION:
-	S[0]:
+	S[0]{10000}:
 		REACTION[0]:
 			hwdst=PACKET[ARP].SENDER_HW;
 			PASS;
@@ -23,7 +23,7 @@ IMPLEMENTATION:
 				SENDER_HW=hwsrc;
 				TARGET_IP=dst;
 				TARGET_HW=hwdst;
-				OPCODE=1;					# 1 == REQUEST; 2 == REPLY;
+				OPCODE=1;		# 1 == REQUEST; 2 == REPLY;
 			:L3
 		:ASSEMBLE	
 		
@@ -38,18 +38,18 @@ IMPLEMENTATION:
 			:L3
 		:FILTER
 	:T
-	S[1]:
+	S[1]{5000}:
 		ASSEMBLE[0]:
 			L2:
 				SRC=hwsrc;
 				DST=hwdst;
 			:L2
 			L3[ARP]:
-				SENDER_IP=gateway;
+				SENDER_IP=gateway;			
 				SENDER_HW=hwsrc;
 				TARGET_IP=dst;
 				TARGET_HW=hwdst;
-				OPCODE=2;					# 1 == REQUEST; 2 == REPLY;
+				OPCODE=2;		# 1 == REQUEST; 2 == REPLY;
 			:L3
 		:ASSEMBLE
 		
@@ -58,7 +58,7 @@ IMPLEMENTATION:
 	T[1]:
 		FILTER[PASS]:
 			L2:
-				SRC="ff:ff:ff:ff:ff:ff";
+				#SRC="ff:ff:ff:ff:ff:ff";
 			:L2
 		:FILTER
 	:T

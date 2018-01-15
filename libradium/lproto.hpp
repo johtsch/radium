@@ -100,7 +100,7 @@ private:
 
 class LICMP{
 public:
-    LICMP(){_codeset[0] = false; _codeset[1] = false; _codeset[2] = false; _codeset[3] = false; _codeset[5] = false;}
+    LICMP(){_codeset[0] = false; _codeset[1] = false; _codeset[2] = false; _codeset[3] = false; _codeset[4] = false; _codeset[5] = false;}
     void reset();
 
     const static std::string s_fields[];
@@ -121,7 +121,7 @@ public:
 
 private:
     ICMP     _icmp;
-    bool     _codeset[5];
+    bool     _codeset[6];
 };
 
 class LTCP{
