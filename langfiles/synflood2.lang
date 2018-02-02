@@ -1,0 +1,84 @@
+VAR:
+	IP dst 192.168.2.1;
+	IP src 192.168.2.116;
+	IP gateway 192.168.2.1;
+	HADDR hwdst "ff:ff:ff:ff:ff:ff";
+	HADDR hwsrc "7c:67:a2:07:e6:21";
+	SHORT sport 7777;
+:VAR
+
+
+IMPLEMENTATION:
+	S[0]{5000}:
+		REACTION[0]:
+			hwdst=PACKET[ARP].SENDER_HW;
+			PASS;
+		:REACTION
+	
+		ASSEMBLE[0]:
+			L2:
+				SRC=hwsrc;
+				DST=hwdst;
+			:L2
+			L3[ARP]:
+				SENDER_IP=src;
+				SENDER_HW=hwsrc;
+				TARGET_IP=dst;
+				TARGET_HW=hwdst;
+				OPCODE=1;					# 1 == REQUEST; 2 == REPLY;
+			:L3
+		:ASSEMBLE	
+		
+		SEND(PACKET[0]);
+	:S
+	T[0]:
+		FILTER[REACTION[0]]:
+			L3[ARP]:
+				SENDER_IP=dst;
+				TARGET_IP=src;
+				OPCODE=2;
+			:L3
+		:FILTER
+	:T
+	S[1]:
+		ASSEMBLE[0]:
+			L2:
+				SRC=hwsrc;
+				DST=hwdst;
+			:L2
+			L3[IPv4]:
+				SRC_ADDR=src;
+				DST_ADDR=dst;
+				TTL=128;
+			:L3
+			L4[TCP]:
+				DPORT=80;
+				SPORT=sport;
+				SEQ=0;
+				WINDOW=2920;
+				FLAGS=2;
+			:L4
+		:ASSEMBLE
+		
+		SEND(PACKET[0]);
+	:S
+	T[1]:
+		FILTER[PASS]:
+			L2:
+				SRC="ff:ff:ff:ff:ff:ff";
+			:L2
+		:FILTER
+	:T
+:IMPLEMENTATION
+
+
+
+
+
+
+
+
+
+
+
+
