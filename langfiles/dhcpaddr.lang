@@ -1,0 +1,121 @@
+VAR:
+	IP dst 255.255.255.255;
+	IP src 192.168.2.108;
+	IP cip 192.168.2.12;
+	IP gateway 192.168.2.1;
+	INT cxid 0;
+	int clease 0;
+	HADDR cchaddr "ff:ff:ff:ff:ff:ff";
+	HADDR hwdst "ff:ff:ff:ff:ff:ff";
+	HADDR hwsrc "24:05:0f:5b:98:98";
+:VAR
+
+IMPLEMENTATION:
+	S[1]:
+	
+		#DHCPDISCOVER-Filter
+		REACTION[0]:
+			hwdst=PACKET[ETHERNET].SRC;
+			cxid=PACKET[DHCP].XID;
+			cchaddr=PACKET[DHCP].CHADDR;
+			gateway=PACKET[DHCP].GIADDR;
+			clease=PACKET[DHCP].LEASE;
+		:REACTION
+		#DHCPREQUEST-Filter
+		REACTION[1]:
+			hwdst=PACKET[ETHERNET].SRC;
+			cxid=PACKET[DHCP].XID;
+			cchaddr=PACKET[DHCP].CHADDR;
+			gateway=PACKET[DHCP].GIADDR;
+			clease=PACKET[DHCP].LEASE;
+		:REACTION
+	
+		#DHCPOFFER-Nachricht
+		ASSEMBLE[0]:
+			L2:
+				SRC=hwsrc;
+				DST=hwdst;
+			:L2
+			L3[IPv4]:
+				SRC_ADDR=src;
+				DST_ADDR=dst;
+				TTL=128;
+			:L3
+			L4[UDP]:
+				DPORT=68;
+				SPORT=67;
+			:L4
+			L5[DHCP]:
+				OPCODE=2;
+				TYPE=2;
+				CIADDR=0.0.0.0;
+				YIADDR=cip;
+				SIADDR=src;
+				GIADDR=gateway;
+				CHADDR=cchaddr; 
+				HOPS=0;
+				XID=cxid;
+				BPFILE="configuration.data";
+				LEASE=clease;
+				SERVER_ID=src;
+			:L5
+		:ASSEMBLE
+		
+	#DHCPACK-Nachricht
+		ASSEMBLE[1]:
+			L2:
+				SRC=hwsrc;
+				DST=hwdst;
+			:L2
+			L3[IPv4]:
+				SRC_ADDR=src;
+				DST_ADDR=dst;
+				TTL=128;
+			:L3
+			L4[UDP]:
+				DPORT=68;
+				SPORT=67;
+			:L4
+			L5[DHCP]:
+				OPCODE=2;
+				TYPE=5;
+				CIADDR=0.0.0.0;
+				YIADDR=cip;
+				SIADDR=src;
+				CHADDR=cchaddr; 
+				GIADDR=gateway;
+				HOPS=0;
+				XID=cxid;
+				BPFILE="configuration.data";
+				LEASE=clease;
+				SERVER_ID=src;
+			:L5
+		:ASSEMBLE
+		
+		REACTION[0]:
+			SEND(PACKET[0]);
+		:REACTION
+		
+		REACTION[1]:
+			SEND(PACKET[1]);
+		:REACTION
+	:S
+	T[1]:
+		#DHCPDISCOVER-FILTER
+		FILTER[REACTION[0]]:
+			L5[DHCP]:
+				TYPE=1;
+			:L5
+		:FILTER
+		#DHCPREQUEST-FILTER
+		FILTER[REACTION[1]]:
+			L5[DHCP]:
+				TYPE=5;
+			:L5
+		:FILTER
+	:T
+:IMPLEMENTATION
+
+
+# http://www.freesoft.org/CIE/RFC/2131/23.htm als Vorlage fuer Zuweisung der 
+# einzelnen Felder genutzt

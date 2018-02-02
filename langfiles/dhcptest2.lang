@@ -1,9 +1,9 @@
 VAR:
 	IP dst 192.168.2.1;
-	IP src 192.168.2.108;
+	IP src 192.168.2.116;
 	IP gateway 192.168.2.1;
 	HADDR hwdst "ff:ff:ff:ff:ff:ff";
-	HADDR hwsrc "24:05:0f:5b:98:98";
+	HADDR hwsrc "7c:67:a2:07:e6:21";
 :VAR
 
 IMPLEMENTATION:

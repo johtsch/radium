@@ -19,8 +19,8 @@ const unsigned char LTCP::s_type[] = { VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_INT
 const std::string LUDP::s_fields[] = { "DPORT", "SPORT", "LENGTH" };
 const unsigned char LUDP::s_type[] = { VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_SHORT };
 
-const std::string LDHCP::s_fields[] = { "OPCODE", "HTYPE", "HLEN", "HOPS", "XID", "CIADDR", "YIADDR", "SIADDR", "GIADDR", "CHADDR", "TYPE", "BPFILE" };
-const unsigned char LDHCP::s_type[] = { VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_INT, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_BYTE, VARTYPE_DATA };
+const std::string LDHCP::s_fields[] = { "OPCODE", "HTYPE", "HLEN", "HOPS", "XID", "CIADDR", "YIADDR", "SIADDR", "GIADDR", "CHADDR", "TYPE", "BPFILE", "LEASE", "SERVER_ID" };
+const unsigned char LDHCP::s_type[] = { VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_INT, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_BYTE, VARTYPE_DATA, VARTYPE_INT, VARTYPE_IPADDR};
 
 const std::string LRaw::s_fields[] = { "DATA" };
 const unsigned char LRaw::s_type[] = { VARTYPE_DATA };
@@ -1199,6 +1199,20 @@ bool LDHCP::assign(lcommand cmd, const Lang *lang){
         
         _set[LDHCP::BPFILE] = true;
     }
+    else if(f == LDHCP::LEASE){
+        if(isExpl)
+            _dhcp.lease_time(i);
+        else
+            _dhcp.lease_time(lang->getInt(cmd._args[1]));
+        _set[LDHCP::LEASE] = true;
+    }
+    else if(f == LDHCP::SERVER_ID){
+        if(isExpl)
+            _dhcp.server_identifier(ip);
+        else
+            _dhcp.server_identifier(lang->getIP(cmd._args[1]));
+        _set[LDHCP::SERVER_ID] = true;
+    }
 
     return true;
 }
@@ -1230,6 +1244,10 @@ bool LDHCP::compare(const DHCP *dhcp){
         equal &= (_dhcp.type() == dhcp->type());
     if(_set[BPFILE])
         equal &= (_dhcp.file() == dhcp->file());
+    if(_set[LEASE])
+        equal &= (_dhcp.lease_time() == dhcp->lease_time());
+    if(_set[SERVER_ID])
+        equal &= (_dhcp.server_identifier() == dhcp->server_identifier());
 
     return equal;
 }
@@ -1283,6 +1301,9 @@ int LDHCP::getInt(std::string field){
     if(f == LDHCP::XID){
         return _dhcp.xid();
     }
+    if(f == LDHCP::LEASE){
+        return _dhcp.lease_time();
+    }
 }
 
 IPv4Address LDHCP::getIP(std::string field){
@@ -1305,6 +1326,9 @@ IPv4Address LDHCP::getIP(std::string field){
     }
     else if(f == LDHCP::GIADDR){
         return _dhcp.giaddr();
+    }
+    else if(f == LDHCP::SERVER_ID){
+        return _dhcp.server_identifier();
     }
 
     return IPv4Address("0.0.0.0");
