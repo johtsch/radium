@@ -8,7 +8,7 @@ const std::string LARP::s_fields[] = { "SENDER_IP", "SENDER_HW", "TARGET_IP", "T
 const unsigned char LARP::s_type[] = { VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_BYTE };
 
 const std::string LIPv4::s_fields[] = { "TOS", "ID", "FLAGS", "TTL", "SRC_ADDR", "DST_ADDR"};
-const unsigned char LIPv4::s_type[] = { VARTYPE_BYTE, VARTYPE_SHORT, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_IPADDR };
+const unsigned char LIPv4::s_type[] = { VARTYPE_BYTE, VARTYPE_SHORT, VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_IPADDR, VARTYPE_IPADDR };
 
 const std::string LICMP::s_fields[] = { "CODE", "TYPE", "MTU", "ID", "SEQ", "GATEWAY" };
 const unsigned char LICMP::s_type[] = { VARTYPE_BYTE, VARTYPE_BYTE, VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_SHORT, VARTYPE_IPADDR };
