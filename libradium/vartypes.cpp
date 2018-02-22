@@ -92,13 +92,10 @@ std::string getFileData(std::string fpath){
     if(!f.good() | !f.is_open())
         return LANG_NOS;
 
-    std::string data = "";
-    std::string line = "";
+    std::string data;
     char c;
     
     while(f.get(c)){
-        //getline(f, line);
-         
         if(c != 0)         
             data += c;           
     }

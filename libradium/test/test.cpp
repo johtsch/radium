@@ -6,7 +6,7 @@
 int main(int argc, char **argv){
     Lang langtest;
     langtest.setQuiet(false);
-    langtest.loadFile("../../langfiles/rawtest2.lang");
+    langtest.loadFile("../../langfiles/dhcptest2.lang");
     langtest.start();
     
     std::cout << std::endl;

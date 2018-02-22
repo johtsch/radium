@@ -4,8 +4,6 @@
 bool LReaction::process(){
     _realcmd = _cmd;
     
-    //qstd::cout << "DIE COMMANDS WERDEN BEHANDELT " << _cmd.size() << " > " <<  _realcmd.size() << std::endl;
-    
     for(int i = 0; i < _realcmd.size();++i){
 
         if(_realcmd[i]._cmd == LCOMMAND::ASSIGNMENT){

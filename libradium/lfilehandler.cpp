@@ -83,8 +83,6 @@ std::string LFileHandler::analyse(){
         
         while((word=getNextWord(line, wc)).length() != 0){
 
-            /*if(word != LANG_CTRL_CHAR)
-                std::cout << "\"" <<  word << "\"" << std::endl;*/
             ret |= (word == LANG_B_IMPLEMENTATION);
             ret |= (word == LANG_B_VAR);
             ret |= (word == LANG_B_STEP);
@@ -108,7 +106,7 @@ std::string LFileHandler::analyse(){
 bool LFileHandler::analyseVar(){
     char line[512];
     std::string word ="";
-    std::string vardec[3] = { "", "", "" };
+    std::string vardec[4] = { "", "", "", "" };
     size_t wc = 0;
     while(true){
         _file.clear();
@@ -117,8 +115,6 @@ bool LFileHandler::analyseVar(){
         wc=0;
 
         while((word=getNextWord(line, wc)).length() != 0){
-
-            
 
             if(word == LANG_B_IMPLEMENTATION){
                 _lang->setStatus("analyseVar()", "kein ':VAR' vor 'IMPLEMENTATION:' gefunden <<<");
@@ -136,33 +132,32 @@ bool LFileHandler::analyseVar(){
                     if(word.length() > 0 && word != LANG_CTRL_CHAR)
                         wordcount++;
                     
-                    if(wordcount > 3){
-                        _lang->setStatus("analyseVar()", "Zu viele Wörter in der Zeile  (max. 3) -> kann keine Variablendeklaration sein <<<");
+                    if(wordcount > 4){
+                        _lang->setStatus("analyseVar()", "Zu viele Wörter in der Zeile  (max. 4) -> kann keine Variablendeklaration sein <<<");
                         break;
                     }
 
                     vardec[wordcount-1]=word;
 
                     pos = word.find_last_of(";", word.size());
-                    if( pos > word.size() - 2 && pos < word.size() && wordcount < 4){                       /* kontrollieren ob ein Semikolon am Ende des Wortes erkannt wurde, das würde nämlich die Deklaration 
+                    if( pos > word.size() - 2 && pos < word.size() && wordcount < 5){                       /* kontrollieren ob ein Semikolon am Ende des Wortes erkannt wurde, das würde nämlich die Deklaration 
                                                                                                                 abschließen */
                         _lang->setStatus("analyseVar()", ">>> Variablendeklaration erkannt: " + word);
                         initVar(vardec);
                         break;
                     } 
+                    else if(pos != std::string::npos){
+                        _lang->setStatus("analyseVar()", "Fehler bei einer Variablendeklaration <<<");
+                        return false;
+                    }
                 }
             }
             
-            /*ret |= (word == LANG_B_STEP);
-            ret |= (word == LANG_B_TRIGGER);
-            ret |= (word == LANG_E_IMPLEMENTATION);
-            */
             if(word == LANG_E_VAR){
                 _lang->setStatus("analyseVar()", ">>> ':VAR' gefunden!");
                 return true;
             }
-            /*ret |= (word == LANG_E_STEP);
-            ret |= (word == LANG_E_TRIGGER);*/
+            
             word.clear();
         }
 
@@ -173,12 +168,12 @@ bool LFileHandler::analyseVar(){
     }
 }
 
-bool LFileHandler::initVar(std::string vardec[3]){
+bool LFileHandler::initVar(std::string vardec[4]){
             
     unsigned char tmp;
     /* kontrollieren dass es sich bei vardec[0] um Vartype handelt auch, wenn dies eigentlich feststehen sollte */
     if((tmp = getVarType(vardec[0])) == VARTYPE_INVALID){
-        _lang->setStatus("initVar()", "Übergebener Datentypspezifizierer stellt keinen Datentyp dar! Variable konnte nicht erstellt werden! <<<");
+        _lang->setStatus("initVar()", "Übergebener Datentypspezifizierer \"" + vardec[0] + "\"stellt keinen Datentyp dar! Variable konnte nicht erstellt werden! <<<");
         return false;
     }
 
@@ -189,124 +184,128 @@ bool LFileHandler::initVar(std::string vardec[3]){
     }
 
     /* wenn vorhanden vom letzten vardec das Semikolon entfernen */
-    if(vardec[2].length() != 0){
-        if(vardec[2][vardec[2].length() - 1] == ';'){
-            vardec[2].pop_back();
+    if(vardec[3].length() != 0){
+        if(vardec[3][vardec[3].length() - 1] == ';'){
+            vardec[3].pop_back();
         }
     }
     else if(vardec[1][vardec[1].length() - 1] == ';')
         vardec[1].pop_back();
+    else{
+        _lang->setStatus("initVar()", vardec[0] + " " + vardec[1] + " " + vardec[2] + " " + vardec[3] + " ist keine ordnungsgemäße Variablendeklaration! <<<");
+        return false;       
+    }
 
     
     /* neuen Eintrag für Variable im Datentypinfoverzeichnis anlegen... abhängig vom Datentyp */
     if(tmp == VARTYPE_HADDR){
         _lang->_dtinfo.push_back({tmp, vardec[1], _lang->_haddr.size()});
 
-        if(vardec[2].length() == 0)                    
+        if(vardec[3].length() == 0)                    
             _lang->_haddr.push_back(Tins::HWAddress<6>());
-        else if(!isValidHaddr(vardec[2])){
-            _lang->setStatus("initVar()", "Übergebene HWADDR (" + vardec[2] + ") ist nicht im richtigen Format! Standardadresse 00:00:00:00:00:00 wird verwendet <<<");
+        else if(!isValidHaddr(vardec[3])){
+            _lang->setStatus("initVar()", "Übergebene HWADDR (" + vardec[3] + ") ist nicht im richtigen Format! Standardadresse 00:00:00:00:00:00 wird verwendet <<<");
             _lang->_haddr.push_back(Tins::HWAddress<6>());
         }
         else
-            _lang->_haddr.push_back(Tins::HWAddress<6>(vardec[2]));
+            _lang->_haddr.push_back(Tins::HWAddress<6>(vardec[3]));
     }
     if(tmp == VARTYPE_IPADDR){
         _lang->_dtinfo.push_back({tmp, vardec[1], _lang->_ipaddr.size()});
 
-        if(vardec[2].length() == 0){  
+        if(vardec[3].length() == 0){  
             _lang->_ipaddr.push_back(Tins::IPv4Address(""));
         }
-        else if(!isValidIPv4(vardec[2])){       
-            _lang->setStatus("initVar()", "Übergebene IP (" + vardec[2] + ") ist nicht im richtigen Format! Standardadresse 0.0.0.0 wird verwendet <<<");
+        else if(!isValidIPv4(vardec[3])){       
+            _lang->setStatus("initVar()", "Übergebene IP (" + vardec[3] + ") ist nicht im richtigen Format! Standardadresse 0.0.0.0 wird verwendet <<<");
             _lang->_ipaddr.push_back(Tins::IPv4Address(""));
         }
         else{        
-            _lang->_ipaddr.push_back(Tins::IPv4Address(vardec[2]));
+            _lang->_ipaddr.push_back(Tins::IPv4Address(vardec[3]));
         }
     }
     if(tmp == VARTYPE_PORT){
         _lang->_dtinfo.push_back({tmp, vardec[1], _lang->_port.size()});
         
-        if(vardec[2].length() == 0){  
+        if(vardec[3].length() == 0){  
             _lang->_port.push_back(0);
         }
-        else if(!isValidPort(vardec[2])){       
-            _lang->setStatus("initVar()", "Übergebener Port (" + vardec[2] + ") ist kein gültiger Port! Standardport 0 wird eingesetzt <<<");
+        else if(!isValidPort(vardec[3])){       
+            _lang->setStatus("initVar()", "Übergebener Port (" + vardec[3] + ") ist kein gültiger Port! Standardport 0 wird eingesetzt <<<");
             _lang->_port.push_back(0);
         }
         else{        
-            _lang->_port.push_back((port)(std::stoul(vardec[2])));
+            _lang->_port.push_back((port)(std::stoul(vardec[3])));
         }
     }
     if(tmp == VARTYPE_BYTE){
         _lang->_dtinfo.push_back({tmp, vardec[1], _lang->_byte.size()});
 
-        if(vardec[2].length() == 0){  
+        if(vardec[3].length() == 0){  
             _lang->_byte.push_back(0);
         }
-        else if(!isValidShort(vardec[2])){       
-            _lang->setStatus("initVar()", "Übergebener Byte (" + vardec[2] + ") ist kein gültiger Byte! Standardwert 0 wird eingesetzt <<<");
+        else if(!isValidShort(vardec[3])){       
+            _lang->setStatus("initVar()", "Übergebener Byte (" + vardec[3] + ") ist kein gültiger Byte! Standardwert 0 wird eingesetzt <<<");
             _lang->_byte.push_back(0);
         }
         else{        
-            _lang->_byte.push_back((byte)(std::stoul(vardec[2])));
+            _lang->_byte.push_back((byte)(std::stoul(vardec[3])));
         }
     }
     if(tmp == VARTYPE_SHORT){
         _lang->_dtinfo.push_back({tmp, vardec[1], _lang->_short.size()});
 
-        if(vardec[2].length() == 0){  
+        if(vardec[3].length() == 0){  
             _lang->_short.push_back(0);
         }
-        else if(!isValidShort(vardec[2])){       
-            _lang->setStatus("initVar()", "Übergebener Short (" + vardec[2] + ") ist kein gültiger Short! Standardwert 0 wird eingesetzt <<<");
+        else if(!isValidShort(vardec[3])){       
+            _lang->setStatus("initVar()", "Übergebener Short (" + vardec[3] + ") ist kein gültiger Short! Standardwert 0 wird eingesetzt <<<");
             _lang->_short.push_back(0);
         }
         else{        
-            _lang->_short.push_back((unsigned short)(std::stoul(vardec[2])));
+            _lang->_short.push_back((unsigned short)(std::stoul(vardec[3])));
         }
     }
     if(tmp == VARTYPE_INT){
         _lang->_dtinfo.push_back({tmp, vardec[1], _lang->_int.size()});
        
-       if(vardec[2].length() == 0){  
+       if(vardec[3].length() == 0){  
             _lang->_int.push_back(0);
         }
-        else if(!isValidShort(vardec[2])){       
-            _lang->setStatus("initVar()", "Übergebener Int (" + vardec[2] + ") ist kein gültiger Int! Standardwert 0 wird eingesetzt <<<");
+        else if(!isValidShort(vardec[3])){       
+            _lang->setStatus("initVar()", "Übergebener Int (" + vardec[3] + ") ist kein gültiger Int! Standardwert 0 wird eingesetzt <<<");
             _lang->_int.push_back(0);
         }
         else{        
-            _lang->_int.push_back((unsigned int)(std::stoul(vardec[2])));
+            _lang->_int.push_back((unsigned int)(std::stoul(vardec[3])));
         } 
     }
     if(tmp == VARTYPE_FILE){
         _lang->_dtinfo.push_back({tmp, vardec[1], _lang->_vtfile.size()});
        
-       if(vardec[2].length() == 0){  
+       if(vardec[3].length() == 0){  
             _lang->_vtfile.push_back("");
         }
-        else if(!isValidFile(vardec[2])){       
-            _lang->setStatus("initVar()", "Übergebener FILE (" + vardec[2] + ") ist kein gültiger FILE! Standardwert "" wird eingesetzt <<<");
+        else if(!isValidFile(vardec[3])){       
+            _lang->setStatus("initVar()", "Übergebener FILE (" + vardec[3] + ") ist kein gültiger FILE! Standardwert "" wird eingesetzt <<<");
             _lang->_vtfile.push_back("");
         }
         else{        
-            _lang->_vtfile.push_back(getFileData(vardec[2]));
+            _lang->_vtfile.push_back(getFileData(vardec[3]));
         } 
     }
     if(tmp == VARTYPE_DATA){
         _lang->_dtinfo.push_back({tmp, vardec[1], _lang->_vtdata.size()});
        
-       if(vardec[2].length() == 0){  
+       if(vardec[3].length() == 0){  
             _lang->_vtdata.push_back("");
         }
-        else if(!isValidData(vardec[2])){       
-            _lang->setStatus("initVar()", "Übergebener DATA (" + vardec[2] + ") ist kein gültiger DATA! Standardwert \"\" wird eingesetzt <<<");
+        else if(!isValidData(vardec[3])){       
+            _lang->setStatus("initVar()", "Übergebener DATA (" + vardec[3] + ") ist kein gültiger DATA! Standardwert \"\" wird eingesetzt <<<");
             _lang->_vtdata.push_back("");
         }
         else{        
-            _lang->_vtdata.push_back(vardec[2]);
+            _lang->_vtdata.push_back(vardec[3]);
         } 
     }
     
@@ -379,7 +378,6 @@ bool LFileHandler::readStep(){
         _lang->_step.setLastStepNow();
     }
 
-    //std::cout << "AAA" << std::endl;
     std::string step;
     std::string ol;
     while(true){
@@ -401,7 +399,6 @@ bool LFileHandler::readStep(){
         }
     }
 
-    //std::cout << "BBB" << std::endl;
     /* die anderen Umgebungen rausschneiden und initialisieren die zu einem Step gehören */
 
     if(readAllAssemble(step) == false){
@@ -416,7 +413,6 @@ bool LFileHandler::readStep(){
     /* rausschneiden der anderen Subumgebungen */
     cutOut(&step, LANG_B_ASSEMBLE, LANG_E_ASSEMBLE);
     cutOut(&step, LANG_B_REACTION, LANG_E_REACTION);
-    //cutOut(&step, LANG_B_REACTION, LANG_E_REACTION);
 
     _lang->_step.setStep(step);
 
@@ -507,8 +503,6 @@ bool LFileHandler::readAllAssemble(std::string step){
 
     while(true){
 
-
-    //std::cout << "CCC1" << std::endl;
         pos1 = step.find(LANG_B_ASSEMBLE, pos2);
 
         if(pos1==std::string::npos)
@@ -519,43 +513,33 @@ bool LFileHandler::readAllAssemble(std::string step){
         if(pos2==std::string::npos)
             break;
 
-
-    //std::cout << "CCC2" << std::endl;
         arg = getArgument(step.substr(pos1, pos1 + LANG_B_ASSEMBLE.length() + 10));
 
-
-    //std::cout << "CCC3" << std::endl;
         if(isValidShort(arg)){
             a = (short)atoi(arg.c_str());
         }
         else
             return false;
+        
 
-
-    //std::cout << "CCC4" << std::endl;
         /* kontrollieren, dass in diesem Step noch kein Paket mit gleicher Nummer erstellt wurde */
         for(int i = 0; i < _lang->_assembler.size(); ++i){
             if(_lang->_assembler[i].getNum() == a)
                 return false;
         }
 
-    //std::cout << "CCC5" << std::endl;
-
         _lang->_assembler.push_back(LAssembler());
 
 
-    //std::cout << "CCC6" << std::endl;
         if(_lang->_assembler[_lang->_assembler.size()-1].setAssembler(step.substr(pos1, pos2 - pos1), _lang)==false){
             return false;
         }
 
-    //std::cout << "CCC7" << std::endl;
+
         _lang->_assembler[_lang->_assembler.size()-1].setNum(a);
 
-
-    //std::cout << "CCC8" << std::endl;
     }
-    //std::cout << "DDD" << std::endl;
+    
 
     return true;
 }
@@ -706,11 +690,6 @@ std::string getNextWord(std::string line, size_t &word_count){
             break;
         j++;
     }while(j < word_count);
-
-    /*
-    if(word.length() > 1)
-        std::cout << "gnw: -> " << word << std::endl;
-    */
     
     word_count++;
     return word;        /* wenn Ende der Zeile erreicht wird wird word automatisch zu "" und hat somit die Länge 0 die in vielen If-Abfragen verwendet wird um festzustellen
@@ -731,7 +710,16 @@ std::string getNextArgument(std::string str, size_t pos){
     if(pos2 < pos1)
         return "";
 
-    return str.substr(pos1+1, pos2 - pos1 - 1);
+    // Steuerzeichen entfernen
+
+    std::string tmp = str.substr(pos1+1, pos2 - pos1 - 1);
+
+    for(int i = 0; i < tmp.length(); ++i){
+        if(tmp[i] < 33)
+            tmp.erase(i, 1);
+    }
+
+    return tmp;
 }       
 
 std::string getNextOption(std::string str, size_t pos){
@@ -748,7 +736,16 @@ std::string getNextOption(std::string str, size_t pos){
     if(pos2 < pos1)
         return "";
 
-    return str.substr(pos1+1, pos2 - pos1 - 1);
+    // Steuerzeichen entfernen
+
+    std::string tmp = str.substr(pos1+1, pos2 - pos1 - 1);
+
+    for(int i = 0; i < tmp.length(); ++i){
+        if(tmp[i] < 33)
+            tmp.erase(i, 1);
+    }
+
+    return tmp;
 }                        
 
 std::string optLine(std::string line){

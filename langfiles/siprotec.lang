@@ -1,0 +1,73 @@
+VAR:
+	IP tar 192.168.2.1;
+	IP hos 192.168.2.116;
+	HADDR thw "ff:ff:ff:ff:ff:ff";
+	HADDR hhw "7c:67:a2:07:e6:21";
+	SHORT tpo 50000;
+	FILE sipro "sipro.pay";
+:VAR
+
+IMPLEMENTATION:
+	S[0]{50000}:
+		
+		REACTION[0]:
+			thw=PACKET[ARP].SENDER_HW;
+			PASS;
+		:REACTION
+	
+		ASSEMBLE[0]:
+			L2:
+				SRC=hhw;
+				DST=thw;
+			:L2
+			L3[ARP]:
+				SENDER_IP=hos;
+				TARGET_IP=tar;
+				SENDER_HW=hhw;
+				TARGET_HW=thw;
+				OPCODE=1;
+			:L3
+		:ASSEMBLE
+		
+		SEND(PACKET[n]);
+	:S
+	T[0]:
+		FILTER[REACTION[0]]:
+			L3[ARP]:
+				SENDER_IP=tar;
+				TARGET_IP=hos;
+				OPCODE=2;
+			:L3
+		:FILTER
+	:T
+	S[1]:
+		ASSEMBLE[0]:
+			L2:
+				SRC=hhw;
+				DST=thw;
+			:L2
+			L3[IPv4]:
+				SRC_ADDR=hos;
+				DST_ADDR=tar;
+				TTL=128;
+			:L3
+			L4[UDP]:
+				DPORT=tpo;
+				SPORT=80;
+				LENGTH=26;
+			:L4
+			L5[RAW]:
+				DATA=sipro;
+			:L5
+		:ASSEMBLE
+		
+		SEND(PACKET[0]);
+	:S
+	T[1]:
+		FILTER[PASS]:
+			L2:
+				SRC="ff:ff:ff:ff:ff:ff";
+			:L2
+		:FILTER
+	:T
+:IMPLEMENTATION

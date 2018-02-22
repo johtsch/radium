@@ -45,7 +45,7 @@ public:
                                                "IMPLEMENTATION", "S", "T", etc.) oder "EOF", wenn das Dateiende erreicht wurde */
     bool analyseVar();                      /* checkt die VAR-Umgebung auf Syntaxerror und gibt gültige Variablendeklarationen in einer Zeile an initVar() weiter; Wenn kein VAR-End-
                                                Spezifizierer folgt wird false zurückgegeben. Wenn falsche Bezeichner entdeckt werden wird eine Warnung in _status gespeichert */
-    bool initVar(std::string vardec[3]);    /* speichert alle in .lang-Datei verwendeten Datentypen in entsprechender Form in den Datenstrukturen dieser Klasse 
+    bool initVar(std::string vardec[4]);    /* speichert alle in .lang-Datei verwendeten Datentypen in entsprechender Form in den Datenstrukturen dieser Klasse 
                                                wenn etwas schief geht wird false zurückgegeben. Bspw. könnte es sein, dass ein Variablenname zweimal auftritt oder ähnliches. _status 
                                                wird entsprechend angepasst */
     bool readStep();                        /* liest die aktuelle S-Umgebung ein */

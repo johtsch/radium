@@ -1,9 +1,9 @@
 VAR:
-	IP dst 192.168.2.1;
-	IP src 192.168.2.116;
-	IP gateway 192.168.2.1;
-	HADDR hwdst "ff:ff:ff:ff:ff:ff";
-	HADDR hwsrc "7c:67:a2:07:e6:21";
+	IP dst = 192.168.2.1;
+	IP src = 192.168.2.116;
+	IP gateway = 192.168.2.1;
+	HADDR hwdst = "ff:ff:ff:ff:ff:ff";
+	HADDR hwsrc = "7c:67:a2:07:e6:21";
 :VAR
 
 IMPLEMENTATION:
@@ -15,14 +15,14 @@ IMPLEMENTATION:
 	
 		ASSEMBLE[0]:
 			L2:
-				SRC=hwsrc;
-				DST=hwdst;
+				SRC  = hwsrc;
+				DST  = hwdst;
 			:L2
 			L3[ARP]:
-				SENDER_IP=src;
-				SENDER_HW=hwsrc;
-				TARGET_IP=dst;
-				TARGET_HW=hwdst;
+				SENDER_IP  = src;
+				SENDER_HW  = hwsrc;
+				TARGET_IP  = dst;
+				TARGET_HW  = hwdst;
 				OPCODE=1;					# 1 == REQUEST; 2 == REPLY;
 			:L3
 		:ASSEMBLE	

@@ -1,13 +1,5 @@
 #include "lang.hpp"
 
-void showARP(const ARP*_arp){
-    std::cout << "ARP:" << std::endl;
-    std::cout << "sender_hw: " << _arp->sender_hw_addr() << std::endl;
-    std::cout << "sender_ip: " << _arp->sender_ip_addr() << std::endl;
-    std::cout << "target_hw: " << _arp->target_hw_addr() << std::endl;
-    std::cout << "target_ip: " << _arp->target_ip_addr() << std::endl;
-}
-
 Lang::Lang()
     : _sniffer(Sniffer(NetworkInterface::default_interface().name()))
 {
@@ -18,10 +10,8 @@ Lang::Lang()
     _running = false;
     _trigger = LANG_NOS;
     _forward = true;
-    _status = "Lang was initialized";
-    _handler.linkLang(this);
-    if(!_quiet)
-        std::cout << "Lang: Lang(): " << _status << std::endl;
+    setStatus("Lang()", "Lang was initialized");
+    _handler.linkLang(this);                    // dem Handler mitteilen, dass er sich um diese Interpreter-Instanz zu kümmern hat
 }
 
 Lang::Lang(std::string fpath)
@@ -32,9 +22,9 @@ Lang::Lang(std::string fpath)
     conf.set_promisc_mode(true);
     _sniffer = Sniffer(NetworkInterface::default_interface().name(), conf);
     _running = false;
-    _trigger = LANG_NOS;
     _forward = true;
     _handler.linkLang(this);
+
     if(_handler.loadFile(fpath))
         setStatus("Lang()", "Lang was initialized");
     else
@@ -47,6 +37,7 @@ bool Lang::loadFile(std::string fpath){
 }
 
 bool Lang::start(){
+    setStatus("start()", "Interpreter wird gestartet...");
     return (_running = _handler.init());                 // alle Variablen einlesen
 }
 
@@ -81,6 +72,7 @@ bool Lang::update(){
     for(int j = 0; j < _reaction.size(); ++j)
         _reaction[j].setTriggered(false);
     _reactime = false;
+
     /* Wenn Bedingung erfüllt, dann wird das nächste STEP/TRIGGER-Paar eingelesen, dazu werden die gespeicherten Umgebungen zurückgesetzt */
     if(trigger()){
         _trigger = LANG_NOS;

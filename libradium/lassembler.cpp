@@ -165,14 +165,33 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
     while((wrd=getNextWord(layer, wc)).length() > 0){
         /* eine Zuweisung wurde gefunden */
         if(wrd.find(LANG_C_ASSIGN, 0) != std::string::npos){
-            
-            if(wrd.length()==1)                     //Leerzeichen vor dem = sorgt dafür dass wrd nur aus = besteht, was natürlich falsch wäre
-                return false;
+
+            if(wrd.length() == 1){
+                size_t wct = wc;
+                std::string tmp = "";
+                /* das erste Wort vor dem = finden, das kein Leerzeichen war */
+                for(int i = 2; i < 10; ++i){
+                    wct = wc - i;
+
+                    if((int)wct < 0){     // wenn Gleichheitszeichen in Zeile das erste Wort war schlägt analyse fehl
+                        return false;
+                        }
+
+                    tmp = getNextWord(layer, wct);
+
+                    if(tmp != LANG_CTRL_CHAR){
+                        wrd = tmp + wrd;        // wrd ist zu diesem Zeitpunkt ja nur "="
+                        break;  
+                    }                        
+                }
+                if(tmp == LANG_CTRL_CHAR) {      // wenn mehr als zehn Steuerzeichen da waren auch fehler angeben
+                    return false;   }
+            }
 
             //Steuer- und Leerzeichen überspringen
             while((tmp = getNextWord(layer, wc))==LANG_CTRL_CHAR);
 
-            if(tmp.find(";") == std::string::npos)          // nur Zuweisungen der Art x=y; zulässig, KEINE mehrteiligen der Art x=y+z;
+            if(tmp.find(";") == std::string::npos)           // nur Zuweisungen der Art x=y; zulässig, KEINE mehrteiligen der Art x=y+z;
                 return false;
             lcommand ass;
             ass._cmd=LCOMMAND::ASSIGNMENT;
@@ -186,7 +205,7 @@ bool LAssembler::analyseLayer(const Lang *lang, std::string pro, std::string lay
                 if(!_eth.assign(ass, lang)){
                     return false;
                 }
-            }
+            } 
             else if(pro == LANG_PRO_ARP){
                 if(!_arp.assign(ass, lang)){
                     return false;

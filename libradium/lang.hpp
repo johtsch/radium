@@ -16,8 +16,6 @@
 #include "lreaction.hpp"
 #include "lproto.hpp"
 
-void showARP(const ARP*_arp);
-
 class Lang{
 
     friend class LFileHandler;                    /* Die LFileHandler-Klasse braucht Zugriff auf die Variablen der Lang-Klasse um diese zu initialisieren */
@@ -71,12 +69,10 @@ private:
     std::vector<Tins::IPv4Address>      _ipaddr;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs IPv4-ddresse */
     std::vector<port>                   _port;              /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Port */
     std::vector<byte>                   _byte;              /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Byte */
-    std::vector<short>                  _short;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Short */
+    std::vector<unsigned short>         _short;             /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Short */
     std::vector<int>                    _int;               /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Integer */
     std::vector<vtfile>                 _vtfile;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Integer */
     std::vector<vtdata>                 _vtdata;            /* speichert alle in der .lang-Datei verwendeten Variablen des Typs Integer */
-
-    //std::vector<unsigned char[1200]>    _packet;            /* die von assemble() erstellte pakete */
     
     unsigned int                        _intervall;         /* die Pausenzeit in ms nach einem Step vor seiner erneuten Ausführung */
 
@@ -85,7 +81,7 @@ private:
     std::vector<LAssembler>             _assembler;         /* speichert alle Assembler Umgebungen des aktuellen Steps */
     std::vector<LReaction>              _reaction;          /* speichert alle Reaction Umgebungen des aktuellen Steps */
     std::vector<LFilter>                _filter;            /* speichert alle Filter Umgebungen des aktuellen Triggers */  
-    std::string                         _trigger;           /* speichert den Inhalt der aktuellen T[n]-Umgebung der .lang-Datei */
+    std::string                         _trigger;           /* speichert den Inhalt der aktuellen T[n]-Umgebung der .lang-Datei lediglich zur Auswertung gedacht */
     short                               _triggernum;
     bool                                _reactime;          /* speichert ob eine Reaction ausgelöst wurde, also ob Zeit für eine Reaction ist */
 
