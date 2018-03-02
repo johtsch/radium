@@ -10,6 +10,7 @@
 #include <tins/tins.h>
 
 #include "lconst.hpp"
+#include "vtdata.hpp"
 
 using namespace Tins;
 
@@ -44,8 +45,8 @@ typedef unsigned short port;
 
 typedef unsigned char byte;
 
-typedef std::string vtfile;
-typedef std::string vtdata;
+typedef vtdata vtfile;
+//typedef std::string vtdata;
 
 //Funktionen
 
@@ -54,7 +55,7 @@ unsigned char getVarType(std::string type);
 std::string getVarTypeStr(unsigned char type);
 unsigned char getVarTypeVal(std::string val);
 
-std::string getFileData(std::string fpath);
+vtdata getFileData(std::string fpath);
 
 bool assignVal(HWAddress<6> *eth, std::string val);
 bool assignVal(IPv4Address *ip, std::string val);

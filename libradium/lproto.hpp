@@ -10,6 +10,7 @@
 #include "lcommand.hpp"
 #include "vartypes.hpp"
 #include "lconst.hpp"
+#include "vtdata.hpp"
 
 using namespace Tins;
 

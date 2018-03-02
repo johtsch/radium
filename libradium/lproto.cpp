@@ -1046,7 +1046,7 @@ bool LDHCP::assign(lcommand cmd, const Lang *lang){
     int i;
     IPv4Address ip;
     HWAddress<6> hw;
-    std::string str = "";
+    vtdata data;
 
     if(isExpl){
         t = (unsigned char)getVarTypeVal(cmd._args[1]);
@@ -1066,9 +1066,10 @@ bool LDHCP::assign(lcommand cmd, const Lang *lang){
             if(assignVal(&hw, cmd._args[1]) == false)
                 return false;
         }
-        if(t==VARTYPE_FILE | t==VARTYPE_DATA)
-        if(assignData(&str, cmd._args[1]) == false)
+        if(t==VARTYPE_FILE | t==VARTYPE_DATA){
+        if(assignData(&data, cmd._args[1]) == false)
             return false;
+        }
     }
         
     if(f == LDHCP::OPCODE){
@@ -1171,21 +1172,21 @@ bool LDHCP::assign(lcommand cmd, const Lang *lang){
     if(f == LDHCP::BPFILE){
         if(isExpl){
 
-            uint8_t d[str.length()+1];
+            uint8_t d[data.size()];
 
-            for(int i = 0; i < str.length(); ++i){
-                d[i] = str[i];
+            for(int i = 0; i < data.size(); ++i){
+                d[i] = data[i];
             }
-            /* nicht hierher gucken das ist nur ein hässlicher Hack weil immer noch ein extrazeichen angefügt wurde das nie zugewiesen wurde*/
-            d[str.length()] = 0;
+            /* nicht hierher gucken! das ist nur ein hässlicher Hack weil immer noch ein extrazeichen angefügt wurde das nie zugewiesen wurde*/
+            //d[str.length()] = 0;
             _dhcp.file(d);
         }else{
             std::string s; 
 
             if(lang->getVartype(cmd._args[1]) == VARTYPE_FILE)
-                s = lang->getFile(cmd._args[1]);
+                s = lang->getFile(cmd._args[1]).str(); 
             else
-                s = lang->getData(cmd._args[1]);
+                s = lang->getData(cmd._args[1]).str();
 
             uint8_t d[s.length()];
 
@@ -1368,23 +1369,38 @@ bool LRaw::assign(lcommand cmd, const Lang *lang){
     // herausfinden ob es eine Variable oder ein expliziter wert ist
     isExpl = (lang->getVartype(cmd._args[1]) == VARTYPE_INVALID);
 
-    std::string str = "";
+    vtdata data = "";
 
 
     if(isExpl){
-        if(assignData(&str, cmd._args[1]) == false)
+        if(assignData(&data, cmd._args[1]) == false)
             return false;
     }
         
     if(f == LRaw::DATA){
         if(isExpl)
-            _raw = RawPDU(str);
+            _raw = RawPDU(data.str());
         else
-            if(lang->getVartype(cmd._args[1]) == VARTYPE_FILE)
-                _raw = RawPDU(lang->getFile(cmd._args[1]));
-            else
-                _raw = RawPDU(lang->getData(cmd._args[1]));
+            if(lang->getVartype(cmd._args[1]) == VARTYPE_FILE){
 
+                data = lang->getFile(cmd._args[1]);
+                uint8_t d[data.size()];
+
+                for(int i = 0; i < data.size(); ++i)
+                    d[i] = data[i];
+
+                _raw =RawPDU(d, data.size());
+            }
+            else{
+
+                data = lang->getData(cmd._args[1]);
+                uint8_t d[data.size()];
+
+                for(int i = 0; i < data.size(); ++i)
+                    d[i] = data[i];
+
+                _raw =RawPDU(d, data.size());
+            }
         _set = true;
     }
 

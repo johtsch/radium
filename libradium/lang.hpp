@@ -15,6 +15,7 @@
 #include "lstep.hpp"
 #include "lreaction.hpp"
 #include "lproto.hpp"
+#include "vtdata.hpp"
 
 class Lang{
 

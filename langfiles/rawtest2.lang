@@ -1,7 +1,7 @@
 VAR:
-	HADDR hwtar "ff:ff:ff:ff:ff:ff";
-	HADDR hwsrc "7c:67:a2:07:e6:21"; 
-	FILE file "./aaa.dat";
+	HADDR hwtar = "ff:ff:ff:ff:ff:ff";
+	HADDR hwsrc = "7c:67:a2:07:e6:21"; 
+	FILE file = "./http2.raw";
 :VAR
 IMPLEMENTATION:
 	S[0]:

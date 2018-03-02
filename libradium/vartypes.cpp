@@ -85,19 +85,18 @@ unsigned char getVarTypeVal(std::string val){
     return VARTYPE_INVALID;
 }
 
-std::string getFileData(std::string fpath){
+vtdata getFileData(std::string fpath){
     std::ifstream f;
     f.open(fpath, std::ios::in);
     
     if(!f.good() | !f.is_open())
         return LANG_NOS;
 
-    std::string data;
+    vtdata data;
     char c;
     
-    while(f.get(c)){
-        if(c != 0)         
-            data += c;           
+    while(f.get(c)){    
+        data += c;           
     }
 
     // komischerweise wird ans ende der Datei immer noch ein '\n' angehängt (im Bytecode) deswegen letztes Zeichen entfernen
@@ -157,7 +156,7 @@ bool assignData(vtdata *dat, std::string val){
     return true;
 }
 
-bool assignFile(vtdata *fil, std::string val){
+bool assignFile(vtfile *fil, std::string val){
     if(!isValidFile(val))
         return false;
     *fil = val;
