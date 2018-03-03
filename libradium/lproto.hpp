@@ -26,13 +26,14 @@ public:
 
     const static std::string s_fields[];
     const static unsigned char s_type[];
-    enum s_fenum { SRC, DST };
+    enum s_fenum { SRC, DST, TYPE };
 
     bool assign(lcommand cmd, const Lang *lang);
     bool compare(const EthernetII *eth);
     bool isField(std::string field, int *which);
 
     HWAddress<6> getHW(std::string field);
+    short getShort(std::string field);
 
     void setEth(const EthernetII *eth){ _eth = *eth; }
     void inner_pdu(PDU *pdu){ _eth.inner_pdu(*pdu); };
@@ -40,6 +41,7 @@ public:
 
 private:
     EthernetII      _eth;
+    bool            _set;
 };
 
 class LARP{

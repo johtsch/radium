@@ -1,8 +1,8 @@
 #include "lproto.hpp"
 #include "lang.hpp"
 
-const std::string LEthernet::s_fields[] = { "SRC", "DST" };
-const unsigned char LEthernet::s_type[] = { VARTYPE_HADDR, VARTYPE_HADDR };
+const std::string LEthernet::s_fields[] = { "SRC", "DST", "TYPE" };
+const unsigned char LEthernet::s_type[] = { VARTYPE_HADDR, VARTYPE_HADDR, VARTYPE_SHORT };
 
 const std::string LARP::s_fields[] = { "SENDER_IP", "SENDER_HW", "TARGET_IP", "TARGET_HW", "OPCODE" };
 const unsigned char LARP::s_type[] = { VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_IPADDR, VARTYPE_HADDR, VARTYPE_BYTE };
@@ -71,6 +71,7 @@ PDU::PDUType LangProtocolToPDUType(std::string pro){
 void LEthernet::reset(){
     _eth.src_addr("00:00:00:00:00:00");
     _eth.dst_addr("00:00:00:00:00:00");
+    _set = false;
 }
 
 bool LEthernet::assign(lcommand cmd, const Lang *lang){
@@ -87,12 +88,18 @@ bool LEthernet::assign(lcommand cmd, const Lang *lang){
     // herausfinden ob es eine Variable oder ein expliziter wert ist
     isExpl = (lang->getVartype(cmd._args[1]) == VARTYPE_INVALID);
 
+    unsigned char t;
     HWAddress<6> addr;
+    short s;
 
-    if(isExpl){
+    t = (unsigned char)getVarTypeVal(cmd._args[1]);
+
+    if(t==VARTYPE_HADDR)
         if(assignVal(&addr, cmd._args[1]) == false)
             return false;
-    }
+    if(t==VARTYPE_SHORT)
+        if(assignVal(&s, cmd._args[1]) == false)
+            return false;
         
     if(f == LEthernet::SRC){
         if(isExpl)
@@ -100,11 +107,18 @@ bool LEthernet::assign(lcommand cmd, const Lang *lang){
         else
             _eth.src_addr(lang->getHW(cmd._args[1]));
     }
-    else{
+    else if(f == LEthernet::DST){
         if(isExpl)
             _eth.dst_addr(addr);
         else
             _eth.dst_addr(lang->getHW(cmd._args[1]));
+    }
+    else if(f == LEthernet::TYPE){
+        if(isExpl)  
+            _eth.payload_type(s);
+        else
+            _eth.payload_type(lang->getShort(cmd._args[1]));
+        _set = true;
     }
 
     return true;
@@ -116,6 +130,8 @@ bool LEthernet::compare(const EthernetII *eth){
         equal &= (_eth.src_addr() == eth->src_addr());
     if(_eth.dst_addr() != HWAddress<6>("00:00:00:00:00:00"))
         equal &= (_eth.dst_addr() == eth->dst_addr());
+    if(_set)
+        equal &= (_eth.payload_type() == eth->payload_type());
 
     return equal;
 }
