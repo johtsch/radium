@@ -1,7 +1,8 @@
 #include "lang.hpp"
 
 Lang::Lang()
-    : _sniffer(Sniffer(NetworkInterface::default_interface().name()))
+    : _sniffer(Sniffer(NetworkInterface::default_interface().name())),
+        _iface(NetworkInterface::default_interface())
 {
     SnifferConfiguration conf;
     conf.set_immediate_mode(true);
@@ -15,7 +16,8 @@ Lang::Lang()
 }
 
 Lang::Lang(std::string fpath)
-    : _sniffer(Sniffer(NetworkInterface::default_interface().name()))
+    : _sniffer(Sniffer(NetworkInterface::default_interface().name())),
+        _iface(NetworkInterface::default_interface())
 {
     SnifferConfiguration conf;
     conf.set_immediate_mode(true);
@@ -384,7 +386,7 @@ bool Lang::send(lcommand cmd){
     for(int i = 0; i < _assembler.size(); ++i){
         if(_assembler[i].getNum() == (short)atoi(cmd._args[0].c_str())){
             try{
-                _assembler[i].send();
+                _assembler[i].send(&_sender, &_iface);
             }
             catch(Tins::invalid_address e){
                 std::cout << "DIE UNGÜLTIGE ADRESSE : "; 

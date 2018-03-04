@@ -60,6 +60,9 @@ private:
     Sniffer                             _sniffer;           /* um reinkommende Pakete auszulesen */
     LFileHandler                        _handler;           /* kümmert sich um das Auslesen der Datei */
     
+    PacketSender                        _sender;            /* zuständig für das Versenden von Paketen */
+    NetworkInterface                    _iface;             
+
     bool                                _quiet;             /* Statusmeldungen werden nicht angezeigt (ist Standard) */
     bool                                _running;           /* dient unter Anderem dazu festzustellen ob die Datei überhaupt ausführbar ist. Sollte im init-Teil etwas schief gehen 
                                                                wird _running nie true */

@@ -23,11 +23,8 @@ bool LAssembler::setAssembler(std::string assemble, const Lang *lang){
     return analyse(lang);
 }
 
-bool LAssembler::send(){
-    NetworkInterface iface = NetworkInterface::default_interface();
-    PacketSender sender;
-
-    sender.send(*((PDU*)_eth.getEth()), iface);
+bool LAssembler::send(PacketSender *sender, NetworkInterface *iface){
+    sender->send(*((PDU*)_eth.getEth()), *iface);
     return true;
 }
 

@@ -57,6 +57,7 @@ IMPLEMENTATION:
 	:S
 	T[1]:
 		FILTER[PASS]:
+			SRC="ff:ff:ff:ff:ff:ff";
 		:FILTER	
 	:T
 :IMPLEMENTATION

@@ -25,7 +25,7 @@ public:
     void            setNum(short num){ _num = num; }
 
     short           getNum() const { return _num; }
-    bool            send();
+    bool            send(PacketSender *sender, NetworkInterface *iface);
 
     void            reset();
 
