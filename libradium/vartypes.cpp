@@ -100,7 +100,7 @@ vtdata getFileData(std::string fpath){
     }
 
     // komischerweise wird ans ende der Datei immer noch ein '\n' angehängt (im Bytecode) deswegen letztes Zeichen entfernen
-    data.pop_back();
+    //data.pop_back();
 
     f.close();
     return data;
